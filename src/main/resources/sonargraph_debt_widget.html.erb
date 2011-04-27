@@ -1,0 +1,62 @@
+<%
+m = measure('sonargraph_erosion_cost') 
+if m && m.value > 0
+%>
+<div class="dashbox">
+  <table>
+    <tr>
+    	<td width="200px"><h3>Structural Debt Index</h3></td>
+        <td width="150px"><h3>Cost of Structural Debt</h3></td>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#debt" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+		<td>
+        <span class="big">
+    		<%= format_measure('sonargraph_erosion_index') -%> <%= tendency_icon(measure('sonargraph_erosion_index')) %>
+    	</span>
+		</td>
+		<td>
+        <span class="big">
+    		<%= format_measure('sonargraph_erosion_cost', :suffix => ' ') -%> <%= configuration('sonargraph.currency', 'USD') %> <%= tendency_icon(measure('sonargraph_erosion_cost')) %>
+    	</span>
+		</td>
+    </tr>
+       <tr>
+        <td>
+              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%>
+        </td>
+    </tr>
+    <tr>
+        <td>
+              <%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)') -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+<% 
+elsif measure('sonargraph_erosion_index')
+%>  
+<div class="dashbox">
+  <table>
+    <tr>
+        <td width="350px"><h3>Structural Debt Index</h3></td>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#debt" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+		<td>
+        <span class="big">
+    		<%= format_measure('sonargraph_erosion_index') -%><%= tendency_icon(measure('sonargraph_erosion_index')) %>
+    	</span>
+		</td>
+    </tr>
+    </tr>
+    <tr>
+        <td>
+              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%> <%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)') -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+<% 
+end
+%>  

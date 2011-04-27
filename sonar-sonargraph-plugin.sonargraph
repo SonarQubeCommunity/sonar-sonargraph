@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context version="7.0.0.400">
+    <scope name="sonar-sonargraph-plugin" type="Project">
+        <architecture>
+            <element name="plugin" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.*" type="IncludeTypePattern"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Subsystem|xsd"/>
+            </element>
+            <element name="xsd" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.xsd.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+        </architecture>
+        <workspace>
+            <element name="src/main/java" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
+            <element name="target/generated-sources/jaxb" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
+            <element name="target/classes" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
+        </workspace>
+        <itemDefinition>
+            <item type="FixWarningFilterItem">
+                <property name="AssignedTo" value="Peter"/>
+                <property name="AttributeId" value="NumberOfStatements"/>
+                <property name="Comment" value="The Comment"/>
+                <property name="Date" value="2009-10-15 14:56:56"/>
+                <property name="ElementType" value="ObjectMethod"/>
+                <property name="Pattern" value="com.hello2morrow.sonarplugin.SonargraphSensor::analyseCycleGroups(com.hello2morrow.sonarplugin.xsd.ReportContext, Number){}"/>
+                <property name="Priority" value="Low"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value=""/>
+                <property name="Date" value="2010-03-18 15:44:24"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="com/hello2morrow/sonarplugin/xsd/*.java # com/hello2morrow/sonarplugin/xsd/*.java"/>
+            </item>
+        </itemDefinition>
+        <physical>
+            <element name="sonar-sonargraph-plugin" type="BuildUnit"/>
+        </physical>
+    </scope>
+    <scope name="External" type="External">
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="java.io.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.annotation.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.ref.*" type="ExcludeTypePattern"/>
+            <element name="java.math.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.channels.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.channels.spi.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.charset.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.charset.spi.*" type="ExcludeTypePattern"/>
+            <element name="java.text.*" type="ExcludeTypePattern"/>
+            <element name="java.util.*" type="ExcludeTypePattern"/>
+            <element name="java.util.jar.*" type="ExcludeTypePattern"/>
+            <element name="java.util.prefs.*" type="ExcludeTypePattern"/>
+            <element name="java.util.regex.*" type="ExcludeTypePattern"/>
+            <element name="java.util.zip.*" type="ExcludeTypePattern"/>
+        </element>
+        <architecture>
+            <element name="jaxb" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="javax.xml.bind.*" type="IncludeTypePattern"/>
+                    <element name="javax.xml.bind.annotation.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+            <element name="sonar-api" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="org.sonar.api.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.resources.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.batch.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.web.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.rules.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.measures.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.profiles.*" type="IncludeTypePattern"/>
+                    <element name="org.sonar.api.batch.maven.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+            <element name="logging" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="org.slf4j.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+            <element name="apache-commons" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="org.apache.commons.*" type="IncludeTypePattern"/>
+                    <element name="org.apache.commons.lang.*" type="IncludeTypePattern"/>
+                    <element name="org.apache.commons.configuration.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+        </architecture>
+    </scope>
+    <scope name="Global" type="Global">
+        <element name="Configuration" type="Configuration"/>
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+        </element>
+    </scope>
+</context>

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- projectContext -->
+    <xs:element name="reportContext">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xsdAttributeRoot" name="general" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdAttributeRoot" name="attributes" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdProjects" name="projects" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdBuildUnits" name="buildUnits" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdConfigurations" name="configurations" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdWorkspaces" name="workspaces" nillable="false" minOccurs="0" maxOccurs="1"/>
+                <xs:element type="xsdViolations" name="violations" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdConsistencyProblems" name="consistencyProblems" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdCycleGroups" name="cycleGroups" nillable="false" minOccurs="0" maxOccurs="1"/>
+                <xs:element type="xsdWarnings" name="warnings" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdTasks" name="tasks" nillable="false" minOccurs="1" maxOccurs="1"/>
+                <xs:element type="xsdExclusions" name="exclusions" nillable="false" minOccurs="2" maxOccurs="2"/>
+                <xs:element type="xsdMetrics" name="metrics" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        	<xs:attribute name="productFamily" type="xs:string" use="required"/>
+        	<xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="xsdProjects">
+        <xs:sequence>
+            <xs:element type="xsdAttributeRoot" name="project" nillable="false" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdBuildUnits">
+        <xs:sequence>
+            <xs:element type="xsdAttributeRoot" name="buildUnit" nillable="false" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdWorkspaces">
+        <xs:sequence>
+            <xs:element type="xsdWorkspace" name="workspace" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdConfigurations">
+        <xs:sequence>
+            <xs:element type="xsdConfiguration" name="configuration" nillable="false" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdConfiguration">
+        <xs:attribute name="project" type="xs:string" use="required"/>
+        <xs:attribute name="parseSourceFiles" type="xs:string" use="required"/>
+        <xs:attribute name="asymetricAnalysis" type="xs:string" use="required"/>
+        <xs:attribute name="namespaceWarnings" type="xs:string" use="required"/>
+        <xs:attribute name="sourcefileWarnings" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdWorkspace">
+        <xs:sequence>
+            <xs:element type="xsdWorkspacePath" name="workspacePath" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="project" type="xs:string" use="required"/>
+        <xs:attribute name="buildUnit" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdWorkspacePath">
+        <xs:attribute name="path" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdMetrics">		
+        <xs:sequence>
+            <xs:element type="xsdMetric" name="metric" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdMetric">
+        <xs:attribute name="sort" type="xsdMetricSort" default="ascending"/>
+        <xs:attribute name="projectDescription" type="xs:string"/>
+		<xs:attribute name="systemDescription" type="xs:string"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="standardName" type="xs:string"/>
+    </xs:complexType>
+    
+    <xs:simpleType name="xsdMetricSort">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ascending"/>
+            <xs:enumeration value="descending"/>
+        </xs:restriction>
+    </xs:simpleType> 
+    
+    <xs:complexType name="xsdAttributeRoot">
+        <xs:sequence>
+            <xs:element type="xsdAttribute" name="attribute" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="xsdAttributeCategory" name="attributeCategory" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    	<xs:attribute name="name" type="xs:string"/>
+    	<xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdTypeRelation">
+		<xs:sequence>
+	        <xs:element type="xsdAttribute" name="attribute" nillable="false" minOccurs="4" maxOccurs="unbounded"/>   
+			<xs:element type="xsdPosition" name="position" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="xsdAttributeCategory">
+         <xs:sequence>
+            <xs:element type="xsdAttribute" name="attribute" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdAttribute">
+        <xs:attribute name="description" type="xs:string"/>
+        <xs:attribute name="value" type="xs:string"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="standardName" type="xs:string"/>
+    </xs:complexType>
+
+	<xs:complexType name="xsdPosition">
+		<xs:attribute name="dir" type="xs:string"/>
+		<xs:attribute name="file" type="xs:string"/>
+		<xs:attribute name="line" type="xs:string" use="required"/>
+		<xs:attribute name="offset" type="xs:string"/>
+	</xs:complexType>
+	
+    <xs:complexType name="xsdViolations">
+        <xs:sequence>
+            <xs:element type="xsdArchitectureViolation" name="architectureViolations" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+        <xs:attribute name="numberOfTypeRelations" type="xs:string" use="required"/>
+        <xs:attribute name="numberOfViolatingTypeRelations" type="xs:string" use="required"/>
+        <xs:attribute name="percentageOfViolatingTypeRelations" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdCycleGroups">
+        <xs:sequence>
+            <xs:element type="xsdCycleGroup" name="cycleGroup" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdCycleGroup">
+        <xs:sequence>
+            <xs:element type="xsdCyclePath" name="cyclePath" nillable="false" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="elementScope" type="xs:string" use="required"/>
+        <xs:attribute name="parent" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+        <xs:attribute name="namedElementGroup" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdCyclePath">
+        <xs:sequence>
+            <xs:element type="xsdCyclePath" name="children" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOfEfferentTypeRelationsInCycleGroup" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+        <xs:attribute name="parent" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdArchitectureViolation">
+        <xs:sequence>
+            <xs:element type="xsdAttributeRoot" name="architectureViolation" nillable="true" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="xsdTypeRelation" name="typeRelation" nillable="true" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="explanation" type="xs:string" use="required"/>
+        <xs:attribute name="numberOfViolatingTypeRelations" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdConsistencyProblems">
+        <xs:sequence>
+            <xs:element type="xsdProblemCategory" name="categories" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdProblemCategory">
+        <xs:sequence>
+            <xs:element type="xsdElementProblem" name="elementProblems" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="xsdDependencyProblem" name="dependencyProblems" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="xsdElementProblem">
+        <xs:attribute name="scope" type="xs:string" use="required"/>
+        <xs:attribute name="element" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+    </xs:complexType>
+        
+    <xs:complexType name="xsdDependencyProblem">
+        <xs:attribute name="fromScope" type="xs:string" use="required"/>
+        <xs:attribute name="fromElement" type="xs:string" use="required"/>
+        <xs:attribute name="toScope" type="xs:string" use="required"/>
+        <xs:attribute name="toElement" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdWarnings">
+        <xs:sequence>
+            <xs:element type="xsdWarningsByAttributeGroup" name="warningsByAttributeGroup" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdWarningsByAttributeGroup">
+        <xs:sequence>
+            <xs:element type="xsdWarningsByAttribute" name="warningsByAttribute" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+        <xs:attribute name="attributeGroup" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdWarningsByAttribute">
+        <xs:sequence>
+            <xs:element type="xsdWarning" name="warning" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+        <xs:attribute name="attributeName" type="xs:string" use="required"/>
+        <xs:attribute name="attributeDescription" type="xs:string" use="required"/>
+        <xs:attribute name="warningInfo" type="xs:string"/>
+    </xs:complexType>
+
+	<xs:complexType name="xsdWarning">
+		<xs:sequence>
+	        <xs:element type="xsdAttribute" name="attribute" nillable="false" minOccurs="4" maxOccurs="unbounded"/>   
+			<xs:element type="xsdPosition" name="position" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="xsdTask">
+		<xs:sequence>
+	        <xs:element type="xsdAttribute" name="attribute" nillable="false" minOccurs="6" maxOccurs="unbounded"/>   
+			<xs:element type="xsdPosition" name="position" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+    <xs:complexType name="xsdTasks">
+        <xs:sequence>
+            <xs:element type="xsdTask" name="task" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="xsdExclusions">
+        <xs:sequence>
+            <xs:element type="xsdAttributeRoot" name="excludedType" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="numberOf" type="xs:string" use="required"/>
+    </xs:complexType>
+</xs:schema>
