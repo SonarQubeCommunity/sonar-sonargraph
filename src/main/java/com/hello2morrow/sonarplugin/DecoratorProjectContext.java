@@ -24,20 +24,20 @@ import org.sonar.api.measures.Metric;
 
 public class DecoratorProjectContext implements IProjectContext
 {
-    private DecoratorContext context;
-    
-    public DecoratorProjectContext(DecoratorContext context)
-    {
-        this.context = context;
-    }
-    
-    public Measure getMeasure(Metric metric)
-    {
-        return context.getMeasure(metric);
-    }
+  private final DecoratorContext context;
 
-    public void saveMeasure(Measure measure)
-    {
-        context.saveMeasure(measure);
-    }
+  public DecoratorProjectContext(DecoratorContext context)
+  {
+    this.context = context;
+  }
+
+  public Measure getMeasure(Metric metric)
+  {
+    return context.getMeasure(metric);
+  }
+
+  public void saveMeasure(Measure measure)
+  {
+    context.saveMeasure(measure);
+  }
 }

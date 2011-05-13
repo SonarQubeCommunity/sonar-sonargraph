@@ -18,59 +18,57 @@
 
 package com.hello2morrow.sonarplugin;
 
+import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import junit.framework.TestCase;
-
-import org.apache.commons.configuration.Configuration;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-
-import com.hello2morrow.sonarplugin.xsd.ReportContext;
-
 import org.sonar.api.resources.Resource;
 
-public class ReadTest extends TestCase {
-	private Mockery context = new Mockery();
+public class ReadTest extends TestCase
+{
+  private Mockery context = new Mockery();
 
-	public void testAnalyse() {
-		ReportContext report = SonargraphSensor.readSonargraphReport(
-				"src/test/resources/sonargraph-sonar-report.xml", "");
+  public void testAnalyse()
+  {
+    ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/sonargraph-sonar-report.xml", "");
 
-		assertNotNull(report);
+    assertNotNull(report);
 
-		SonargraphSensor sensor = new SonargraphSensor(null, null);
+    SonargraphSensor sensor = new SonargraphSensor(null, null);
 
-		final SensorContext sensorContext = context.mock(SensorContext.class);
+    final SensorContext sensorContext = context.mock(SensorContext.class);
 
-		context.checking(new Expectations() {
-			{
-				atLeast(1).of(sensorContext).saveMeasure(
-						with(any(Measure.class)));
-				allowing(sensorContext).getResource(with(any(Resource.class)));
-				will(returnValue(null));
-				allowing(sensorContext).getMeasure(with(any(Metric.class)));
-				will(returnValue(null));
-			}
-		});
+    context.checking(new Expectations()
+    {
+      {
+        atLeast(1).of(sensorContext).saveMeasure(with(any(Measure.class)));
+        allowing(sensorContext).getResource(with(any(Resource.class)));
+        will(returnValue(null));
+        allowing(sensorContext).getMeasure(with(any(Metric.class)));
+        will(returnValue(null));
+      }
+    });
 
-		final IProject project = context.mock(IProject.class);
-		
-		context.checking(new Expectations() {
-			{
-				allowing(project).getConfiguration();
-				allowing(project).getArtifactId();
-				will(returnValue("sonar-sonargraph-plugin"));
-				allowing(project).getName();
-				will(returnValue("sonargraph"));
-				allowing(project).getGroupId();
-				will(returnValue("org.codehaus.sonar-plugins"));
-			}
-		});
-		
-		sensor.analyse(project, sensorContext, report);
+    final IProject project = context.mock(IProject.class);
 
-		context.assertIsSatisfied();
-	}
+    context.checking(new Expectations()
+    {
+      {
+        allowing(project).getConfiguration();
+        allowing(project).getArtifactId();
+        will(returnValue("sonar-sonargraph-plugin"));
+        allowing(project).getName();
+        will(returnValue("sonargraph"));
+        allowing(project).getGroupId();
+        will(returnValue("org.codehaus.sonar-plugins"));
+      }
+    });
+
+    sensor.analyse(project, sensorContext, report);
+
+    context.assertIsSatisfied();
+  }
 }

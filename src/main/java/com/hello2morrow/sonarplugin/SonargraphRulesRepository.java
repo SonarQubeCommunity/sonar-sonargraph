@@ -18,35 +18,30 @@
 
 package com.hello2morrow.sonarplugin;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 
+import java.util.Arrays;
+import java.util.List;
+
 public final class SonargraphRulesRepository extends RuleRepository
 {
-    public final static Rule ARCH = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY,
-            "Sonargraph Architecture Violation");
-    public final static Rule THRESHOLD = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY,
-            "Sonargraph Threshold Violation");
-    public final static Rule DUPLICATES = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY,
-            "Sonargraph Duplicate Code Block");
-    public final static Rule CYCLE_GROUPS = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY,
-            "Sonargraph Cycle Group");
-    public final static Rule WORKSPACE = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY,
-            "Sonargraph Workspace Warning");
-    public final static Rule TASK = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY, "Sonargraph Task");
+  public final static Rule ARCH = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY, "Sonargraph Architecture Violation");
+  public final static Rule THRESHOLD = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY, "Sonargraph Threshold Violation");
+  public final static Rule DUPLICATES = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY, "Sonargraph Duplicate Code Block");
+  public final static Rule CYCLE_GROUPS = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY, "Sonargraph Cycle Group");
+  public final static Rule WORKSPACE = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY, "Sonargraph Workspace Warning");
+  public final static Rule TASK = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY, "Sonargraph Task");
 
-    public SonargraphRulesRepository()
-    {
-        super(SonargraphPluginBase.PLUGIN_KEY, Java.KEY);
-    }
+  public SonargraphRulesRepository()
+  {
+    super(SonargraphPluginBase.PLUGIN_KEY, Java.KEY);
+  }
 
-    @Override
-    public List<Rule> createRules()
-    {
-        return Arrays.asList(ARCH, THRESHOLD, TASK, CYCLE_GROUPS, WORKSPACE, DUPLICATES);
-    }
+  @Override
+  public List<Rule> createRules()
+  {
+    return Arrays.asList(ARCH, THRESHOLD, TASK, CYCLE_GROUPS, WORKSPACE, DUPLICATES);
+  }
 }

@@ -23,7 +23,7 @@ import org.sonar.api.measures.Metric;
 
 public interface IProjectContext
 {
-    Measure getMeasure(Metric metric);
-    
-    void saveMeasure(Measure measure);
+  Measure getMeasure(Metric metric);
+
+  void saveMeasure(Measure measure);
 }

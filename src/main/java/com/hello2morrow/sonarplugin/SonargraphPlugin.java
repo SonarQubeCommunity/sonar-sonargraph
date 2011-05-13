@@ -18,74 +18,67 @@
 
 package com.hello2morrow.sonarplugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.api.Extension;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is the container for all others extensions
  */
-@Properties
-({
-    @Property
-    (
-        key = SonargraphPluginBase.CURRENCY,
-        defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT,
-        name = "Currency",
-        project = false,
-        module = false,
-        global = true
-    ),
+@Properties({@Property(
+    key = SonargraphPluginBase.CURRENCY,
+    defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT,
+    name = "Currency",
+    project = false,
+    module = false,
+    global = true),
 
-    @Property
-    (
+    @Property(
         key = SonargraphPluginBase.COST_PER_INDEX_POINT,
         defaultValue = "" + SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT,
         name = "Cost per metric point of 'Structural debt index' (0 means not displayed)",
         project = false,
         module = false,
-        global = true
-    )
-})
+        global = true)})
 
 public final class SonargraphPlugin implements Plugin
 {
-    public String getKey()
-    {
-        return SonargraphPluginBase.PLUGIN_KEY;
-    }
+  public String getKey()
+  {
+    return SonargraphPluginBase.PLUGIN_KEY;
+  }
 
-    public String getName()
-    {
-        return SonargraphPluginBase.PLUGIN_KEY;
-    }
+  public String getName()
+  {
+    return SonargraphPluginBase.PLUGIN_KEY;
+  }
 
-    public String getDescription()
-    {
-        return "Plugin for hello2morrow's architecture and quality management tool Sonargraph";
-    }
+  public String getDescription()
+  {
+    return "Plugin for hello2morrow's architecture and quality management tool Sonargraph";
+  }
 
-    public List<Class<? extends Extension>> getExtensions()
-    {
-        List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
+  public List<Class<? extends Extension>> getExtensions()
+  {
+    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
 
-        list.add(SonargraphMetrics.class);
-        list.add(SonargraphSensor.class);
-        list.add(SonargraphRulesRepository.class);
-        list.add(SonargraphStructuralDebtDashboard.class);
-        list.add(SonargraphCyclicityDashboard.class);
-        list.add(SonargraphArchitectureDashboard.class);
-        list.add(SonargraphMetricAggregator.class);
-        return list;
-    }
+    list.add(SonargraphMetrics.class);
+    list.add(SonargraphSensor.class);
+    list.add(SonargraphRulesRepository.class);
+    list.add(SonargraphStructuralDebtDashboard.class);
+    list.add(SonargraphCyclicityDashboard.class);
+    list.add(SonargraphArchitectureDashboard.class);
+    list.add(SonargraphMetricAggregator.class);
+    return list;
+  }
 
-    @Override
-    public String toString()
-    {
-        return getKey();
-    }
+  @Override
+  public String toString()
+  {
+    return getKey();
+  }
 }

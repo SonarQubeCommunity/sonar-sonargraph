@@ -22,11 +22,11 @@ import org.apache.commons.configuration.Configuration;
 
 public interface IProject
 {
-    String getName();
+  String getName();
 
-    String getArtifactId();
+  String getArtifactId();
 
-    String getGroupId();
-    
-    Configuration getConfiguration();
+  String getGroupId();
+
+  Configuration getConfiguration();
 }

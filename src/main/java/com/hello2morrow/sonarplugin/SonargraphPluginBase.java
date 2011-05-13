@@ -23,36 +23,36 @@ import java.text.DecimalFormatSymbols;
 
 public final class SonargraphPluginBase
 {
-	public static final String COST_PER_INDEX_POINT = "sonargraph.index_point_cost";
-    public static final double COST_PER_INDEX_POINT_DEFAULT = 11;
-    public static final String CURRENCY = "sonargraph.currency";
-    public static final String CURRENCY_DEFAULT = "USD";
-	
-    public final static String PLUGIN_KEY = "Sonargraph";
-    
-    public final static String ARCH_RULE_KEY = "sonargraph.architecture";
-    public final static String THRESHOLD_RULE_KEY = "sonargraph.threshold";
-    public final static String DUPLICATE_RULE_KEY = "sonargraph.duplicate";
-    public final static String CYCLE_GROUP_RULE_KEY = "sonargraph.cyclegroup";
-    public final static String WORKSPACE_RULE_KEY = "sonargraph.workspace";
-    public final static String TASK_RULE_KEY = "sonargraph.open_task";
-    
-    public static final DecimalFormat FLOAT_FORMAT = new DecimalFormat("###,##0.00");
-    public static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("###,##0");
-    
-    static
-    {
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator(',');
-        symbols.setDecimalSeparator('.');
-        FLOAT_FORMAT.setDecimalFormatSymbols(symbols);
-        FLOAT_FORMAT.setParseIntegerOnly(false);
-        INTEGER_FORMAT.setDecimalFormatSymbols(symbols);
-        INTEGER_FORMAT.setParseIntegerOnly(true);
-    }
-    
-    private SonargraphPluginBase()
-    {
-        // Don't instantiate
-    }
+  public static final String COST_PER_INDEX_POINT = "sonargraph.index_point_cost";
+  public static final double COST_PER_INDEX_POINT_DEFAULT = 11;
+  public static final String CURRENCY = "sonargraph.currency";
+  public static final String CURRENCY_DEFAULT = "USD";
+
+  public final static String PLUGIN_KEY = "Sonargraph";
+
+  public final static String ARCH_RULE_KEY = "sonargraph.architecture";
+  public final static String THRESHOLD_RULE_KEY = "sonargraph.threshold";
+  public final static String DUPLICATE_RULE_KEY = "sonargraph.duplicate";
+  public final static String CYCLE_GROUP_RULE_KEY = "sonargraph.cyclegroup";
+  public final static String WORKSPACE_RULE_KEY = "sonargraph.workspace";
+  public final static String TASK_RULE_KEY = "sonargraph.open_task";
+
+  public static final DecimalFormat FLOAT_FORMAT = new DecimalFormat("###,##0.00");
+  public static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("###,##0");
+
+  static
+  {
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+    symbols.setGroupingSeparator(',');
+    symbols.setDecimalSeparator('.');
+    FLOAT_FORMAT.setDecimalFormatSymbols(symbols);
+    FLOAT_FORMAT.setParseIntegerOnly(false);
+    INTEGER_FORMAT.setDecimalFormatSymbols(symbols);
+    INTEGER_FORMAT.setParseIntegerOnly(true);
+  }
+
+  private SonargraphPluginBase()
+  {
+    // Don't instantiate
+  }
 }

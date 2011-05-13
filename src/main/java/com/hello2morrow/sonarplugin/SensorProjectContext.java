@@ -24,20 +24,20 @@ import org.sonar.api.measures.Metric;
 
 public final class SensorProjectContext implements IProjectContext
 {
-    private SensorContext context;
-    
-    public SensorProjectContext(SensorContext context)
-    {
-        this.context = context;
-    }
-    
-    public Measure getMeasure(Metric metric)
-    {
-        return context.getMeasure(metric);
-    }
+  private final SensorContext context;
 
-    public void saveMeasure(Measure measure)
-    {
-        context.saveMeasure(measure);
-    }
+  public SensorProjectContext(SensorContext context)
+  {
+    this.context = context;
+  }
+
+  public Measure getMeasure(Metric metric)
+  {
+    return context.getMeasure(metric);
+  }
+
+  public void saveMeasure(Measure measure)
+  {
+    context.saveMeasure(measure);
+  }
 }

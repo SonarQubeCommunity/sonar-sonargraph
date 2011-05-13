@@ -19,24 +19,24 @@
 package com.hello2morrow.sonarplugin;
 
 import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.Description;
+import org.sonar.api.web.RubyRailsWidget;
 
 @Description("Reports metrics on the structural debt of the project.")
 public final class SonargraphStructuralDebtDashboard extends AbstractRubyTemplate implements RubyRailsWidget
 {
-    public String getId()
-    {
-        return "sonargraph.structural_debt";
-    }
+  public String getId()
+  {
+    return "sonargraph.structural_debt";
+  }
 
-    public String getTitle()
-    {
-        return "Sonargraph Structural Debt Dashbox";
-    }
+  public String getTitle()
+  {
+    return "Sonargraph Structural Debt Dashbox";
+  }
 
-    protected String getTemplatePath()
-    {
-        return "/sonargraph_debt_widget.html.erb";
-    }
+  protected String getTemplatePath()
+  {
+    return "/sonargraph_debt_widget.html.erb";
+  }
 }

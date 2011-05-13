@@ -21,26 +21,32 @@ package com.hello2morrow.sonarplugin;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.resources.Project;
 
-public final class ProjectDelegate implements IProject {
-	private final Project project;
+public final class ProjectDelegate implements IProject
+{
+  private final Project project;
 
-	public ProjectDelegate(Project project) {
-		this.project = project;
-	}
+  public ProjectDelegate(Project project)
+  {
+    this.project = project;
+  }
 
-	public String getName() {
-		return project.getName();
-	}
+  public String getName()
+  {
+    return project.getName();
+  }
 
-	public String getArtifactId() {
-		return project.getArtifactId();
-	}
+  public String getArtifactId()
+  {
+    return project.getArtifactId();
+  }
 
-	public String getGroupId() {
-		return project.getGroupId();
-	}
+  public String getGroupId()
+  {
+    return project.getGroupId();
+  }
 
-	public Configuration getConfiguration() {
-		return project.getConfiguration();
-	}
+  public Configuration getConfiguration()
+  {
+    return project.getConfiguration();
+  }
 }
