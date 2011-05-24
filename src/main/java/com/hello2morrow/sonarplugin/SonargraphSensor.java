@@ -43,12 +43,10 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -97,8 +95,7 @@ public final class SonargraphSensor implements Sensor
 
   private final Map<String, Number> buildUnitMetrics = new HashMap<String, Number>();
   private SensorContext sensorContext;
-  private final RuleFinder rulesManager;
-  private final RulesProfile rulesProfile;
+  private final RuleFinder ruleFinder;
   private double indexCost = SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT;
 
   protected static ReportContext readSonargraphReport(String fileName, String packaging)
@@ -148,17 +145,12 @@ public final class SonargraphSensor implements Sensor
     return result;
   }
 
-  public SonargraphSensor(RuleFinder rulesManager, RulesProfile rulesProfile)
+  public SonargraphSensor(RuleFinder ruleFinder)
   {
-    this.rulesManager = rulesManager;
-    this.rulesProfile = rulesProfile;
-    if (rulesManager == null)
+    this.ruleFinder = ruleFinder;
+    if (ruleFinder == null)
     {
       LOG.warn("No RulesManager provided to sensor");
-    }
-    if (rulesProfile == null)
-    {
-      LOG.warn("No RulesProfile given to sensor");
     }
   }
 
@@ -292,7 +284,10 @@ public final class SonargraphSensor implements Sensor
 
       v.setMessage(msg);
       v.setLineId(line);
-      v.setSeverity(priority);
+      if (priority != null)
+      {
+        v.setSeverity(priority);
+      }
       sensorContext.saveViolation(v);
     }
   }
@@ -337,10 +332,9 @@ public final class SonargraphSensor implements Sensor
   @SuppressWarnings("unchecked")
   private void handlePackageCycleGroup(XsdCycleGroup group)
   {
-    Rule rule = rulesManager.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
-    ActiveRule activeRule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
 
-    if (rule != null && activeRule != null)
+    if (rule != null)
     {
       for (XsdCyclePath pathElement : group.getCyclePath())
       {
@@ -357,7 +351,6 @@ public final class SonargraphSensor implements Sensor
 
           v.setMessage("Package participates in a cycle group");
           v.setLineId(1);
-          v.setSeverity(activeRule.getSeverity());
           sensorContext.saveViolation(v);
         }
       }
@@ -366,8 +359,7 @@ public final class SonargraphSensor implements Sensor
 
   private int handleArchitectureViolations(XsdViolations violations, String buildUnitName)
   {
-    Rule rule = rulesManager.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
-    ActiveRule activeRule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
+    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
     int count = 0;
 
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations())
@@ -387,14 +379,14 @@ public final class SonargraphSensor implements Sensor
         {
           for (XsdPosition pos : rel.getPosition())
           {
-            if (rule != null && activeRule != null)
+            if (rule != null)
             {
               String relFileName = pos.getFile();
 
               if (relFileName != null)
               {
                 String fqName = relativeFileNameToFqName(relFileName);
-                saveViolation(rule, activeRule.getSeverity(), fqName, Integer.valueOf(pos.getLine()), msg);
+                saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
               }
             }
             count++;
@@ -406,10 +398,6 @@ public final class SonargraphSensor implements Sensor
     if (rule == null)
     {
       LOG.error("Sonargraph architecture rule not found");
-    }
-    else if (activeRule == null)
-    {
-      LOG.warn("Sonargraph architecture rule deactivated");
     }
     return count;
   }
@@ -440,16 +428,10 @@ public final class SonargraphSensor implements Sensor
       {
         continue;
       }
-      Rule rule = rulesManager.findByKey(SonargraphPluginBase.PLUGIN_KEY, key);
-      ActiveRule activeRule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
+      Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, key);
       if (rule == null)
       {
         LOG.error("Sonargraph threshold rule not found");
-        continue;
-      }
-      if (activeRule == null)
-      {
-        LOG.info("Sonargraph threshold rule deactivated");
         continue;
       }
       for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute())
@@ -474,7 +456,7 @@ public final class SonargraphSensor implements Sensor
                 {
                   String fqName = relativeFileNameToFqName(relFileName);
 
-                  saveViolation(rule, activeRule.getSeverity(), fqName, Integer.valueOf(pos.getLine()), msg);
+                  saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
                 }
               }
             }
@@ -488,7 +470,7 @@ public final class SonargraphSensor implements Sensor
                 String fileName = getAttribute(warning.getAttribute(), "Element");
                 String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
 
-                saveViolation(rule, activeRule.getSeverity(), fqName, 1, msg);
+                saveViolation(rule, null, fqName, 1, msg);
               }
             }
           }
@@ -523,20 +505,13 @@ public final class SonargraphSensor implements Sensor
   {
     Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
 
-    Rule rule = rulesManager.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
+    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
     int count = 0;
 
     if (rule == null)
     {
       LOG.error("Sonargraph task rule not found");
       return 0;
-    }
-
-    ActiveRule activeRule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
-
-    if (activeRule == null)
-    {
-      LOG.info("Sonargraph task rule not activated");
     }
 
     priorityMap.put("Low", RulePriority.INFO);
@@ -592,7 +567,7 @@ public final class SonargraphSensor implements Sensor
               {
                 line = 1;
               }
-              if (activeRule != null)
+              if (rule != null)
               {
                 saveViolation(rule, priorityMap.get(priority), fqName, line, description);
               }
@@ -639,7 +614,7 @@ public final class SonargraphSensor implements Sensor
     double violatingRefs = 0;
     double taskRefs = 0;
 
-    if (rulesManager != null && rulesProfile != null)
+    if (ruleFinder != null)
     {
       violatingRefs = handleArchitectureViolations(violations, buildUnitName);
       handleWarnings(report.getWarnings(), buildUnitName);

@@ -23,9 +23,7 @@ import junit.framework.TestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.RuleFinder;
 
 public class ReadTest extends TestCase
 {
@@ -33,24 +31,33 @@ public class ReadTest extends TestCase
 
   public void testAnalyse()
   {
-    ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/sonargraph-sonar-report.xml", "");
+    ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/infoglue21-report.xml", "");
 
     assertNotNull(report);
 
-    SonargraphSensor sensor = new SonargraphSensor(null, null);
-
-    final SensorContext sensorContext = context.mock(SensorContext.class);
+    final RuleFinder ruleFinder = context.mock(RuleFinder.class);
 
     context.checking(new Expectations()
     {
       {
-        atLeast(1).of(sensorContext).saveMeasure(with(any(Measure.class)));
-        allowing(sensorContext).getResource(with(any(Resource.class)));
-        will(returnValue(null));
-        allowing(sensorContext).getMeasure(with(any(Metric.class)));
-        will(returnValue(null));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.TASK));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.CYCLE_GROUPS));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.DUPLICATES));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.ARCH));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.THRESHOLD));
+        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY);
+        will(returnValue(SonargraphRulesRepository.WORKSPACE));
       }
     });
+
+    SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
+
+    final SensorContext sensorContext = new TestContext();
 
     final IProject project = context.mock(IProject.class);
 
@@ -59,9 +66,9 @@ public class ReadTest extends TestCase
       {
         allowing(project).getConfiguration();
         allowing(project).getArtifactId();
-        will(returnValue("sonar-sonargraph-plugin"));
+        will(returnValue("infoglue21"));
         allowing(project).getName();
-        will(returnValue("sonargraph"));
+        will(returnValue("infoglue"));
         allowing(project).getGroupId();
         will(returnValue("org.codehaus.sonar-plugins"));
       }
