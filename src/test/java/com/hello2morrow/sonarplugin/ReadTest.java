@@ -20,62 +20,59 @@ package com.hello2morrow.sonarplugin;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import junit.framework.TestCase;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.apache.commons.configuration.Configuration;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
+import static org.mockito.Mockito.*;
 
 public class ReadTest extends TestCase
 {
-  private Mockery context = new Mockery();
-
   public void testAnalyse()
   {
     ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/infoglue21-report.xml", "");
 
     assertNotNull(report);
 
-    final RuleFinder ruleFinder = context.mock(RuleFinder.class);
+    final RuleFinder ruleFinder = mock(RuleFinder.class);
 
-    context.checking(new Expectations()
-    {
-      {
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.TASK));
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.CYCLE_GROUPS));
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.DUPLICATES));
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.ARCH));
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.THRESHOLD));
-        allowing(ruleFinder).findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY);
-        will(returnValue(SonargraphRulesRepository.WORKSPACE));
-      }
-    });
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).thenReturn(SonargraphRulesRepository.TASK);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).thenReturn(SonargraphRulesRepository.CYCLE_GROUPS);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).thenReturn(SonargraphRulesRepository.DUPLICATES);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).thenReturn(SonargraphRulesRepository.ARCH);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).thenReturn(SonargraphRulesRepository.THRESHOLD);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).thenReturn(SonargraphRulesRepository.WORKSPACE);
 
     SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
 
-    final SensorContext sensorContext = new SensorContextImpl();
+    final SensorContext sensorContext = mock(SensorContext.class);
 
-    final IProject project = context.mock(IProject.class);
-
-    context.checking(new Expectations()
-    {
-      {
-        allowing(project).getConfiguration();
-        allowing(project).getArtifactId();
-        will(returnValue("infoglue21"));
-        allowing(project).getName();
-        will(returnValue("infoglue"));
-        allowing(project).getGroupId();
-        will(returnValue("org.codehaus.sonar-plugins"));
+    when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
+     public Object answer(InvocationOnMock invocation) {
+         Object[] args = invocation.getArguments();
+         return args[0];
+     }
+    });
+    when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object arg = invocation.getArguments()[0];
+        Measure result = new Measure((Metric) arg);
+        result.setValue(0.0);
+        return result;
       }
     });
+    final IProject project = mock(IProject.class);
+    final Configuration config = mock(Configuration.class);
+
+    when(project.getConfiguration()).thenReturn(config);
+    when(project.getArtifactId()).thenReturn("infoglue21");
+    when(project.getName()).thenReturn("infoglue");
+    when(project.getGroupId()).thenReturn("org.codehaus.sonar-plugins");
 
     sensor.analyse(project, sensorContext, report);
-
-    context.assertIsSatisfied();
   }
 }
