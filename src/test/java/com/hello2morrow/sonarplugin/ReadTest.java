@@ -57,7 +57,7 @@ public class ReadTest extends TestCase
 
     SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
 
-    final SensorContext sensorContext = new TestContext();
+    final SensorContext sensorContext = new SensorContextImpl();
 
     final IProject project = context.mock(IProject.class);
 

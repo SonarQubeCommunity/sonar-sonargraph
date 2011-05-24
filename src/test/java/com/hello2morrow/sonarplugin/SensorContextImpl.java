@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-public class TestContext implements SensorContext
+public class SensorContextImpl implements SensorContext
 {
   /**
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
