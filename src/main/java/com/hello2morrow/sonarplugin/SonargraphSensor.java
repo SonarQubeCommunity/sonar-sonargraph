@@ -567,10 +567,7 @@ public final class SonargraphSensor implements Sensor
               {
                 line = 1;
               }
-              if (rule != null)
-              {
-                saveViolation(rule, priorityMap.get(priority), fqName, line, description);
-              }
+              saveViolation(rule, priorityMap.get(priority), fqName, line, description);
             }
             count++;
           }
