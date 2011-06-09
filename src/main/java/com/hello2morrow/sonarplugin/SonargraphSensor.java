@@ -667,7 +667,14 @@ public final class SonargraphSensor implements Sensor
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
-    if (buildUnitList.size() > 0)
+    if (buildUnitList.size() == 1)
+    {
+      XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
+      String buName = getBuildUnitName(sonarBuildUnit.getName());
+
+      analyse(project, sonarBuildUnit, buName, report);
+    }
+    else if (buildUnitList.size() > 1)
     {
       boolean foundMatchingBU = false;
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList)
