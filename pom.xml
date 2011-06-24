@@ -12,7 +12,7 @@
   <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0</version>
   
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
@@ -104,9 +104,9 @@
     </pluginRepository>
   </pluginRepositories>
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/sonargraph</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/sonargraph</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
+    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/tags/sonar-sonargraph-plugin-3.0.0</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-sonargraph-plugin-3.0.0</developerConnection>
+    <url>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-sonargraph-plugin-3.0.0</url>
   </scm>
 
   <build>
