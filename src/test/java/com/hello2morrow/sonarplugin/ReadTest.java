@@ -69,9 +69,8 @@ public class ReadTest extends TestCase
     final Configuration config = mock(Configuration.class);
 
     when(project.getConfiguration()).thenReturn(config);
-    when(project.getArtifactId()).thenReturn("infoglue21");
+    when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
-    when(project.getGroupId()).thenReturn("org.codehaus.sonar-plugins");
 
     sensor.analyse(project, sensorContext, report);
   }

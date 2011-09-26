@@ -25,6 +25,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import java.util.Arrays;
@@ -150,7 +151,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
   @Override
   public boolean shouldDecorateResource(Resource resource)
   {
-    return Arrays.asList(Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE, Resource.QUALIFIER_VIEW, Resource.QUALIFIER_SUBVIEW).contains(resource.getQualifier());
+    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(resource.getQualifier());
   }
 
 }

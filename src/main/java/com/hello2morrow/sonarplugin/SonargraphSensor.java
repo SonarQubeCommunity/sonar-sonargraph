@@ -700,8 +700,10 @@ public final class SonargraphSensor implements Sensor
 
   private boolean buildUnitMatchesAnalyzedProject(String buName, IProject project)
   {
-    final String artifactId = project.getArtifactId();
-    final String groupId = project.getGroupId();
+    final String[] elements = project.getKey().split(":");
+    assert elements.length >= 1 : "project.getKey() must not return an empty string";
+    final String artifactId = elements[elements.length-1];
+    final String groupId = elements[0];
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
 

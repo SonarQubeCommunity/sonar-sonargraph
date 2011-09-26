@@ -24,9 +24,7 @@ public interface IProject
 {
   String getName();
 
-  String getArtifactId();
-
-  String getGroupId();
+  String getKey();
 
   Configuration getConfiguration();
 }

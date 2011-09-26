@@ -35,14 +35,9 @@ public final class ProjectDelegate implements IProject
     return project.getName();
   }
 
-  public String getArtifactId()
+  public String getKey()
   {
-    return project.getArtifactId();
-  }
-
-  public String getGroupId()
-  {
-    return project.getGroupId();
+    return project.getKey();
   }
 
   public Configuration getConfiguration()
