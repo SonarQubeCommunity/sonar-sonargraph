@@ -97,6 +97,7 @@ public final class SonargraphSensor implements Sensor
   private SensorContext sensorContext;
   private final RuleFinder ruleFinder;
   private double indexCost = SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT;
+  private final Configuration configuration;
 
   protected static ReportContext readSonargraphReport(String fileName, String packaging)
   {
@@ -145,8 +146,9 @@ public final class SonargraphSensor implements Sensor
     return result;
   }
 
-  public SonargraphSensor(RuleFinder ruleFinder)
+  public SonargraphSensor(RuleFinder ruleFinder, Configuration configuration)
   {
+    this.configuration = configuration;
     this.ruleFinder = ruleFinder;
     if (ruleFinder == null)
     {
@@ -726,6 +728,8 @@ public final class SonargraphSensor implements Sensor
 
   public String getReportFileName(Project project)
   {
-    return project.getFileSystem().getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+    String defaultLocation = project.getFileSystem().getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+
+    return configuration.getString("sonargraph.report.filename", defaultLocation);
   }
 }

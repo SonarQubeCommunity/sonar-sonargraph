@@ -47,14 +47,22 @@ public class ReadTest extends TestCase
     when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).thenReturn(SonargraphRulesRepository.THRESHOLD);
     when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).thenReturn(SonargraphRulesRepository.WORKSPACE);
 
-    SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
+    final Configuration config = mock(Configuration.class);
+
+    when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
+      public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+        return (String) invocationOnMock.getArguments()[1];
+      }
+    });
+
+    SonargraphSensor sensor = new SonargraphSensor(ruleFinder, config);
 
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
      public Object answer(InvocationOnMock invocation) {
-         Object[] args = invocation.getArguments();
-         return args[0];
+       Object[] args = invocation.getArguments();
+       return args[0];
      }
     });
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
@@ -66,7 +74,6 @@ public class ReadTest extends TestCase
       }
     });
     final IProject project = mock(IProject.class);
-    final Configuration config = mock(Configuration.class);
 
     when(project.getConfiguration()).thenReturn(config);
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
