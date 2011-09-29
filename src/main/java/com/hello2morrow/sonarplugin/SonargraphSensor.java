@@ -122,10 +122,9 @@ public final class SonargraphSensor implements Sensor
     {
       if (!packaging.equalsIgnoreCase("pom"))
       {
-        LOG.warn("Cannot open Sonargraph report: " + fileName + ".");
-        LOG.warn("  Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> " + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
-        LOG.warn("  Is the project part of the Sonargraph architecture description?");
-        LOG.warn("  Did you set the 'aggregate' to true (must be false)?");
+        LOG.error("Cannot open Sonargraph report: " + fileName + ".");
+        LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> " + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
+        LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? (You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
       }
     }
     finally
@@ -203,6 +202,7 @@ public final class SonargraphSensor implements Sensor
     if (num == null)
     {
       LOG.error("Cannot find metric <" + key + "> in generated report");
+      LOG.error("Probably you forgot to set the prepareForSonar option to true (see documentation)");
       return 0.0;
     }
     return num.doubleValue();
