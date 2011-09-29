@@ -709,7 +709,7 @@ public final class SonargraphSensor implements Sensor
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
 
-    return buName.equals(artifactId) || buName.equals(longName) || buName.equals(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
+    return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName) || buName.equalsIgnoreCase(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
   }
 
   public void analyse(Project project, SensorContext sensorContext)
@@ -718,7 +718,10 @@ public final class SonargraphSensor implements Sensor
     LOG.info("Execute sonar-sonargraph-plugin for " + project.getName());
     LOG.info("------------------------------------------------------------------------");
 
-    ReportContext report = readSonargraphReport(getReportFileName(project), project.getPackaging());
+    String reportPath = getReportFileName(project);
+
+    LOG.info("Reading Sonargraph metrics report from: "+reportPath);
+    ReportContext report = readSonargraphReport(reportPath, project.getPackaging());
 
     if (report != null)
     {
@@ -730,6 +733,6 @@ public final class SonargraphSensor implements Sensor
   {
     String defaultLocation = project.getFileSystem().getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
 
-    return configuration.getString("sonargraph.report.filename", defaultLocation);
+    return configuration.getString("sonar.sonargraph.report.path", defaultLocation);
   }
 }
