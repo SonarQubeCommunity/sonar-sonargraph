@@ -48,7 +48,7 @@
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>2.6</sonar.version>
+    <sonar.version>2.10</sonar.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
