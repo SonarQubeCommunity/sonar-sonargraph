@@ -18,6 +18,9 @@
 
 package com.hello2morrow.sonarplugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
@@ -28,9 +31,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import java.util.Arrays;
-import java.util.List;
-
 public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorator
 {
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphMetricAggregator.class);
@@ -39,7 +39,13 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
   @DependedUpon
   public List<Metric> generatesMetrics()
   {
-    return Arrays.asList(SonargraphMetrics.VIOLATING_TYPES, SonargraphMetrics.EROSION_INDEX, SonargraphMetrics.CYCLIC_PACKAGES, SonargraphMetrics.CYCLICITY, SonargraphMetrics.EROSION_COST, SonargraphMetrics.EROSION_REFS, SonargraphMetrics.EROSION_TYPES, SonargraphMetrics.IGNORED_VIOLATONS, SonargraphMetrics.IGNORED_WARNINGS, SonargraphMetrics.INSTRUCTIONS, SonargraphMetrics.INTERNAL_PACKAGES, SonargraphMetrics.INTERNAL_TYPES, SonargraphMetrics.JAVA_FILES, SonargraphMetrics.TASKS, SonargraphMetrics.TASK_REFS, SonargraphMetrics.THRESHOLD_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS, SonargraphMetrics.ALL_WARNINGS, SonargraphMetrics.CYCLE_WARNINGS, SonargraphMetrics.WORKSPACE_WARNINGS, SonargraphMetrics.TYPE_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES, SonargraphMetrics.ARCHITECTURE_VIOLATIONS, SonargraphMetrics.UNASSIGNED_TYPES);
+    return Arrays.asList(SonargraphMetrics.VIOLATING_TYPES, SonargraphMetrics.EROSION_INDEX, SonargraphMetrics.CYCLIC_PACKAGES,
+        SonargraphMetrics.CYCLICITY, SonargraphMetrics.EROSION_COST, SonargraphMetrics.EROSION_REFS, SonargraphMetrics.EROSION_TYPES,
+        SonargraphMetrics.IGNORED_VIOLATONS, SonargraphMetrics.IGNORED_WARNINGS, SonargraphMetrics.INSTRUCTIONS,
+        SonargraphMetrics.INTERNAL_PACKAGES, SonargraphMetrics.INTERNAL_TYPES, SonargraphMetrics.JAVA_FILES, SonargraphMetrics.TASKS,
+        SonargraphMetrics.TASK_REFS, SonargraphMetrics.THRESHOLD_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS,
+        SonargraphMetrics.ALL_WARNINGS, SonargraphMetrics.CYCLE_WARNINGS, SonargraphMetrics.WORKSPACE_WARNINGS,
+        SonargraphMetrics.TYPE_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES, SonargraphMetrics.UNASSIGNED_TYPES);
   }
 
   @Override
@@ -65,9 +71,17 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     double biggestCycleGroupSize = -1.0;
     double highestACD = -1.0;
     double highestNCCD = -1.0;
-
+    double architectureViolations = 0.0;
+    
     for (DecoratorContext childContext : context.getChildren())
     {
+      /** architecture violations are retrieved directly from the top level report attribute 
+       * "NumberOfViolatingReferences" and saved to the top-level context */
+      Measure violations = childContext.getMeasure(SonargraphMetrics.ARCHITECTURE_VIOLATIONS);
+      if (null != violations && violations.getValue() > 0) {
+        architectureViolations = violations.getValue();  
+      }
+       
       Measure cycleGroup = childContext.getMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP);
       Measure acd = childContext.getMeasure(SonargraphMetrics.ACD);
       Measure nccd = childContext.getMeasure(SonargraphMetrics.NCCD);
@@ -97,6 +111,9 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
         highestNCCD = localHighestNCCD.getValue();
       }
     }
+    
+    context.saveMeasure(SonargraphMetrics.ARCHITECTURE_VIOLATIONS, architectureViolations);
+    
     if (biggestCycleGroupSize >= 0.0 && context.getMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP) == null)
     {
       context.saveMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
@@ -130,6 +147,8 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     }
 
     Measure violatingTypes = context.getMeasure(SonargraphMetrics.VIOLATING_TYPES);
+    LOG.info("Number of violating types: " + violatingTypes);
+    
     Measure internalTypes = context.getMeasure(SonargraphMetrics.INTERNAL_TYPES);
     Measure unassignedTypes = context.getMeasure(SonargraphMetrics.UNASSIGNED_TYPES);
 

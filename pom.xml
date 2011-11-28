@@ -39,6 +39,10 @@
       <id>nwe_h2m</id>
       <name>Norman Wenzel</name>
     </developer>
+    <developer>
+      <id>ingmarkellner</id>
+      <name>Ingmar Kellner</name>
+    </developer>
   </developers>
   
   <issueManagement>
