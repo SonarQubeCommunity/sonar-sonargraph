@@ -44,7 +44,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
         SonargraphMetrics.IGNORED_WARNINGS, SonargraphMetrics.INSTRUCTIONS, SonargraphMetrics.INTERNAL_PACKAGES,
         SonargraphMetrics.INTERNAL_TYPES, SonargraphMetrics.JAVA_FILES, SonargraphMetrics.TASKS,
         SonargraphMetrics.TASK_REFS, SonargraphMetrics.THRESHOLD_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS,
-        SonargraphMetrics.ALL_WARNINGS, SonargraphMetrics.CYCLE_WARNINGS, SonargraphMetrics.WORKSPACE_WARNINGS,
+        SonargraphMetrics.ALL_WARNINGS, /* SonargraphMetrics.CYCLE_WARNINGS, */ SonargraphMetrics.WORKSPACE_WARNINGS,
         SonargraphMetrics.TYPE_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES,
         SonargraphMetrics.UNASSIGNED_TYPES);
   }
@@ -68,15 +68,21 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     double highestACD = -1.0;
     double highestNCCD = -1.0;
     double architectureViolations = 0.0;
+    double numberOfCycleWarnings = 0.0;
 
     for (DecoratorContext childContext : context.getChildren()) {
       /**
-       * architecture violations are retrieved directly from the top level report attribute "NumberOfViolatingReferences" and saved to the
+       * architecture violations and cycle warnings are retrieved directly from the top level report attribute "NumberOfViolatingReferences" and saved to the
        * top-level context
        */
       Measure violations = childContext.getMeasure(SonargraphMetrics.ARCHITECTURE_VIOLATIONS);
       if (null != violations && violations.getValue() > 0) {
         architectureViolations = violations.getValue();
+      }
+
+      Measure cycleWarningMetric = childContext.getMeasure(SonargraphMetrics.CYCLE_WARNINGS);
+      if (null != cycleWarningMetric && cycleWarningMetric.getValue() > 0) {
+        numberOfCycleWarnings = cycleWarningMetric.getValue();
       }
 
       Measure cycleGroup = childContext.getMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP);
@@ -102,6 +108,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
       }
     }
 
+    context.saveMeasure(SonargraphMetrics.CYCLE_WARNINGS, numberOfCycleWarnings);
     context.saveMeasure(SonargraphMetrics.ARCHITECTURE_VIOLATIONS, architectureViolations);
 
     if (biggestCycleGroupSize >= 0.0 && context.getMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP) == null) {
@@ -151,6 +158,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
 
   @Override
   public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
+    LOG.info("Checking for resource type: " + resource.getQualifier());
     return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
         resource.getQualifier());
   }

@@ -80,6 +80,6 @@ public class ReadTest extends TestCase
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
 
-    sensor.analyse(project, sensorContext, report);
+    sensor.analyseReport(project, sensorContext, report);
   }
 }
