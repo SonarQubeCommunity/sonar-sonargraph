@@ -19,6 +19,8 @@
 package com.hello2morrow.sonarplugin;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
+import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+
 import junit.framework.TestCase;
 import org.apache.commons.configuration.Configuration;
 import org.mockito.invocation.InvocationOnMock;
@@ -30,27 +32,33 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import static org.mockito.Mockito.*;
 
-public class ReadTest extends TestCase
-{
+public class ReadTest extends TestCase {
+
   @SuppressWarnings("rawtypes")
-  public void testAnalyse()
-  {
+  public void testAnalyse() {
     ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/infoglue21-report.xml", "");
 
     assertNotNull(report);
 
     final RuleFinder ruleFinder = mock(RuleFinder.class);
 
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).thenReturn(SonargraphRulesRepository.TASK);
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).thenReturn(SonargraphRulesRepository.CYCLE_GROUPS);
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).thenReturn(SonargraphRulesRepository.DUPLICATES);
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).thenReturn(SonargraphRulesRepository.ARCH);
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).thenReturn(SonargraphRulesRepository.THRESHOLD);
-    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).thenReturn(SonargraphRulesRepository.WORKSPACE);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.TASK);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.CYCLE_GROUPS);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.DUPLICATES);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.ARCH);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.THRESHOLD);
+    when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).thenReturn(
+        SonargraphRulesRepository.WORKSPACE);
 
     final Configuration config = mock(Configuration.class);
 
     when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
+
       public String answer(InvocationOnMock invocationOnMock) throws Throwable {
         return (String) invocationOnMock.getArguments()[1];
       }
@@ -61,12 +69,14 @@ public class ReadTest extends TestCase
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
-     public Object answer(InvocationOnMock invocation) {
-       Object[] args = invocation.getArguments();
-       return args[0];
-     }
+
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        return args[0];
+      }
     });
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
+
       public Object answer(InvocationOnMock invocation) {
         Object arg = invocation.getArguments()[0];
         Measure result = new Measure((Metric) arg);
@@ -80,6 +90,8 @@ public class ReadTest extends TestCase
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
 
-    sensor.analyseReport(project, sensorContext, report);
+    XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project, sensorContext, report);
+    assertNotNull(buildUnit);
+    sensor.analyseBuildUnit(project, buildUnit,  report);
   }
 }

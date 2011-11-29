@@ -55,4 +55,17 @@ public final class SonargraphPluginBase
   {
     // Don't instantiate
   }
+  
+  public static String getRuleKey(String attributeGroup) {
+    if (attributeGroup.equals("Duplicate code")) {
+      return SonargraphPluginBase.DUPLICATE_RULE_KEY;
+    }
+    if (attributeGroup.equals("Workspace")) {
+      return SonargraphPluginBase.WORKSPACE_RULE_KEY;
+    }
+    if (attributeGroup.equals("Threshold")) {
+      return SonargraphPluginBase.THRESHOLD_RULE_KEY;
+    }
+    return null;
+  }
 }
