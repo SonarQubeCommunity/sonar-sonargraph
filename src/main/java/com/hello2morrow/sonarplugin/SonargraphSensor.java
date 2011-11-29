@@ -92,7 +92,7 @@ public final class SonargraphSensor implements Sensor {
   private static final String EROSION_TYPES = "StructuralErosionTypeLevel";
   private static final String INTERNAL_TYPES = "NumberOfInternalTypes";
   private static final String STUCTURAL_DEBT_INDEX = "StructuralDebtIndex";
-  
+
   private static final String ARCHITECTURE_METRIC_CATEGORY = "Architecture Metrics";
   private static final String NUMBER_OF_VIOLATING_REFERENCES = "Number of violating references";
 
@@ -237,9 +237,8 @@ public final class SonargraphSensor implements Sensor {
     saveMeasure(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, relativeCyclicPackages, 1);
   }
 
-  @SuppressWarnings("unchecked")
   private void saveViolation(Rule rule, RulePriority priority, String fqName, int line, String msg) {
-    Resource javaFile = sensorContext.getResource(new JavaFile(fqName));
+    Resource<JavaPackage> javaFile = sensorContext.getResource(new JavaFile(fqName));
 
     if (javaFile == null) {
       LOG.error("Cannot obtain resource " + fqName);
@@ -311,13 +310,10 @@ public final class SonargraphSensor implements Sensor {
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
 
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
-      
+
       for (XsdTypeRelation rel : violation.getTypeRelation()) {
-
         String toType = getAttribute(rel.getAttribute(), "To");
-        
         String bu = getAttribute(rel.getAttribute(), "From build unit");
-
         String type = getAttribute(rel.getAttribute(), "From");
 
         String dimension = violation.getDimension();
@@ -327,8 +323,7 @@ public final class SonargraphSensor implements Sensor {
         } else {
           message = "Architecture violation: " + type + " uses " + toType;
         }
-        
-        String explanation =  "\nExplanation: " + getAttribute(rel.getAttribute(), "Explanation");
+        String explanation = "\nExplanation: " + getAttribute(rel.getAttribute(), "Explanation");
 
         bu = getBuildUnitName(bu);
         if (bu.equals(buildUnitName)) {
@@ -337,7 +332,7 @@ public final class SonargraphSensor implements Sensor {
               String relFileName = pos.getFile();
 
               if (relFileName != null) {
-               String fqName = relativeFileNameToFqName(relFileName);
+                String fqName = relativeFileNameToFqName(relFileName);
                 String msg = message + ". Usage type: " + pos.getType() + explanation;
                 LOG.info(msg);
                 saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
@@ -498,7 +493,7 @@ public final class SonargraphSensor implements Sensor {
   private void addArchitectureMeasures(ReportContext report, String buildUnitName) {
     double types = saveMeasure(INTERNAL_TYPES, SonargraphMetrics.INTERNAL_TYPES, 0).getValue();
     assert types >= 1.0 : "Project must not be empty !";
-    
+
     Measure unassignedTypes = saveMeasure(UNASSIGNED_TYPES, SonargraphMetrics.UNASSIGNED_TYPES, 0);
     Measure violatingTypes = saveMeasure(VIOLATING_TYPES, SonargraphMetrics.VIOLATING_TYPES, 0);
 
@@ -506,7 +501,7 @@ public final class SonargraphSensor implements Sensor {
     double unassignedTypesPercent = 100.0 * unassignedTypes.getValue() / types;
     saveMeasure(SonargraphMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent, 1);
     saveMeasure(SonargraphMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent, 1);
-    
+
     saveMeasure(VIOLATING_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES, 0);
     saveMeasure(TASKS, SonargraphMetrics.TASKS, 0);
     if (hasBuildUnitMetric(THRESHOLD_WARNINGS)) {
@@ -535,12 +530,13 @@ public final class SonargraphSensor implements Sensor {
       }
       assert (architectureMetricsCategory != null) : "Element " + ARCHITECTURE_METRIC_CATEGORY + " not found in report";
       try {
-        violatingTypeRefs = Double.parseDouble(getAttribute(architectureMetricsCategory.getAttribute(), NUMBER_OF_VIOLATING_REFERENCES));
+        violatingTypeRefs = Double.parseDouble(getAttribute(architectureMetricsCategory.getAttribute(),
+            NUMBER_OF_VIOLATING_REFERENCES));
         LOG.info("Violating References: " + violatingTypeRefs + ", in report " + report.getName());
       } catch (NumberFormatException e) {
         LOG.error("Value of attribute " + NUMBER_OF_VIOLATING_REFERENCES + " must be a valid number " + e.getMessage());
       }
-      
+
       handleArchitectureViolations(violations, buildUnitName);
       handleWarnings(report.getWarnings(), buildUnitName);
       taskRefs = handleTasks(report.getTasks(), buildUnitName);
@@ -585,7 +581,8 @@ public final class SonargraphSensor implements Sensor {
   void analyse(IProject project, SensorContext sensorContext, ReportContext report) {
     this.sensorContext = sensorContext;
     Configuration configuration = project.getConfiguration();
-    this.indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
+    this.indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
+        SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
 
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
@@ -623,8 +620,8 @@ public final class SonargraphSensor implements Sensor {
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
 
-    return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName) || buName.equalsIgnoreCase(longName2)
-        || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
+    return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName)
+        || buName.equalsIgnoreCase(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
   }
 
   public void analyse(Project project, SensorContext sensorContext) {

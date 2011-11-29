@@ -32,6 +32,7 @@ import static org.mockito.Mockito.*;
 
 public class ReadTest extends TestCase
 {
+  @SuppressWarnings("rawtypes")
   public void testAnalyse()
   {
     ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/infoglue21-report.xml", "");

@@ -18,13 +18,13 @@
 
 package com.hello2morrow.sonarplugin;
 
-import org.sonar.api.Extension;
-import org.sonar.api.Plugin;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.sonar.api.Extension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 
 /**
  * This class is the container for all others extensions
@@ -45,23 +45,9 @@ import java.util.List;
         module = false,
         global = true)})
 
-public final class SonargraphPlugin implements Plugin
+public final class SonargraphPlugin extends SonarPlugin
 {
-  public String getKey()
-  {
-    return SonargraphPluginBase.PLUGIN_KEY;
-  }
-
-  public String getName()
-  {
-    return SonargraphPluginBase.PLUGIN_KEY;
-  }
-
-  public String getDescription()
-  {
-    return "Plugin for hello2morrow's architecture and quality management tool Sonargraph";
-  }
-
+  
   public List<Class<? extends Extension>> getExtensions()
   {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
@@ -74,11 +60,5 @@ public final class SonargraphPlugin implements Plugin
     list.add(SonargraphArchitectureDashboard.class);
     list.add(SonargraphMetricAggregator.class);
     return list;
-  }
-
-  @Override
-  public String toString()
-  {
-    return getKey();
   }
 }
