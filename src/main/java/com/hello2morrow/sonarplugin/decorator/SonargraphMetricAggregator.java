@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.decorator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +30,10 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+
+import com.hello2morrow.sonarplugin.AlertDecorator;
+import com.hello2morrow.sonarplugin.DecoratorProjectContext;
+import com.hello2morrow.sonarplugin.SonargraphMetrics;
 
 public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorator {
 

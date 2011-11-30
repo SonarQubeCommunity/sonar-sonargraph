@@ -16,27 +16,27 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.view;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
-@Description("Reports metrics on the structural quality of the project.")
-public final class SonargraphCyclicityDashboard extends AbstractRubyTemplate implements RubyRailsWidget
+@Description("Reports metrics on the structural debt of the project.")
+public final class SonargraphStructuralDebtDashboard extends AbstractRubyTemplate implements RubyRailsWidget
 {
   public String getId()
   {
-    return "sonargraph.structure";
+    return "sonargraph.structural_debt";
   }
 
   public String getTitle()
   {
-    return "Sonargraph Structure Dashbox";
+    return "Sonargraph Structural Debt Dashbox";
   }
 
   protected String getTemplatePath()
   {
-    return "/sonargraph_structure_widget.html.erb";
+    return "/sonargraph_debt_widget.html.erb";
   }
 }

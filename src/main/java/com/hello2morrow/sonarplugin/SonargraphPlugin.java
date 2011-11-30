@@ -26,6 +26,11 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 
+import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
+import com.hello2morrow.sonarplugin.view.SonargraphArchitectureDashboard;
+import com.hello2morrow.sonarplugin.view.SonargraphCyclicityDashboard;
+import com.hello2morrow.sonarplugin.view.SonargraphStructuralDebtDashboard;
+
 /**
  * This class is the container for all others extensions
  */
