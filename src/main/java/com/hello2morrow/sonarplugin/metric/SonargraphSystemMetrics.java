@@ -15,15 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.metric;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 
 
-public class SonargraphProjectMetrics {
+public class SonargraphSystemMetrics implements Metrics {
 
   public static final String DOMAIN_SONARGRAPH = "Sonargraph";
 
@@ -49,11 +50,7 @@ public class SonargraphProjectMetrics {
       "Biggest Cycle Group", Metric.ValueType.INT).setDescription("Number of Packages in Biggest Cycle Group")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric CYCLIC_PACKAGES = new Metric.Builder("sonargraph_cyclic_packages", "Cyclic Packages",
-      Metric.ValueType.INT).setDescription("Number of Cyclic Packages").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(SonargraphProjectMetrics.DOMAIN_SONARGRAPH).create();
-  
-  public static final Metric CYCLIC_PACKAGES_PERCENT = new Metric.Builder("sonargraph_cyclic_packages_percent",
+ public static final Metric CYCLIC_PACKAGES_PERCENT = new Metric.Builder("sonargraph_cyclic_packages_percent",
       "Percentage of Cyclic Packages", Metric.ValueType.PERCENT)
       .setDescription("Percentage of Cyclically Coupled Packages").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
@@ -88,13 +85,9 @@ public class SonargraphProjectMetrics {
       "Workspace Warnings", Metric.ValueType.INT).setDescription("Number of Sonargraph Parser Warnings")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
   
-  public static final Metric INTERNAL_PACKAGES = new Metric.Builder("sonargraph_packages", "Packages",
-      Metric.ValueType.INT).setDescription("Number of Internal Packages").setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
-
-  public List<Metric> getMetrics() {
-    return Arrays.asList(ACD, NCCD, HIGHEST_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, CYCLIC_PACKAGES,
-        CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY, INTERNAL_PACKAGES, 
+ public List<Metric> getMetrics() {
+    return Arrays.asList(ACD, NCCD, HIGHEST_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, 
+        CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY, 
         ALL_WARNINGS, CYCLE_WARNINGS, WORKSPACE_WARNINGS, ARCHITECTURE_VIOLATIONS, 
         UNASSIGNED_TYPES_PERCENT, VIOLATING_TYPES_PERCENT);
   }
