@@ -71,6 +71,18 @@ public class Utilities {
   }
 
   
+  public static String getAttributeValueByStandardName(List<XsdAttribute> list, String standardName) {
+    String value = null;
+    for (XsdAttribute attr : list) {
+      if (attr.getStandardName().equals(standardName)) {
+        value = attr.getValue();
+        break;
+      }
+    }
+    return value;
+    
+  }
+  
   public static String getAttribute(List<XsdAttribute> list, String name) {
     String value = null;
 

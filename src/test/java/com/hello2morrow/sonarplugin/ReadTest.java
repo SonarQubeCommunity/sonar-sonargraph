@@ -84,14 +84,17 @@ public class ReadTest extends TestCase {
         return result;
       }
     });
+    
+    sensor.setSensorContext(sensorContext);
+    
     final IProject project = mock(IProject.class);
 
     when(project.getConfiguration()).thenReturn(config);
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
 
-    XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project, sensorContext, report);
+    XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project.getKey(), report);
     assertNotNull(buildUnit);
-    sensor.analyseBuildUnit(project, buildUnit,  report);
+    sensor.analyseBuildUnit(project.getName(), buildUnit,  report);
   }
 }

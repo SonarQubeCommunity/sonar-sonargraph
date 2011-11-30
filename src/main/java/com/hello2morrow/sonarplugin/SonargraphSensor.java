@@ -106,6 +106,8 @@ public final class SonargraphSensor implements Sensor {
 
   private Number internalPackages;
 
+  private ReportContext report;
+
   public SonargraphSensor(RuleFinder ruleFinder, Configuration configuration) {
     this.configuration = configuration;
     this.ruleFinder = ruleFinder;
@@ -117,14 +119,17 @@ public final class SonargraphSensor implements Sensor {
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
-
-  public String getReportFileName(Project project) {
-    String defaultLocation = project.getFileSystem().getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
-
-    return configuration.getString("sonar.sonargraph.report.path", defaultLocation);
+  
+  void setReport(ReportContext report) {
+    this.report = report;
+  }
+  
+  
+  void setSensorContext(SensorContext context) {
+    this.sensorContext = context;
   }
 
-  public void analyse(Project project, SensorContext sensorContext) {
+  public void analyse(final Project project, SensorContext sensorContext) {
     LOG.info("------------------------------------------------------------------------");
     LOG.info("Execute sonar-sonargraph-plugin for " + project.getName());
     LOG.info("------------------------------------------------------------------------");
@@ -135,15 +140,22 @@ public final class SonargraphSensor implements Sensor {
     this.indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
         SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
 
-    String reportPath = getReportFileName(project);
-
-    LOG.info("Reading Sonargraph metrics report from: " + reportPath);
-    ReportContext report = readSonargraphReport(reportPath, project.getPackaging());
+    
+    //This is needed to ease testing
+    if (null == report) {
+      /* Report has not been set - live system */
+      String reportPath = getReportFileName(project.getFileSystem().getBuildDir().getPath(), this.configuration);
+      report = readSonargraphReport(reportPath, project.getPackaging());
+      LOG.info("Reading Sonargraph metrics report from: " + reportPath);
+    } else {
+      /* Report has been set - test */
+      LOG.info("Using Sonargraph metrics report: " + report.getName());
+    }
+    
     XsdAttributeRoot buildUnit = null;
-    ProjectDelegate projectDelegate = new ProjectDelegate(project);
 
     if (report != null) {
-      buildUnit = retrieveBuildUnit(projectDelegate, sensorContext, report);
+      buildUnit = retrieveBuildUnit(project.getKey(), report);
     }
 
     if (null == buildUnit) {
@@ -151,14 +163,16 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    analyseBuildUnit(projectDelegate, buildUnit, report);
+    this.analyseBuildUnit(project.getName(), buildUnit, report);
     String buildUnitName = Utilities.getBuildUnitName(buildUnit.getName());
 
     if (indexCost > 0) {
       double structuralDebtCost = structuralDebtIndex.doubleValue() * indexCost;
       saveMeasure(SonargraphMetrics.EROSION_COST, structuralDebtCost, 0);
     }
+    
     analyseCycleGroups(report, internalPackages, buildUnitName);
+    
     if (hasBuildUnitMetric(UNASSIGNED_TYPES)) {
       LOG.info("Adding architecture measures for " + project.getName());
       addArchitectureMeasures(report, buildUnitName);
@@ -170,6 +184,8 @@ public final class SonargraphSensor implements Sensor {
     if (ruleFinder != null) {
       handleArchitectureViolations(violations, buildUnitName);
       handleWarnings(report.getWarnings(), buildUnitName);
+    } else {
+      LOG.error("RuleFinder must be set in constructor!");
     }
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
@@ -181,11 +197,11 @@ public final class SonargraphSensor implements Sensor {
     ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
 
     try {
+      input = new FileInputStream(fileName);
+      
       Thread.currentThread().setContextClassLoader(SonargraphSensor.class.getClassLoader());
       JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       Unmarshaller u = context.createUnmarshaller();
-
-      input = new FileInputStream(fileName);
       result = (ReportContext) u.unmarshal(input);
     } catch (JAXBException e) {
       LOG.error("JAXB Problem in " + fileName, e);
@@ -210,8 +226,7 @@ public final class SonargraphSensor implements Sensor {
     return result;
   }
 
-  XsdAttributeRoot retrieveBuildUnit(IProject project, SensorContext sensorContext, ReportContext report) {
-    this.sensorContext = sensorContext;
+  XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
@@ -223,14 +238,13 @@ public final class SonargraphSensor implements Sensor {
 
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
         String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-        if (buildUnitMatchesAnalyzedProject(buName, project)) {
+        if (this.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
           return sonarBuildUnit;
         }
       }
 
-      LOG.warn("Project "
-          + project.getName()
-          + " could not be mapped to a build unit. The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
+      LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
+          + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
 
       return null;
     } else {
@@ -239,8 +253,8 @@ public final class SonargraphSensor implements Sensor {
     }
   }
 
-  void analyseBuildUnit(final IProject project, final XsdAttributeRoot buildUnit, final ReportContext report) {
-    LOG.info("Adding measures for " + project.getName());
+  void analyseBuildUnit(final String projectName, final XsdAttributeRoot buildUnit, final ReportContext report) {
+    LOG.info("Adding measures for " + projectName);
 
     /** Load all attributes and values in map */
     Utilities.readAttributesToMap(buildUnit, buildUnitMetrics);
@@ -248,7 +262,7 @@ public final class SonargraphSensor implements Sensor {
     internalPackages = this.getBuildUnitMetric(INTERNAL_PACKAGES);
 
     if (internalPackages.intValue() == 0) {
-      LOG.warn("No packages found in project " + project.getName());
+      LOG.warn("No packages found in project " + projectName);
       return;
     }
 
@@ -357,7 +371,8 @@ public final class SonargraphSensor implements Sensor {
         String dimension = violation.getDimension();
         String message = "";
         if (null != dimension) {
-          message = dimension + " architecture violation: " + type + " uses " + toType;
+          message = dimension + " architecture violation: " + type 
+                            + "\n                    uses " + toType;
         } else {
           message = "Architecture violation: " + type + " uses " + toType;
         }
@@ -588,8 +603,8 @@ public final class SonargraphSensor implements Sensor {
     return descr;
   }
 
-  public static boolean buildUnitMatchesAnalyzedProject(String buName, IProject project) {
-    final String[] elements = project.getKey().split(":");
+  private boolean buildUnitMatchesAnalyzedProject(String buName, String projectKey) {
+    final String[] elements = projectKey.split(":");
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
     final String artifactId = elements[elements.length - 1];
     final String groupId = elements[0];
@@ -598,5 +613,11 @@ public final class SonargraphSensor implements Sensor {
 
     return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName)
         || buName.equalsIgnoreCase(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
+  }
+  
+  private String getReportFileName(String projectBuildPath, Configuration config) {
+    String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
+
+    return config.getString("sonar.sonargraph.report.path", defaultLocation);
   }
 }

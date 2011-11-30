@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.0.0.400">
+<context version="7.1.3.400">
     <scope name="sonar-sonargraph-plugin" type="Project">
         <architecture>
             <element name="plugin" type="Subsystem">
@@ -18,12 +18,13 @@
             <element name="src/main/java" type="JavaRootDirectory">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="target/generated-sources/jaxb" type="JavaRootDirectory">
-                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
-            </element>
             <element name="target/classes" type="JavaRootDirectory">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
+            <element name="target/generated-sources/jaxb/com" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
+            <element name="src/test/java" type="JavaRootDirectory"/>
         </workspace>
         <itemDefinition>
             <item type="FixWarningFilterItem">
@@ -41,6 +42,139 @@
                 <property name="Date" value="2010-03-18 15:44:24"/>
                 <property name="ElementType" value="JavaSourceFile"/>
                 <property name="Pattern" value="com/hello2morrow/sonarplugin/xsd/*.java # com/hello2morrow/sonarplugin/xsd/*.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdAttributeRoot.java # hello2morrow/sonarplugin/xsd/XsdTask.java # hello2morrow/sonarplugin/xsd/XsdWarning.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdAttributeRoot.java # hello2morrow/sonarplugin/xsd/XsdTask.java # hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdWarning.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdWarning.java # hello2morrow/sonarplugin/xsd/XsdAttributeRoot.java # hello2morrow/sonarplugin/xsd/XsdTask.java # hello2morrow/sonarplugin/xsd/XsdTypeRelation.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdWarningsByAttributeGroup.java # hello2morrow/sonarplugin/xsd/XsdExclusions.java # hello2morrow/sonarplugin/xsd/XsdAttributeCategory.java # hello2morrow/sonarplugin/xsd/XsdCycleGroups.java # hello2morrow/sonarplugin/xsd/XsdTasks.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdConfigurations.java # hello2morrow/sonarplugin/xsd/XsdBuildUnits.java # hello2morrow/sonarplugin/xsd/XsdProjects.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdWarnings.java # hello2morrow/sonarplugin/xsd/XsdConsistencyProblems.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdViolations.java # hello2morrow/sonarplugin/xsd/XsdWarningsByAttribute.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdBuildUnits.java # hello2morrow/sonarplugin/xsd/XsdProjects.java # hello2morrow/sonarplugin/xsd/XsdConfigurations.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdWarning.java # hello2morrow/sonarplugin/xsd/XsdTask.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdProjects.java # hello2morrow/sonarplugin/xsd/XsdBuildUnits.java # hello2morrow/sonarplugin/xsd/XsdConfigurations.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdConsistencyProblems.java # hello2morrow/sonarplugin/xsd/XsdWarnings.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdTask.java # hello2morrow/sonarplugin/xsd/XsdAttributeRoot.java # hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdWarning.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdCycleGroups.java # hello2morrow/sonarplugin/xsd/XsdExclusions.java # hello2morrow/sonarplugin/xsd/XsdWarningsByAttributeGroup.java # hello2morrow/sonarplugin/xsd/XsdAttributeCategory.java # hello2morrow/sonarplugin/xsd/XsdTasks.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdTask.java # hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdWarning.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdAttributeCategory.java # hello2morrow/sonarplugin/xsd/XsdExclusions.java # hello2morrow/sonarplugin/xsd/XsdWarningsByAttributeGroup.java # hello2morrow/sonarplugin/xsd/XsdCycleGroups.java # hello2morrow/sonarplugin/xsd/XsdTasks.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdExclusions.java # hello2morrow/sonarplugin/xsd/XsdWarningsByAttributeGroup.java # hello2morrow/sonarplugin/xsd/XsdAttributeCategory.java # hello2morrow/sonarplugin/xsd/XsdCycleGroups.java # hello2morrow/sonarplugin/xsd/XsdTasks.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdTasks.java # hello2morrow/sonarplugin/xsd/XsdExclusions.java # hello2morrow/sonarplugin/xsd/XsdWarningsByAttributeGroup.java # hello2morrow/sonarplugin/xsd/XsdAttributeCategory.java # hello2morrow/sonarplugin/xsd/XsdCycleGroups.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdWarning.java # hello2morrow/sonarplugin/xsd/XsdTypeRelation.java # hello2morrow/sonarplugin/xsd/XsdTask.java"/>
+            </item>
+            <item type="IgnoreWarningFilterItem">
+                <property name="AttributeId" value="DuplicateCodeBlocks"/>
+                <property name="Comment" value="Generated files"/>
+                <property name="Date" value="2011-11-30 16:00:07"/>
+                <property name="ElementType" value="JavaSourceFile"/>
+                <property name="Pattern" value="hello2morrow/sonarplugin/xsd/XsdWarningsByAttribute.java # hello2morrow/sonarplugin/xsd/XsdViolations.java"/>
             </item>
         </itemDefinition>
         <physical>

@@ -20,6 +20,7 @@ package com.hello2morrow.sonarplugin;
 
 import org.apache.commons.configuration.Configuration;
 
+@Deprecated
 public interface IProject
 {
   String getName();

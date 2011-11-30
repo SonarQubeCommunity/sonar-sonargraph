@@ -21,6 +21,7 @@ package com.hello2morrow.sonarplugin;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.resources.Project;
 
+@Deprecated
 public final class ProjectDelegate implements IProject
 {
   private final Project project;

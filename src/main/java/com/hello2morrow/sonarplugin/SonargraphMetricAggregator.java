@@ -38,15 +38,25 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(SonargraphMetrics.VIOLATING_TYPES, SonargraphMetrics.EROSION_INDEX,
-        SonargraphMetrics.CYCLIC_PACKAGES, SonargraphMetrics.CYCLICITY, SonargraphMetrics.EROSION_COST,
-        SonargraphMetrics.EROSION_REFS, SonargraphMetrics.EROSION_TYPES, SonargraphMetrics.IGNORED_VIOLATONS,
-        SonargraphMetrics.IGNORED_WARNINGS, SonargraphMetrics.INSTRUCTIONS, SonargraphMetrics.INTERNAL_PACKAGES,
-        SonargraphMetrics.INTERNAL_TYPES, SonargraphMetrics.JAVA_FILES, SonargraphMetrics.TASKS,
-        SonargraphMetrics.TASK_REFS, SonargraphMetrics.THRESHOLD_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS,
-        SonargraphMetrics.ALL_WARNINGS, /* SonargraphMetrics.CYCLE_WARNINGS, */ SonargraphMetrics.WORKSPACE_WARNINGS,
-        SonargraphMetrics.TYPE_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES,
-        SonargraphMetrics.UNASSIGNED_TYPES);
+    
+    /* Some of these metrics could also be directly retrieved from the "overview" section
+     * of the generated report, e.g. internal types, instructions... 
+     * But it is safe to add up the values from the different build units being analyzed.
+     */
+    return Arrays.asList(SonargraphMetrics.CYCLICITY, SonargraphMetrics.CYCLIC_PACKAGES, 
+        SonargraphMetrics.INSTRUCTIONS, 
+        SonargraphMetrics.UNASSIGNED_TYPES, SonargraphMetrics.EROSION_REFS, 
+        SonargraphMetrics.EROSION_TYPES, SonargraphMetrics.EROSION_COST,
+        SonargraphMetrics.EROSION_INDEX, SonargraphMetrics.VIOLATING_TYPES, 
+        SonargraphMetrics.INTERNAL_TYPES, SonargraphMetrics.VIOLATING_DEPENDENCIES,
+        SonargraphMetrics.TYPE_DEPENDENCIES, SonargraphMetrics.JAVA_FILES, 
+        SonargraphMetrics.TASKS, SonargraphMetrics.TASK_REFS, 
+        SonargraphMetrics.THRESHOLD_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS,
+        SonargraphMetrics.IGNORED_VIOLATONS, SonargraphMetrics.IGNORED_WARNINGS, 
+        SonargraphMetrics.WORKSPACE_WARNINGS);
+       
+    
+    //TODO: Move to other decorator: SonargraphMetrics.ALL_WARNINGS, SonargraphMetrics.INTERNAL_PACKAGES, 
   }
 
   @Override
