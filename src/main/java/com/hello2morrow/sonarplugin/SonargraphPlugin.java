@@ -57,7 +57,7 @@ public final class SonargraphPlugin extends SonarPlugin
   {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
 
-    list.add(SonargraphMetrics.class);
+    list.add(SonargraphBuildUnitMetrics.class);
     list.add(SonargraphSensor.class);
     list.add(SonargraphRulesRepository.class);
     list.add(SonargraphStructuralDebtDashboard.class);

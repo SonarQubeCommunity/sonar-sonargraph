@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.DecoratorContext;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
@@ -146,6 +147,10 @@ public class Utilities {
         }
       }
     }
+  }
+  
+  public static boolean isAggregationProject(DecoratorContext context) {
+    return context.getChildrenMeasures(SonargraphBuildUnitMetrics.INSTRUCTIONS).size() > 0;
   }
   
   

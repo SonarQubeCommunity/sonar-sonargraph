@@ -168,7 +168,7 @@ public final class SonargraphSensor implements Sensor {
 
     if (indexCost > 0) {
       double structuralDebtCost = structuralDebtIndex.doubleValue() * indexCost;
-      saveMeasure(SonargraphMetrics.EROSION_COST, structuralDebtCost, 0);
+      saveMeasure(SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
     }
     
     analyseCycleGroups(report, internalPackages, buildUnitName);
@@ -266,14 +266,14 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    saveMeasure(ACD, SonargraphMetrics.ACD, 1);
-    saveMeasure(NCCD, SonargraphMetrics.NCCD, 1);
-    saveMeasure(INSTRUCTIONS, SonargraphMetrics.INSTRUCTIONS, 0);
-    saveMeasure(JAVA_FILES, SonargraphMetrics.JAVA_FILES, 0);
-    saveMeasure(TYPE_DEPENDENCIES, SonargraphMetrics.TYPE_DEPENDENCIES, 0);
-    saveMeasure(EROSION_REFS, SonargraphMetrics.EROSION_REFS, 0);
-    saveMeasure(EROSION_TYPES, SonargraphMetrics.EROSION_TYPES, 0);
-    structuralDebtIndex = saveMeasure(STUCTURAL_DEBT_INDEX, SonargraphMetrics.EROSION_INDEX, 0).getValue();
+    saveMeasure(ACD, SonargraphProjectMetrics.ACD, 1);
+    saveMeasure(NCCD, SonargraphProjectMetrics.NCCD, 1);
+    saveMeasure(INSTRUCTIONS, SonargraphBuildUnitMetrics.INSTRUCTIONS, 0);
+    saveMeasure(JAVA_FILES, SonargraphBuildUnitMetrics.JAVA_FILES, 0);
+    saveMeasure(TYPE_DEPENDENCIES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES, 0);
+    saveMeasure(EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_REFS, 0);
+    saveMeasure(EROSION_TYPES, SonargraphBuildUnitMetrics.EROSION_TYPES, 0);
+    structuralDebtIndex = saveMeasure(STUCTURAL_DEBT_INDEX, SonargraphBuildUnitMetrics.EROSION_INDEX, 0).getValue();
   }
 
   private void analyseCycleGroups(ReportContext report, Number internalPackages, String buildUnitName) {
@@ -294,42 +294,42 @@ public final class SonargraphSensor implements Sensor {
         handlePackageCycleGroup(group);
       }
     }
-    saveMeasure(SonargraphMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
-    saveMeasure(SonargraphMetrics.CYCLICITY, cyclicity, 0);
-    saveMeasure(SonargraphMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
+    saveMeasure(SonargraphProjectMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
+    saveMeasure(SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
+    saveMeasure(SonargraphProjectMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
 
     double relativeCyclicity = 100.0 * Math.sqrt(cyclicity) / internalPackages.doubleValue();
     double relativeCyclicPackages = 100.0 * cyclicPackages / internalPackages.doubleValue();
 
-    saveMeasure(SonargraphMetrics.RELATIVE_CYCLICITY, relativeCyclicity, 1);
-    saveMeasure(SonargraphMetrics.INTERNAL_PACKAGES, internalPackages.doubleValue(), 0);
-    saveMeasure(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, relativeCyclicPackages, 1);
+    saveMeasure(SonargraphProjectMetrics.RELATIVE_CYCLICITY, relativeCyclicity, 1);
+    saveMeasure(SonargraphProjectMetrics.INTERNAL_PACKAGES, internalPackages.doubleValue(), 0);
+    saveMeasure(SonargraphProjectMetrics.CYCLIC_PACKAGES_PERCENT, relativeCyclicPackages, 1);
   }
 
   private void addArchitectureMeasures(ReportContext report, String buildUnitName) {
-    double types = saveMeasure(INTERNAL_TYPES, SonargraphMetrics.INTERNAL_TYPES, 0).getValue();
+    double types = saveMeasure(INTERNAL_TYPES, SonargraphBuildUnitMetrics.INTERNAL_TYPES, 0).getValue();
     assert types >= 1.0 : "Project must not be empty !";
 
-    Measure unassignedTypes = saveMeasure(UNASSIGNED_TYPES, SonargraphMetrics.UNASSIGNED_TYPES, 0);
-    Measure violatingTypes = saveMeasure(VIOLATING_TYPES, SonargraphMetrics.VIOLATING_TYPES, 0);
+    Measure unassignedTypes = saveMeasure(UNASSIGNED_TYPES, SonargraphBuildUnitMetrics.UNASSIGNED_TYPES, 0);
+    Measure violatingTypes = saveMeasure(VIOLATING_TYPES, SonargraphBuildUnitMetrics.VIOLATING_TYPES, 0);
 
     double violatingTypesPercent = 100.0 * violatingTypes.getValue() / types;
     double unassignedTypesPercent = 100.0 * unassignedTypes.getValue() / types;
-    saveMeasure(SonargraphMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent, 1);
-    saveMeasure(SonargraphMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent, 1);
+    saveMeasure(SonargraphProjectMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent, 1);
+    saveMeasure(SonargraphProjectMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent, 1);
 
-    saveMeasure(VIOLATING_DEPENDENCIES, SonargraphMetrics.VIOLATING_DEPENDENCIES, 0);
-    saveMeasure(TASKS, SonargraphMetrics.TASKS, 0);
+    saveMeasure(VIOLATING_DEPENDENCIES, SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, 0);
+    saveMeasure(TASKS, SonargraphBuildUnitMetrics.TASKS, 0);
     if (hasBuildUnitMetric(THRESHOLD_WARNINGS)) {
-      saveMeasure(THRESHOLD_WARNINGS, SonargraphMetrics.THRESHOLD_WARNINGS, 0);
+      saveMeasure(THRESHOLD_WARNINGS, SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, 0);
     }
-    saveMeasure(WORKSPACE_WARNINGS, SonargraphMetrics.WORKSPACE_WARNINGS, 0);
-    saveMeasure(IGNORED_VIOLATIONS, SonargraphMetrics.IGNORED_VIOLATONS, 0);
-    saveMeasure(IGNORED_WARNINGS, SonargraphMetrics.IGNORED_WARNINGS, 0);
+    saveMeasure(WORKSPACE_WARNINGS, SonargraphProjectMetrics.WORKSPACE_WARNINGS, 0);
+    saveMeasure(IGNORED_VIOLATIONS, SonargraphBuildUnitMetrics.IGNORED_VIOLATONS, 0);
+    saveMeasure(IGNORED_WARNINGS, SonargraphBuildUnitMetrics.IGNORED_WARNINGS, 0);
     if (hasBuildUnitMetric(DUPLICATE_WARNINGS)) {
-      saveMeasure(DUPLICATE_WARNINGS, SonargraphMetrics.DUPLICATE_WARNINGS, 0);
+      saveMeasure(DUPLICATE_WARNINGS, SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, 0);
     }
-    saveMeasure(ALL_WARNINGS, SonargraphMetrics.ALL_WARNINGS, 0);
+    saveMeasure(ALL_WARNINGS, SonargraphProjectMetrics.ALL_WARNINGS, 0);
 
     double violatingTypeRefs = 0;
     double taskRefs = 0;
@@ -352,10 +352,10 @@ public final class SonargraphSensor implements Sensor {
       // TODO: Move that method one level up and call it from the main analyse method.
       taskRefs = handleTasks(report.getTasks(), buildUnitName);
     }
-    saveMeasure(SonargraphMetrics.ARCHITECTURE_VIOLATIONS, violatingTypeRefs, 0);
-    saveMeasure(SonargraphMetrics.CYCLE_WARNINGS, cycleWarnings, 0);
+    saveMeasure(SonargraphProjectMetrics.ARCHITECTURE_VIOLATIONS, violatingTypeRefs, 0);
+    saveMeasure(SonargraphProjectMetrics.CYCLE_WARNINGS, cycleWarnings, 0);
 
-    saveMeasure(SonargraphMetrics.TASK_REFS, taskRefs, 0);
+    saveMeasure(SonargraphBuildUnitMetrics.TASK_REFS, taskRefs, 0);
   }
 
   private void handleArchitectureViolations(XsdViolations violations, String buildUnitName) {
