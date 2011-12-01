@@ -51,7 +51,7 @@
   </issueManagement>
 
   <properties>
-    <sonar.plugin.class>com.hello2morrow.sonarplugin.SonargraphPlugin</sonar.plugin.class>
+    <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
     <sonar.version>2.10</sonar.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
@@ -59,6 +59,7 @@
   </properties>
 
   <dependencies>
+  
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
