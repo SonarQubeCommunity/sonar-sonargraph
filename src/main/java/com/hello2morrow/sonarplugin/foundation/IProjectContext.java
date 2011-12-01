@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.foundation;
 
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;

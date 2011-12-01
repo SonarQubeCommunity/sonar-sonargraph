@@ -30,9 +30,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.AlertDecorator;
-import com.hello2morrow.sonarplugin.DecoratorProjectContext;
-import com.hello2morrow.sonarplugin.Utilities;
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
 
@@ -51,7 +49,7 @@ public class SystemMetricsDecorator implements Decorator {
   //
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !Utilities.isAggregationProject(context)) {
+    if ( !Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
       return;
     }
 

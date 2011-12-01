@@ -16,33 +16,30 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.decorator;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 
-@Deprecated
-public final class ProjectDelegate implements IProject
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
+
+public class DecoratorProjectContext implements IProjectContext
 {
-  private final Project project;
+  private final DecoratorContext context;
 
-  public ProjectDelegate(Project project)
+  public DecoratorProjectContext(DecoratorContext context)
   {
-    this.project = project;
+    this.context = context;
   }
 
-  public String getName()
+  public Measure getMeasure(Metric metric)
   {
-    return project.getName();
+    return context.getMeasure(metric);
   }
 
-  public String getKey()
+  public void saveMeasure(Measure measure)
   {
-    return project.getKey();
-  }
-
-  public Configuration getConfiguration()
-  {
-    return project.getConfiguration();
+    context.saveMeasure(measure);
   }
 }

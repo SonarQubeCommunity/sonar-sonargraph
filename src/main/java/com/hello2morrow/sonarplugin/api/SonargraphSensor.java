@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,6 +46,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
+import com.hello2morrow.sonarplugin.decorator.AlertDecorator;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;

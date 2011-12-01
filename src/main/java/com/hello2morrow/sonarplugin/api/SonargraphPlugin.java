@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,7 @@ import org.sonar.api.SonarPlugin;
 
 import com.hello2morrow.sonarplugin.decorator.SystemMetricsDecorator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
 import com.hello2morrow.sonarplugin.view.SonargraphArchitectureDashboard;

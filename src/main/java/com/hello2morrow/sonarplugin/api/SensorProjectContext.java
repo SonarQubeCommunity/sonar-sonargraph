@@ -16,16 +16,30 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
-import org.apache.commons.configuration.Configuration;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 
-@Deprecated
-public interface IProject
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
+
+public final class SensorProjectContext implements IProjectContext
 {
-  String getName();
+  private final SensorContext context;
 
-  String getKey();
+  public SensorProjectContext(SensorContext context)
+  {
+    this.context = context;
+  }
 
-  Configuration getConfiguration();
+  public Measure getMeasure(Metric metric)
+  {
+    return context.getMeasure(metric);
+  }
+
+  public void saveMeasure(Measure measure)
+  {
+    context.saveMeasure(measure);
+  }
 }

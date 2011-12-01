@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.foundation;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

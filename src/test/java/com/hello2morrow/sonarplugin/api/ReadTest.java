@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.xsd.ReportContext;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
-
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import junit.framework.TestCase;
+
 import org.apache.commons.configuration.Configuration;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,7 +31,11 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
-import static org.mockito.Mockito.*;
+
+import com.hello2morrow.sonarplugin.foundation.IProject;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.xsd.ReportContext;
+import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
 public class ReadTest extends TestCase {
 

@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
+
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 
 import java.util.Arrays;
 import java.util.List;

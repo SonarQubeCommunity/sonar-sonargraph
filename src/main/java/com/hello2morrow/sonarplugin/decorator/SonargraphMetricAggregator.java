@@ -30,9 +30,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.AlertDecorator;
-import com.hello2morrow.sonarplugin.DecoratorProjectContext;
-import com.hello2morrow.sonarplugin.Utilities;
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 
 public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorator {
@@ -70,7 +68,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     if ( !shouldDecorateResource(resource)) {
       return;
     }
-    if (!Utilities.isAggregationProject(context)) {
+    if (!Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
       return;
     }
     super.decorate(resource, context);

@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <context version="7.1.3.400">
     <scope name="sonar-sonargraph-plugin" type="Project">
+        <element name="Filter" type="TypeFilterReferenceOverridden">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="**.*Test*" type="ExcludeTypePattern"/>
+        </element>
         <architecture>
-            <element name="plugin" type="Subsystem">
+            <element name="Foundation" type="Layer">
                 <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.*" type="IncludeTypePattern"/>
+                    <element name="com.hello2morrow.sonarplugin.foundation.**" type="IncludeTypePattern"/>
                 </element>
-                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Subsystem|xsd"/>
+                <stereotype name="Public"/>
+                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Xsd"/>
             </element>
-            <element name="xsd" type="Subsystem">
+            <element name="Api" type="Layer">
                 <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.xsd.*" type="IncludeTypePattern"/>
+                    <element name="com.hello2morrow.sonarplugin.api.**" type="IncludeTypePattern"/>
                 </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Decorator" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.decorator.**" type="IncludeTypePattern"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Metric"/>
+            </element>
+            <element name="Metric" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.metric.**" type="IncludeTypePattern"/>
+                </element>
+            </element>
+            <element name="View" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.view.**" type="IncludeTypePattern"/>
+                </element>
+            </element>
+            <element name="Xsd" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="com.hello2morrow.sonarplugin.xsd.**" type="IncludeTypePattern"/>
+                </element>
+                <dependency type="DisallowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Foundation"/>
             </element>
         </architecture>
         <workspace>
@@ -21,21 +49,17 @@
             <element name="target/classes" type="JavaRootDirectory">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="target/generated-sources/jaxb/com" type="JavaRootDirectory">
+            <element name="src/test/java" type="JavaRootDirectory">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="src/test/java" type="JavaRootDirectory"/>
+            <element name="target/test-classes" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
+            <element name="target/generated-sources/jaxb" type="JavaRootDirectory">
+                <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
+            </element>
         </workspace>
         <itemDefinition>
-            <item type="FixWarningFilterItem">
-                <property name="AssignedTo" value="Peter"/>
-                <property name="AttributeId" value="NumberOfStatements"/>
-                <property name="Comment" value="The Comment"/>
-                <property name="Date" value="2009-10-15 14:56:56"/>
-                <property name="ElementType" value="ObjectMethod"/>
-                <property name="Pattern" value="com.hello2morrow.sonarplugin.SonargraphSensor::analyseCycleGroups(com.hello2morrow.sonarplugin.xsd.ReportContext, Number){}"/>
-                <property name="Priority" value="Low"/>
-            </item>
             <item type="IgnoreWarningFilterItem">
                 <property name="AttributeId" value="DuplicateCodeBlocks"/>
                 <property name="Comment" value=""/>

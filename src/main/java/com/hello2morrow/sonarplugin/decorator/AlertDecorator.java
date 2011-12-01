@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.decorator;
 
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
 

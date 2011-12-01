@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin;
+package com.hello2morrow.sonarplugin.api;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -35,6 +35,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 
+import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
+import com.hello2morrow.sonarplugin.api.SonargraphSensor;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 
 
