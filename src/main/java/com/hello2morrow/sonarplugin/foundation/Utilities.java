@@ -33,7 +33,7 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 
 
-public class Utilities {
+public final class Utilities {
   
   private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
   
@@ -50,28 +50,6 @@ public class Utilities {
     }
     return category;
   }
-  
-
-  public static double getDoubleAttributeOfCategory(ReportContext report, XsdAttributeCategory category, String attributeName) {
-    double attributeValue = 0.0;
-    try {
-      attributeValue = Double.parseDouble(getAttribute(category.getAttribute(), attributeName));
-    } catch (NumberFormatException e) {
-      LOG.error("Value of attribute " + attributeName + " must be a valid number " + e.getMessage());
-    }
-    return attributeValue;
-  }
-
-  public static int getIntAttributeOfCategory(ReportContext report, XsdAttributeCategory category, String attributeName) {
-    int attributeValue = 0;
-    try {
-      attributeValue = Integer.parseInt(getAttribute(category.getAttribute(), attributeName));
-    } catch (NumberFormatException e) {
-      LOG.error("Value of attribute " + attributeName + " must be a valid number " + e.getMessage());
-    }
-    return attributeValue;
-  }
-
   
   public static String getAttributeValueByStandardName(List<XsdAttribute> list, String standardName) {
     String value = null;
@@ -98,7 +76,7 @@ public class Utilities {
   }
   
   public static String getBuildUnitName(XsdCycleGroup group) {
-    if (group.getParent().equals("(Default Build Unit)")) {
+    if ("(Default Build Unit)".equals(group.getParent())) {
       return group.getElementScope();
     }
     return group.getParent();
@@ -112,7 +90,7 @@ public class Utilities {
 
       if (colonPos != -1) {
         buName = fqName.substring(colonPos + 2);
-        if (buName.equals("(Default Build Unit)")) {
+        if ("(Default Build Unit)".equals(buName)) {
           // Compatibility with old SonarJ versions
           buName = fqName.substring(0, colonPos);
         }
@@ -145,6 +123,7 @@ public class Utilities {
           }
         } catch (ParseException e) {
           // Ignore this value
+          LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
         }
       }
     }
@@ -152,6 +131,14 @@ public class Utilities {
   
   public static boolean isAggregationProject(DecoratorContext context, final Metric indicator) {
     return context.getChildrenMeasures(indicator).size() > 0;
+  }
+  
+  public static String generateSpaceEntity(int numberOfSpaces) {
+    StringBuffer buffer = new StringBuffer();
+    for (int i=0; i < numberOfSpaces; i++) {
+      buffer.append("&nbsp;");
+    }
+    return buffer.toString();
   }
   
   

@@ -57,13 +57,13 @@ public final class SonargraphPluginBase
   }
   
   public static String getRuleKey(String attributeGroup) {
-    if (attributeGroup.equals("Duplicate code")) {
+    if ("Duplicate code".equals(attributeGroup)) {
       return SonargraphPluginBase.DUPLICATE_RULE_KEY;
     }
-    if (attributeGroup.equals("Workspace")) {
+    if ("Workspace".equals(attributeGroup)) {
       return SonargraphPluginBase.WORKSPACE_RULE_KEY;
     }
-    if (attributeGroup.equals("Threshold")) {
+    if ("Threshold".equals(attributeGroup)) {
       return SonargraphPluginBase.THRESHOLD_RULE_KEY;
     }
     return null;

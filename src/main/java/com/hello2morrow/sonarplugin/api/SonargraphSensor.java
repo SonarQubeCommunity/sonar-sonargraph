@@ -102,14 +102,12 @@ public final class SonargraphSensor implements Sensor {
   private SensorContext sensorContext;
   private final RuleFinder ruleFinder;
   private double indexCost = SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT;
-  private final Configuration configuration;
 
   private Number structuralDebtIndex;
 
   private ReportContext report;
 
   public SonargraphSensor(RuleFinder ruleFinder, Configuration configuration) {
-    this.configuration = configuration;
     this.ruleFinder = ruleFinder;
     if (ruleFinder == null) {
       LOG.warn("No RulesManager provided to sensor");
@@ -142,7 +140,7 @@ public final class SonargraphSensor implements Sensor {
     // This is needed to ease testing
     if (null == report) {
       /* Report has not been set - live system */
-      String reportPath = getReportFileName(project.getFileSystem().getBuildDir().getPath(), this.configuration);
+      String reportPath = getReportFileName(project.getFileSystem().getBuildDir().getPath(), configuration);
       report = readSonargraphReport(reportPath, project.getPackaging());
       LOG.info("Reading Sonargraph metrics report from: " + reportPath);
     } else {
@@ -170,20 +168,19 @@ public final class SonargraphSensor implements Sensor {
     }
 
     this.analyseSystemMeasures(report);
-
-    analyseCycleGroups(report, buildUnitName);
+    this.analyseCycleGroups(report, buildUnitName);
 
     if (hasBuildUnitMetric(UNASSIGNED_TYPES)) {
       LOG.info("Adding architecture measures for " + project.getName());
-      addArchitectureMeasures(report, buildUnitName);
+      this.addArchitectureMeasures(report, buildUnitName);
     }
 
     XsdViolations violations = report.getViolations();
 
     // TODO: Under what conditions can the ruleFinder be null?
     if (ruleFinder != null) {
-      handleArchitectureViolations(violations, buildUnitName);
-      handleWarnings(report.getWarnings(), buildUnitName);
+      this.handleArchitectureViolations(violations, buildUnitName);
+      this.handleWarnings(report.getWarnings(), buildUnitName);
     } else {
       LOG.error("RuleFinder must be set in constructor!");
     }
@@ -285,7 +282,7 @@ public final class SonargraphSensor implements Sensor {
     double cyclicPackages = 0;
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if (group.getNamedElementGroup().equals("Physical package")
+      if ("Physical package".equals(group.getNamedElementGroup())
           && Utilities.getBuildUnitName(group).equals(buildUnitName)) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
@@ -364,7 +361,11 @@ public final class SonargraphSensor implements Sensor {
 
   private void handleArchitectureViolations(XsdViolations violations, String buildUnitName) {
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
-
+    if (rule == null) {
+      LOG.error("Sonargraph architecture rule not found");
+      return;
+    }
+    String uses = "uses ";
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
       for (XsdTypeRelation rel : violation.getTypeRelation()) {
@@ -375,10 +376,12 @@ public final class SonargraphSensor implements Sensor {
         String dimension = violation.getDimension();
         String message = "";
         if (null != dimension) {
-          message = dimension + " architecture violation: " + type + "\n                    uses " + toType;
+          message = dimension + " architecture violation: ";
         } else {
-          message = "Architecture violation: " + type + " uses " + toType;
+          message = "Architecture violation: ";
         }
+        int indentation = message.length() - uses.length();
+        message = message + type + "\n" + Utilities.generateSpaceEntity(indentation) + uses + toType;
         String explanation = "\nExplanation: " + Utilities.getAttribute(rel.getAttribute(), "Explanation");
 
         bu = Utilities.getBuildUnitName(bu);
@@ -397,7 +400,7 @@ public final class SonargraphSensor implements Sensor {
               if (relFileName != null && (pos.getType() != null) && (line > 0)) {
                 String fqName = Utilities.relativeFileNameToFqName(relFileName);
                 String msg = message + ". Usage type: " + pos.getType() + explanation;
-                LOG.info(msg);
+                LOG.debug(msg);
                 saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
               }
             }
@@ -406,9 +409,7 @@ public final class SonargraphSensor implements Sensor {
       }
 
     }
-    if (rule == null) {
-      LOG.error("Sonargraph architecture rule not found");
-    }
+    
   }
 
   private void handleWarnings(XsdWarnings warnings, String buildUnitName) {
@@ -444,7 +445,7 @@ public final class SonargraphSensor implements Sensor {
             } else {
               String elemType = Utilities.getAttribute(warning.getAttribute(), "Element type");
 
-              if (elemType.equals("Class file") || elemType.equals("Source file")) {
+              if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
                 // Attach a violation at line 1
                 String fileName = Utilities.getAttribute(warning.getAttribute(), "Element");
                 String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');

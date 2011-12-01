@@ -42,12 +42,6 @@ public class SystemMetricsDecorator implements Decorator {
     return true;
   }
 
-  // @DependedUpon
-  // public List<Metric> generatesMetrics() {
-  // return Arrays.asList(
-  // }
-  //
-
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
     if ( !Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
       return;
@@ -94,17 +88,9 @@ public class SystemMetricsDecorator implements Decorator {
       childContextCounter++;
     }
 
-    if (biggestCycleGroupSize >= 0.0 && context.getMeasure(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP) == null) {
-      context.saveMeasure(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
-    }
-
-    if (highestACD >= 0.0 && context.getMeasure(SonargraphSystemMetrics.HIGHEST_ACD) == null) {
-      context.saveMeasure(SonargraphSystemMetrics.HIGHEST_ACD, highestACD);
-    }
-
-    if (highestNCCD >= 0.0 && context.getMeasure(SonargraphSystemMetrics.HIGHEST_NCCD) == null) {
-      context.saveMeasure(SonargraphSystemMetrics.HIGHEST_NCCD, highestNCCD);
-    }
+    context.saveMeasure(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
+    context.saveMeasure(SonargraphSystemMetrics.HIGHEST_ACD, highestACD);
+    context.saveMeasure(SonargraphSystemMetrics.HIGHEST_NCCD, highestNCCD);
 
     Measure cyclicity = context.getMeasure(SonargraphBuildUnitMetrics.CYCLICITY);
     Measure packages = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES);
@@ -122,9 +108,13 @@ public class SystemMetricsDecorator implements Decorator {
     }
 
     Measure violatingTypes = context.getMeasure(SonargraphBuildUnitMetrics.VIOLATING_TYPES);
-    LOG.debug("Number of violating types: " + violatingTypes.getValue());
+    if (null != violatingTypes) {
+      LOG.debug("Number of violating types: " + violatingTypes.getValue());
+    }
     Measure internalTypes = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_TYPES);
-    LOG.debug("Number of internal types: " + internalTypes.getValue());
+    if (null != violatingTypes) {
+      LOG.debug("Number of internal types: " + internalTypes.getValue());
+    }
     Measure unassignedTypes = context.getMeasure(SonargraphBuildUnitMetrics.UNASSIGNED_TYPES);
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
@@ -145,7 +135,6 @@ public class SystemMetricsDecorator implements Decorator {
     for (Measure measure : measures) {
       context.saveMeasure(measure.getMetric(), measure.getValue());
     }
-
   }
 
   public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {

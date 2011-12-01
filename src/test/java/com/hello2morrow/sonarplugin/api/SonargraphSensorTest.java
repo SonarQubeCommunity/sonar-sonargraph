@@ -75,15 +75,8 @@ public class SonargraphSensorTest {
     Project project = TestHelper.initProject();
 
     sensor.analyse(project, sensorContext);
-//    XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project.getKey(), report);
-//    assertNotNull(buildUnit);
-//    sensor.analyseBuildUnit(project.getName(), buildUnit, report);
   }
   
-  
-  
-  
-
   static class TestHelper {
    
     public static RuleFinder initRuleFinder() {
@@ -116,6 +109,7 @@ public class SonargraphSensorTest {
       return config;
     }
     
+    @SuppressWarnings("rawtypes")
     public static SensorContext initSensorContext() {
       SensorContext sensorContext = mock(SensorContext.class);
 
