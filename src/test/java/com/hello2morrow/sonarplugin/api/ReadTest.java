@@ -33,6 +33,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 
 import com.hello2morrow.sonarplugin.foundation.IProject;
+import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -41,7 +42,7 @@ public class ReadTest extends TestCase {
 
   @SuppressWarnings("rawtypes")
   public void testAnalyse() {
-    ReportContext report = SonargraphSensor.readSonargraphReport("src/test/resources/infoglue21-report.xml", "");
+    ReportContext report = ReportFileReader.readSonargraphReport("src/test/resources/infoglue21-report.xml");
 
     assertNotNull(report);
 
@@ -100,6 +101,6 @@ public class ReadTest extends TestCase {
 
     XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project.getKey(), report);
     assertNotNull(buildUnit);
-    sensor.analyseBuildUnit(project.getName(), buildUnit,  report);
+    sensor.analyseBuildUnit(report, buildUnit);
   }
 }

@@ -1,10 +1,11 @@
 <%
 if measure('sonargraph_acd')
 %>
+<%# This part is executed if there is only one build unit %>
 <div class="dashbox">
   <table>
     <tr>
-        <td width="190px"><h3>Relative Package Cyclicity</h3></td>
+        <td width="260px"><h3>Relative Package Cyclicity</h3></td>
         <td width="160px"><h3>ACD (John Lakos)</h3></td>
         <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#structure" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
     </tr>
@@ -35,7 +36,7 @@ if measure('sonargraph_acd')
     </tr>
     <tr>
     	<td>
-    	<%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
+    		  <%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
     	</td>
     	<td>
               <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
@@ -43,18 +44,19 @@ if measure('sonargraph_acd')
     </tr>
     <tr>
     	<td>
-    	<%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
+    	<%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
     	</td>
     </tr>
   </table>
 </div>
 <% 
 elsif measure('sonargraph_biggest_cycle_group')
-%>  
+%>
+<%# This part is executed if there are several build units %>  
 <div class="dashbox">
   <table>
     <tr>
-        <td width="190px"><h3>Relative Package Cyclicity</h3></td>
+        <td width="260px"><h3>Relative Package Cyclicity</h3></td>
         <td width="160px"><h3>Highest ACD</h3></td>
        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#structure" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
     </tr>
@@ -85,7 +87,7 @@ elsif measure('sonargraph_biggest_cycle_group')
     </tr>
     <tr>
     	<td>
-    	<%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
+    	<%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
     	</td>
     	<td>
               <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
@@ -93,7 +95,7 @@ elsif measure('sonargraph_biggest_cycle_group')
     </tr>
     <tr>
     	<td>
-    	<%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
+    	      <%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
     	</td>
     </tr>
   </table>

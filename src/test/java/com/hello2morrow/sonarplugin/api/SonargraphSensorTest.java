@@ -17,7 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,8 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 
-import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
-import com.hello2morrow.sonarplugin.api.SonargraphSensor;
+import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 
@@ -75,6 +74,10 @@ public class SonargraphSensorTest {
     Project project = TestHelper.initProject();
 
     sensor.analyse(project, sensorContext);
+  }
+  
+  public void testHandleDuplicateCodeBlocks() {
+//    sensor.handleDuplicateCodeBlocks(warningGroup, buildUnitName, Rule.create(repositoryKey, key, name)());
   }
   
   static class TestHelper {
@@ -135,7 +138,7 @@ public class SonargraphSensorTest {
 
     
     public static ReportContext initReport() {
-      ReportContext report = SonargraphSensor.readSonargraphReport(REPORT, "");
+      ReportContext report = ReportFileReader.readSonargraphReport(REPORT);
       assertNotNull(report);
       return report;
     }

@@ -26,11 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
-import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
+import com.hello2morrow.sonarplugin.xsd.XsdWarning;
 
 
 public final class Utilities {
@@ -39,29 +38,6 @@ public final class Utilities {
   
   private Utilities() {}
   
-  
-  public static XsdAttributeCategory findReportCategoryByName(final ReportContext report, final String categoryName) {
-    XsdAttributeCategory category = null;
-    for (XsdAttributeCategory cat : report.getAttributes().getAttributeCategory()) {
-      if (cat.getName().equals(categoryName)) {
-        category = cat;
-        break;
-      }
-    }
-    return category;
-  }
-  
-  public static String getAttributeValueByStandardName(List<XsdAttribute> list, String standardName) {
-    String value = null;
-    for (XsdAttribute attr : list) {
-      if (attr.getStandardName().equals(standardName)) {
-        value = attr.getValue();
-        break;
-      }
-    }
-    return value;
-    
-  }
   
   public static String getAttribute(List<XsdAttribute> list, String name) {
     String value = null;
@@ -75,12 +51,6 @@ public final class Utilities {
     return value;
   }
   
-  public static String getBuildUnitName(XsdCycleGroup group) {
-    if ("(Default Build Unit)".equals(group.getParent())) {
-      return group.getElementScope();
-    }
-    return group.getParent();
-  }
 
   public static String getBuildUnitName(String fqName) {
     String buName = "<UNKNOWN>";
@@ -140,6 +110,87 @@ public final class Utilities {
     }
     return buffer.toString();
   }
+
+  public static String generateSpaces(int numberOfSpaces) {
+    StringBuffer buffer = new StringBuffer();
+    for (int i=0; i < numberOfSpaces; i++) {
+      buffer.append(" ");
+    }
+    return buffer.toString();
+  }
+
+  public static DuplicateCodeBlock createDuplicateCodeBlock(XsdWarning warning) {
+    DuplicateCodeBlock block = new DuplicateCodeBlock();
+    String attribute = getAttribute(warning.getAttribute(), "Block id");
+    if (null == attribute) {
+      LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
+      return null;
+    }
+    block.setBlockId(Integer.parseInt(attribute));
+    block.setProjectName(getAttribute(warning.getAttribute(), "Project"));
+    block.setBuildUnitName(getAttribute(warning.getAttribute(), "Build unit"));
+    block.setElementType(getAttribute(warning.getAttribute(), "Element type"));
+    
+    String blockLength = getAttribute(warning.getAttribute(), "Attribute value");
+    int pos = blockLength.indexOf(" lines");
+    block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
+    
+    block.setElementName(getAttribute(warning.getAttribute(), "Element"));
+    block.setStartLine(Integer.parseInt(getAttribute(warning.getAttribute(), "Start line")));
+    return block;
+  }
   
+  public static void addAttributeToList(List<XsdAttribute> attributeList, String name, String value) {
+    XsdAttribute attribute = new XsdAttribute();
+    attribute.setName(name);
+    attribute.setValue(value);
+    attributeList.add(attribute);
+  }
+
+  
+  public static String generateDuplicateCodeBlockMessage(DuplicateCodeBlock block, List<DuplicateCodeBlock> blocks) {
+    final int endLine = block.getBlockLength() + block.getStartLine() - 1;
+
+    final StringBuilder message = new StringBuilder();
+    message.append("Line ").append(block.getStartLine()).append(" to ").append(endLine)
+      .append(" is a duplicate of\n");
+
+    final int toBeDescribed = blocks.size() - 1;
+    int yetToDescribe = toBeDescribed;
+
+    for (final DuplicateCodeBlock duplicate : blocks) {
+      if (duplicate == block) {
+        continue;
+      }
+
+      // No connection for first described element.
+      if (toBeDescribed != yetToDescribe) {
+        if (yetToDescribe == 1) {
+          // Last.
+          switch (toBeDescribed) {
+            case 2:
+              // Just two parts.
+              message.append(" and\n");
+              break;
+            default:
+              // More than two parts: Enumeration.
+              message.append(", and\n");
+              break;
+          }
+        } else {
+          // Not last, and not first: enumerate.
+          message.append(", ");
+        }
+      }
+
+      final int endLineDuplicate = duplicate.getBlockLength() + duplicate.getStartLine() - 1;
+      message.append("line " + duplicate.getStartLine() + " to " + endLineDuplicate + " of "
+          + duplicate.getElementName());
+
+      yetToDescribe--;
+    }
+    message.append(".");
+    return message.toString();
+  }
   
 }

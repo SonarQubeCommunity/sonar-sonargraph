@@ -18,17 +18,11 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -47,6 +41,8 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
 import com.hello2morrow.sonarplugin.decorator.AlertDecorator;
+import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
+import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
@@ -101,9 +97,6 @@ public final class SonargraphSensor implements Sensor {
   private final Map<String, Number> buildUnitMetrics = new HashMap<String, Number>();
   private SensorContext sensorContext;
   private final RuleFinder ruleFinder;
-  private double indexCost = SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT;
-
-  private Number structuralDebtIndex;
 
   private ReportContext report;
 
@@ -134,14 +127,13 @@ public final class SonargraphSensor implements Sensor {
     this.sensorContext = sensorContext;
 
     Configuration configuration = project.getConfiguration();
-    this.indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
-        SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
+   
 
     // This is needed to ease testing
     if (null == report) {
       /* Report has not been set - live system */
       String reportPath = getReportFileName(project.getFileSystem().getBuildDir().getPath(), configuration);
-      report = readSonargraphReport(reportPath, project.getPackaging());
+      report = ReportFileReader.readSonargraphReport(reportPath);
       LOG.info("Reading Sonargraph metrics report from: " + reportPath);
     } else {
       /* Report has been set - test */
@@ -159,28 +151,30 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    this.analyseBuildUnit(project.getName(), buildUnit, report);
-    String buildUnitName = Utilities.getBuildUnitName(buildUnit.getName());
+    LOG.info("Adding measures for " + project.getName());
+    this.analyseBuildUnit(report, buildUnit);
 
+    double indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
+        SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
     if (indexCost > 0) {
-      double structuralDebtCost = structuralDebtIndex.doubleValue() * indexCost;
+      double structuralDebtCost = sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX).getValue()
+          * indexCost;
       saveMeasureToContext(SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
     }
 
-    this.analyseSystemMeasures(report);
-    this.analyseCycleGroups(report, buildUnitName);
+    this.analyseSystemMeasures(report, null);
+    this.analyseCylceGroups(report, buildUnit);
 
     if (hasBuildUnitMetric(UNASSIGNED_TYPES)) {
       LOG.info("Adding architecture measures for " + project.getName());
-      this.addArchitectureMeasures(report, buildUnitName);
+      this.addArchitectureMeasures(report, buildUnit);
     }
-
-    XsdViolations violations = report.getViolations();
 
     // TODO: Under what conditions can the ruleFinder be null?
     if (ruleFinder != null) {
-      this.handleArchitectureViolations(violations, buildUnitName);
-      this.handleWarnings(report.getWarnings(), buildUnitName);
+      this.handleArchitectureViolations(report, buildUnit);
+      this.handleWarnings(report, buildUnit);
+      this.handleTasks(report, buildUnit);
     } else {
       LOG.error("RuleFinder must be set in constructor!");
     }
@@ -188,49 +182,12 @@ public final class SonargraphSensor implements Sensor {
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
 
-  protected static ReportContext readSonargraphReport(String fileName, String packaging) {
-    ReportContext result = null;
-    InputStream input = null;
-    ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
-
-    try {
-      input = new FileInputStream(fileName);
-
-      Thread.currentThread().setContextClassLoader(SonargraphSensor.class.getClassLoader());
-      JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
-      Unmarshaller u = context.createUnmarshaller();
-      result = (ReportContext) u.unmarshal(input);
-    } catch (JAXBException e) {
-      LOG.error("JAXB Problem in " + fileName, e);
-    } catch (FileNotFoundException e) {
-      if ( !packaging.equalsIgnoreCase("pom")) {
-        LOG.error("Cannot open Sonargraph report: " + fileName + ".");
-        LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
-            + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
-        LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true?"
-            + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
-      }
-    } finally {
-      Thread.currentThread().setContextClassLoader(defaultClassLoader);
-      if (input != null) {
-        try {
-          input.close();
-        } catch (IOException e) {
-          LOG.error("Cannot close " + fileName, e);
-        }
-      }
-    }
-    return result;
-  }
-
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
     if (buildUnitList.size() == 1) {
-
       return buildUnitList.get(0);
-
     } else if (buildUnitList.size() > 1) {
 
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
@@ -245,13 +202,11 @@ public final class SonargraphSensor implements Sensor {
 
       return null;
     } else {
-
       return null;
     }
   }
 
-  void analyseBuildUnit(final String projectName, final XsdAttributeRoot buildUnit, final ReportContext report) {
-    LOG.info("Adding measures for " + projectName);
+  void analyseBuildUnit(final ReportContext report, final XsdAttributeRoot buildUnit) {
 
     /** Load all attributes and values in map */
     Utilities.readAttributesToMap(buildUnit, buildUnitMetrics);
@@ -259,10 +214,10 @@ public final class SonargraphSensor implements Sensor {
     Number internalPackages = this.getBuildUnitMetricValue(INTERNAL_PACKAGES);
 
     if (internalPackages.intValue() == 0) {
-      LOG.warn("No packages found in project " + projectName);
+      LOG.warn("No packages found in buildUnit " + buildUnit.getName());
       return;
     }
-    
+
     saveExistingMeasureToContext(INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, 0);
     saveExistingMeasureToContext(ACD, SonargraphSystemMetrics.ACD, 1);
     saveExistingMeasureToContext(NCCD, SonargraphSystemMetrics.NCCD, 1);
@@ -271,11 +226,10 @@ public final class SonargraphSensor implements Sensor {
     saveExistingMeasureToContext(TYPE_DEPENDENCIES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES, 0);
     saveExistingMeasureToContext(EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_REFS, 0);
     saveExistingMeasureToContext(EROSION_TYPES, SonargraphBuildUnitMetrics.EROSION_TYPES, 0);
-    structuralDebtIndex = saveExistingMeasureToContext(STUCTURAL_DEBT_INDEX, SonargraphBuildUnitMetrics.EROSION_INDEX,
-        0).getValue();
+    saveExistingMeasureToContext(STUCTURAL_DEBT_INDEX, SonargraphBuildUnitMetrics.EROSION_INDEX, 0).getValue();
   }
 
-  private void analyseCycleGroups(ReportContext report, String buildUnitName) {
+  void analyseCylceGroups(ReportContext report, XsdAttributeRoot buildUnit) {
     XsdCycleGroups cycleGroups = report.getCycleGroups();
     double cyclicity = 0;
     double biggestCycleGroupSize = 0;
@@ -283,7 +237,7 @@ public final class SonargraphSensor implements Sensor {
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
       if ("Physical package".equals(group.getNamedElementGroup())
-          && Utilities.getBuildUnitName(group).equals(buildUnitName)) {
+          && getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
         cyclicity += groupSize * groupSize;
@@ -297,16 +251,16 @@ public final class SonargraphSensor implements Sensor {
     saveMeasureToContext(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
     saveMeasureToContext(SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
     saveMeasureToContext(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
-    
-    
-//    double relativeCyclicity = 100.0 * Math.sqrt(cyclicity) / internalPackages.doubleValue();
-//    double relativeCyclicPackages = 100.0 * cyclicPackages / internalPackages.doubleValue();
-//
-//    saveMeasureToContext(SonargraphSystemMetrics.RELATIVE_CYCLICITY, relativeCyclicity, 1);
-//    saveMeasureToContext(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relativeCyclicPackages, 1);
   }
 
-  private void analyseSystemMeasures(ReportContext report) {
+  private String getBuildUnitName(XsdCycleGroup group) {
+    if ("(Default Build Unit)".equals(group.getParent())) {
+      return group.getElementScope();
+    }
+    return group.getParent();
+  }
+
+  void analyseSystemMeasures(ReportContext report, XsdAttributeRoot root) {
     Map<String, Number> systemAttributes = new HashMap<String, Number>();
     Utilities.readAttributesToMap(report.getAttributes(), systemAttributes);
 
@@ -316,11 +270,10 @@ public final class SonargraphSensor implements Sensor {
         getMetricValueFromMap(CYCLE_WARNINGS, systemAttributes), 0);
     saveMeasureToContext(SonargraphSystemMetrics.WORKSPACE_WARNINGS,
         getMetricValueFromMap(WORKSPACE_WARNINGS, systemAttributes), 0);
-    saveMeasureToContext(SonargraphSystemMetrics.ALL_WARNINGS,
-        getMetricValueFromMap(ALL_WARNINGS, systemAttributes), 0);
+    saveMeasureToContext(SonargraphSystemMetrics.ALL_WARNINGS, getMetricValueFromMap(ALL_WARNINGS, systemAttributes), 0);
   }
 
-  private void addArchitectureMeasures(ReportContext report, String buildUnitName) {
+  void addArchitectureMeasures(ReportContext report, XsdAttributeRoot buildUnit) {
     double types = saveExistingMeasureToContext(INTERNAL_TYPES, SonargraphBuildUnitMetrics.INTERNAL_TYPES, 0)
         .getValue();
     assert types >= 1.0 : "Project must not be empty !";
@@ -347,24 +300,16 @@ public final class SonargraphSensor implements Sensor {
     if (hasBuildUnitMetric(DUPLICATE_WARNINGS)) {
       saveExistingMeasureToContext(DUPLICATE_WARNINGS, SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, 0);
     }
-
-    double taskRefs = 0;
-
-    // TODO: Under what conditions can the ruleFinder be null?
-    if (ruleFinder != null) {
-
-      // TODO: Move that method one level up and call it from the main analyse method.
-      taskRefs = handleTasks(report.getTasks(), buildUnitName);
-    }
-    saveMeasureToContext(SonargraphBuildUnitMetrics.TASK_REFS, taskRefs, 0);
   }
 
-  private void handleArchitectureViolations(XsdViolations violations, String buildUnitName) {
+  void handleArchitectureViolations(ReportContext report, XsdAttributeRoot buildUnit) {
+
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
       LOG.error("Sonargraph architecture rule not found");
       return;
     }
+    XsdViolations violations = report.getViolations();
     String uses = "uses ";
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
@@ -381,39 +326,37 @@ public final class SonargraphSensor implements Sensor {
           message = "Architecture violation: ";
         }
         int indentation = message.length() - uses.length();
-        message = message + type + "\n" + Utilities.generateSpaceEntity(indentation) + uses + toType;
+        message = message + type + "\n" + Utilities.generateSpaces(indentation) + uses + toType;
         String explanation = "\nExplanation: " + Utilities.getAttribute(rel.getAttribute(), "Explanation");
 
         bu = Utilities.getBuildUnitName(bu);
-        if (bu.equals(buildUnitName)) {
+        if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
           for (XsdPosition pos : rel.getPosition()) {
-            if (rule != null) {
-              String relFileName = pos.getFile();
-              int line = 0;
-              try {
-                line = Integer.parseInt(pos.getLine());
-              } catch (NumberFormatException ex) {
-                LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine()
-                    + ". Exception: " + ex.getMessage());
-                continue;
-              }
-              if (relFileName != null && (pos.getType() != null) && (line > 0)) {
-                String fqName = Utilities.relativeFileNameToFqName(relFileName);
-                String msg = message + ". Usage type: " + pos.getType() + explanation;
-                LOG.debug(msg);
-                saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
-              }
+            String relFileName = pos.getFile();
+            int line = 0;
+            try {
+              line = Integer.parseInt(pos.getLine());
+            } catch (NumberFormatException ex) {
+              LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine()
+                  + ". Exception: " + ex.getMessage());
+              continue;
+            }
+            if (relFileName != null && (pos.getType() != null) && (line > 0)) {
+              String fqName = Utilities.relativeFileNameToFqName(relFileName);
+              String msg = message + ". Usage type: " + pos.getType() + explanation;
+              LOG.debug(msg);
+              saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
             }
           }
         }
       }
-
     }
-    
   }
 
-  private void handleWarnings(XsdWarnings warnings, String buildUnitName) {
+  void handleWarnings(ReportContext report, XsdAttributeRoot buildUnit) {
+    XsdWarnings warnings = report.getWarnings();
     for (XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
+
       String key = SonargraphPluginBase.getRuleKey(warningGroup.getAttributeGroup());
       if (key == null) {
         continue;
@@ -421,6 +364,10 @@ public final class SonargraphSensor implements Sensor {
       Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, key);
       if (rule == null) {
         LOG.error("Sonargraph threshold rule not found");
+        continue;
+      }
+      if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
+        handleDuplicateCodeBlocks(warningGroup, rule);
         continue;
       }
       for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
@@ -431,14 +378,13 @@ public final class SonargraphSensor implements Sensor {
           String bu = Utilities.getAttribute(warning.getAttribute(), "Build unit");
 
           bu = Utilities.getBuildUnitName(bu);
-          if (bu.equals(buildUnitName)) {
+          if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
             if (warning.getPosition().size() > 0) {
               for (XsdPosition pos : warning.getPosition()) {
                 String relFileName = pos.getFile();
 
                 if (relFileName != null) {
                   String fqName = Utilities.relativeFileNameToFqName(relFileName);
-
                   saveViolation(rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
                 }
               }
@@ -459,7 +405,33 @@ public final class SonargraphSensor implements Sensor {
     }
   }
 
-  private int handleTasks(XsdTasks tasks, String buildUnitName) {
+  void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule) {
+    Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
+
+    for (XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
+      for (XsdWarning warning : warnings.getWarning()) {
+        DuplicateCodeBlock block = Utilities.createDuplicateCodeBlock(warning);
+        if (null == block) {
+          continue;
+        }
+        if ( !duplicateCodeBlocks.containsKey(block.getBlockId())) {
+          duplicateCodeBlocks.put(block.getBlockId(), new ArrayList<DuplicateCodeBlock>());
+        }
+        duplicateCodeBlocks.get(block.getBlockId()).add(block);
+      }
+    }
+
+    for (Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
+      for (DuplicateCodeBlock block : entry.getValue()) {
+        String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
+        String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
+        saveViolation(rule, null, fqName, block.getStartLine(), message);
+      }
+    }
+  }
+
+  void handleTasks(ReportContext report, XsdAttributeRoot buildUnit) {
+    XsdTasks tasks = report.getTasks();
     Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
 
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
@@ -467,7 +439,7 @@ public final class SonargraphSensor implements Sensor {
 
     if (rule == null) {
       LOG.error("Sonargraph task rule not found");
-      return 0;
+      return;
     }
 
     priorityMap.put("Low", RulePriority.INFO);
@@ -478,7 +450,7 @@ public final class SonargraphSensor implements Sensor {
       String bu = Utilities.getAttribute(task.getAttribute(), "Build unit");
 
       bu = Utilities.getBuildUnitName(bu);
-      if (bu.equals(buildUnitName)) {
+      if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
         String priority = Utilities.getAttribute(task.getAttribute(), "Priority");
         String description = Utilities.getAttribute(task.getAttribute(), "Description");
         String assignedTo = Utilities.getAttribute(task.getAttribute(), "Assigned to");
@@ -516,7 +488,7 @@ public final class SonargraphSensor implements Sensor {
         }
       }
     }
-    return count;
+    saveMeasureToContext(SonargraphBuildUnitMetrics.TASK_REFS, count, 0);
   }
 
   private boolean hasBuildUnitMetric(String key) {
