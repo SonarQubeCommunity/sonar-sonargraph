@@ -127,14 +127,19 @@ public final class SonargraphSensor implements Sensor {
     this.sensorContext = sensorContext;
 
     Configuration configuration = project.getConfiguration();
-   
 
+    if (Utilities.isRootParentProject(project)) {
+      /* Nothing to analyse for parent project, only decorators are executed */
+      return;
+    }
+      
+    
     // This is needed to ease testing
     if (null == report) {
       /* Report has not been set - live system */
-      String reportPath = getReportFileName(project.getFileSystem().getBuildDir().getPath(), configuration);
-      report = ReportFileReader.readSonargraphReport(reportPath);
+      String reportPath = this.getReportFileName(project.getFileSystem().getBuildDir().getPath(), configuration);
       LOG.info("Reading Sonargraph metrics report from: " + reportPath);
+      report = ReportFileReader.readSonargraphReport(reportPath, project.isRoot());
     } else {
       /* Report has been set - test */
       LOG.info("Using Sonargraph metrics report: " + report.getName());
@@ -163,7 +168,7 @@ public final class SonargraphSensor implements Sensor {
     }
 
     this.analyseSystemMeasures(report, null);
-    this.analyseCylceGroups(report, buildUnit);
+    this.analyseCylceGroups(report, buildUnit, project);
 
     if (hasBuildUnitMetric(UNASSIGNED_TYPES)) {
       LOG.info("Adding architecture measures for " + project.getName());
@@ -181,6 +186,7 @@ public final class SonargraphSensor implements Sensor {
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
+
 
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     XsdBuildUnits buildUnits = report.getBuildUnits();
@@ -207,6 +213,7 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void analyseBuildUnit(final ReportContext report, final XsdAttributeRoot buildUnit) {
+    LOG.debug("Analysing buildUnit: " + buildUnit.getName());
 
     /** Load all attributes and values in map */
     Utilities.readAttributesToMap(buildUnit, buildUnitMetrics);
@@ -229,7 +236,9 @@ public final class SonargraphSensor implements Sensor {
     saveExistingMeasureToContext(STUCTURAL_DEBT_INDEX, SonargraphBuildUnitMetrics.EROSION_INDEX, 0).getValue();
   }
 
-  void analyseCylceGroups(ReportContext report, XsdAttributeRoot buildUnit) {
+  void analyseCylceGroups(ReportContext report, XsdAttributeRoot buildUnit, Project project) {
+    LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
+
     XsdCycleGroups cycleGroups = report.getCycleGroups();
     double cyclicity = 0;
     double biggestCycleGroupSize = 0;
@@ -250,6 +259,21 @@ public final class SonargraphSensor implements Sensor {
 
     saveMeasureToContext(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
     saveMeasureToContext(SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
+
+    if (project.isRoot()) {
+      /* Decorators are not executed for projects with single build unit, therefore we need this calculation here */
+      double packages = sensorContext.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES).getValue();
+      if (packages > 0) {
+        double relCyclicity = 100.0 * Math.sqrt(cyclicity) / packages;
+        double relCyclicPackages = 100.0 * cyclicPackages / packages;
+        saveMeasureToContext(SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity, 0);
+        saveMeasureToContext(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages, 1);
+      } else {
+        saveMeasureToContext(SonargraphSystemMetrics.RELATIVE_CYCLICITY, 0, 0);
+        saveMeasureToContext(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
+      }
+      
+    }
     saveMeasureToContext(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
   }
 
@@ -261,6 +285,8 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void analyseSystemMeasures(ReportContext report, XsdAttributeRoot root) {
+    LOG.debug("Analysing system metrics");
+
     Map<String, Number> systemAttributes = new HashMap<String, Number>();
     Utilities.readAttributesToMap(report.getAttributes(), systemAttributes);
 
@@ -274,6 +300,8 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void addArchitectureMeasures(ReportContext report, XsdAttributeRoot buildUnit) {
+    LOG.debug("Analysing architectural measures of build unit: " + buildUnit.getName());
+
     double types = saveExistingMeasureToContext(INTERNAL_TYPES, SonargraphBuildUnitMetrics.INTERNAL_TYPES, 0)
         .getValue();
     assert types >= 1.0 : "Project must not be empty !";
@@ -303,6 +331,7 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void handleArchitectureViolations(ReportContext report, XsdAttributeRoot buildUnit) {
+    LOG.debug("Analysing architecture violation of buildUnit: " + buildUnit.getName());
 
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
@@ -354,6 +383,8 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void handleWarnings(ReportContext report, XsdAttributeRoot buildUnit) {
+    LOG.debug("Analysing warnings of buildUnit: " + buildUnit.getName());
+
     XsdWarnings warnings = report.getWarnings();
     for (XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
 
@@ -406,6 +437,8 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule) {
+    LOG.debug("Analysing duplicate code blocks");
+
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
 
     for (XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
@@ -431,6 +464,8 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void handleTasks(ReportContext report, XsdAttributeRoot buildUnit) {
+    LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
+
     XsdTasks tasks = report.getTasks();
     Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
 

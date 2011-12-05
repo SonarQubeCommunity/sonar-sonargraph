@@ -45,9 +45,10 @@ public class ReportFileReader {
    * Unmarshals the Sonargraph Report into a ReportContext
    * 
    * @param reportFileName the file name of the Sonargraph Report to be opened
+   * @param isRoot specifies if this project is the root project or a module
    * @return {@link ReportContext} if successful, null otherwise
    */
-  public static ReportContext readSonargraphReport(String reportFileName) {
+  public static ReportContext readSonargraphReport(String reportFileName, boolean isRoot) {
     ReportContext result = null;
     InputStream input = null;
     ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
@@ -62,11 +63,13 @@ public class ReportFileReader {
     } catch (JAXBException e) {
       LOG.error("JAXB Problem in " + reportFileName, e);
     } catch (FileNotFoundException e) {
-      LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
-      LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
-          + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
-      LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
-          + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
+      if(isRoot) {
+        LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
+        LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
+            + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
+        LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
+            + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
+      }
     } finally {
       Thread.currentThread().setContextClassLoader(defaultClassLoader);
       if (input != null) {

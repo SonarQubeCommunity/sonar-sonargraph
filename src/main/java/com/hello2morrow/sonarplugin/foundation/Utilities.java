@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
@@ -101,6 +102,18 @@ public final class Utilities {
   
   public static boolean isAggregationProject(DecoratorContext context, final Metric indicator) {
     return context.getChildrenMeasures(indicator).size() > 0;
+  }
+  
+  public static boolean isRootParentProject(final Project project) {
+    boolean isRootParentProject = false;
+    if (null == project) {
+      return false;
+    }
+    List<Project> modules = project.getModules();
+    if (null == project.getParent() && null != modules && modules.size() > 0)  {
+      isRootParentProject = true;
+    }
+    return isRootParentProject;
   }
   
   public static String generateSpaceEntity(int numberOfSpaces) {

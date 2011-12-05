@@ -18,27 +18,28 @@
 /**
  * 
  */
-package com.hello2morrow.sonarplugin.foundation;
+package com.hello2morrow.sonarplugin.api;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import org.junit.Assert;
 import org.junit.Test;
+import org.sonar.api.SonarPlugin;
+
 
 /**
  * @author Ingmar
  *
  */
-public class ReportFileReaderTest {
+public class SonargraphPluginTest {
 
-  private static final String reportFileName = "src/test/resources/sonargraph-sonar-report.xml";
-  
   /**
-   * Test method for {@link com.hello2morrow.sonarplugin.foundation.ReportFileReader#readSonargraphReport(java.lang.String)}.
+   * Test method for {@link com.hello2morrow.sonarplugin.api.SonargraphPlugin#getExtensions()}.
    */
+  @SuppressWarnings("deprecation")
   @Test
-  public void testReadSonargraphReport() {
-    assertNotNull(ReportFileReader.readSonargraphReport(reportFileName, false));
-    assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", false));
+  public void testGetExtensions() {
+    SonarPlugin plugin = new SonargraphPlugin();
+    Assert.assertNotNull(plugin.getExtensions());
+    Assert.assertTrue(plugin.getExtensions().size() > 0);
   }
+
 }

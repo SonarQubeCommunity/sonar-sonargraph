@@ -18,12 +18,15 @@
 package com.hello2morrow.sonarplugin.foundation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -101,6 +104,27 @@ public class UtilitiesTest {
     assertEquals(expected, message);
   }
 
+  @Test
+  public void testIsRootParentProject() {
+    assertFalse(Utilities.isRootParentProject(null));
+    
+    Project singleProject = new Project("Test", null, "Test");
+    assertFalse(Utilities.isRootParentProject(singleProject));
+    
+    
+    Project parentProject = new Project("Parent", null, "Parent");
+    Project module = new Project("Module", null, "Module");
+    module.setParent(parentProject);
+    assertTrue(Utilities.isRootParentProject(parentProject));
+    assertFalse(Utilities.isRootParentProject(module));
+    
+    Project parentRoot = new Project("Parent", null, "Parent");
+    singleProject.setParent(parentRoot);
+    
+    assertFalse(Utilities.isRootParentProject(singleProject));
+    assertTrue(Utilities.isRootParentProject(parentRoot));
+  }
+  
   private List<DuplicateCodeBlock> createCodeBlocks() {
     List<DuplicateCodeBlock> list = new ArrayList<DuplicateCodeBlock>();
 
@@ -127,5 +151,7 @@ public class UtilitiesTest {
 
     return list;
   }
+  
+  
 
 }

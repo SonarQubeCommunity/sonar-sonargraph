@@ -17,6 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import org.sonar.api.rules.RuleFinder;
 
 import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 
 
@@ -51,7 +53,7 @@ public class SonargraphSensorTest {
   private static Configuration config;
   private static SensorContext sensorContext;
   private SonargraphSensor sensor;
-  private static final String REPORT = "src/test/resources/infoglue21-report.xml";
+  private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
 
 
   @BeforeClass
@@ -71,9 +73,13 @@ public class SonargraphSensorTest {
   
   @Test
   public void testAnalyse() {
-    Project project = TestHelper.initProject();
-
+    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
+    project.setConfiguration(TestHelper.initConfig());
     sensor.analyse(project, sensorContext);
+    double value = sensorContext.getMeasure(SonargraphSystemMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
+    assertEquals(0.0, value, 0.01);
+    
+    
   }
   
   public void testHandleDuplicateCodeBlocks() {
@@ -138,17 +144,11 @@ public class SonargraphSensorTest {
 
     
     public static ReportContext initReport() {
-      ReportContext report = ReportFileReader.readSonargraphReport(REPORT);
+      ReportContext report = ReportFileReader.readSonargraphReport(REPORT, false);
       assertNotNull(report);
       return report;
     }
-    
-    public static Project initProject() {
-      Project project = new Project("org.codehaus.sonar-plugins:infoglue21", "", "infoglue");
-      project.setConfiguration(initConfig());
-      return project;
-    }
-
+   
   }
   
 }

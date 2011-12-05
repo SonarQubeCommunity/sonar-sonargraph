@@ -42,7 +42,7 @@ public class ReadTest extends TestCase {
 
   @SuppressWarnings("rawtypes")
   public void testAnalyse() {
-    ReportContext report = ReportFileReader.readSonargraphReport("src/test/resources/infoglue21-report.xml");
+    ReportContext report = ReportFileReader.readSonargraphReport("src/test/resources/infoglue21-report.xml", true);
 
     assertNotNull(report);
 

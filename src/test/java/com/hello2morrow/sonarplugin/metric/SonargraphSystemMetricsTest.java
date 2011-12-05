@@ -18,27 +18,29 @@
 /**
  * 
  */
-package com.hello2morrow.sonarplugin.foundation;
+package com.hello2morrow.sonarplugin.metric;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.sonar.api.measures.Metrics;
+
 
 /**
  * @author Ingmar
  *
  */
-public class ReportFileReaderTest {
+public class SonargraphSystemMetricsTest {
 
-  private static final String reportFileName = "src/test/resources/sonargraph-sonar-report.xml";
-  
   /**
-   * Test method for {@link com.hello2morrow.sonarplugin.foundation.ReportFileReader#readSonargraphReport(java.lang.String)}.
+   * Test method for {@link com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics#getMetrics()}.
    */
   @Test
-  public void testReadSonargraphReport() {
-    assertNotNull(ReportFileReader.readSonargraphReport(reportFileName, false));
-    assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", false));
+  public void testGetMetrics() {
+    Metrics metrics = new SonargraphSystemMetrics();
+    assertNotNull(metrics.getMetrics());
+    assertTrue(metrics.getMetrics().size() > 0);
   }
+
 }
