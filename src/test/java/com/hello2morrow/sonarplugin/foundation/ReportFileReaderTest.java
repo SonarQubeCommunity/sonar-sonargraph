@@ -40,5 +40,7 @@ public class ReportFileReaderTest {
   public void testReadSonargraphReport() {
     assertNotNull(ReportFileReader.readSonargraphReport(reportFileName, false));
     assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", false));
+    assertNull(ReportFileReader.readSonargraphReport("src/test/resources/report_error.xml", false));
+    assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", true));
   }
 }
