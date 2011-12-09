@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is a script file that helps locally with the development of the maven plugin.
+	 It is not meant to run automatically on the integration system.
+	 You have to adjust the file paths before the targets are executable.
+	 
+	 TODO: Put the absolute paths in a separate properties file.
+-->
+<project name="Scripts" basedir="../../..">
+	<condition property="mvn.executable" value="mvn" else="mvnDebug.bat">
+		<os family="unix" />
+	</condition>
+
+	<property name="sonar.dir" value="D:/Programs/sonar-2.10" />
+	<property name="sonarBatDir" value="${sonar.dir}/bin/windows-x86-64" />
+
+	<property name="workspace" value="D:/00_workspace" />
+	<property name="project.dir" value="${workspace}/training/Examples/Example5/AlarmClockMvn" />
+	<property name="param.file" value="${project.dir}/Example1Exercise1.sonargraph" />
+
+
+	<property name="param.license" value="C:/Users/Ingmar/.hello2morrow/SonargraphQuality/Sonargraph-QualityAndQualityBuild.license" />
+	<property name="param.installationDirectory" value="D:/Programs/SonargraphQuality7.1.3" />
+	<property name="version" value="7.1.3" />
+	<property name="plugin" value="com.hello2morrow.sonargraph:maven-sonargraph-plugin:${version}" />
+
+	<target name="installModule">
+		<exec executable="${mvn.executable}" dir="${basedir}" failonerror="true">
+			<arg value="-o" />
+			<arg value="clean" />
+			<arg value="package" />
+			<arg value="install" />
+		</exec>
+	</target>
+
+	<target name="startSonar">
+		<exec dir="${sonarBatDir}" executable="cmd" os="Windows NT">
+			<arg value="-c" />
+			<arg value="StartSonar.bat" />
+		</exec>
+	</target>
+
+	<target name="copySonargraphJar" depends="installModule">
+		<copy todir="${sonar.dir}/extensions/plugins" overwrite="true" failonerror="true">
+			<fileset dir="target" includes="sonar-sonargraph-plugin*.jar" />
+		</copy>
+	</target>
+
+	<target name="createReportAndPublish">
+		<!--depends="05_createSnapshotWithLicense"-->
+
+		<exec executable="${mvn.executable}" dir="${project.dir}" failonerror="true">
+			<arg value="-o" />
+			<!-- arg value="-e" / -->
+			<arg value="${plugin}:quality-report-direct-parsing-mode" />
+			<arg value="-Dsonargraph.verbose=true" />
+			<arg value="-Dsonargraph.reportType=XML" />
+			<arg value="-Dsonargraph.prepareForSonar=true" />
+			<arg value="-Dsonargraph.installationDirectory=${param.installationDirectory}" />
+			<arg value="-Dsonargraph.file=${param.file}" />
+			<arg value="-Dsonargraph.license=${param.license}" />
+			<arg value="-Dsonargraph.aggregate=true" />
+			<arg value="sonar:sonar" />
+		</exec>
+	</target>
+
+	<target name="09_createReportDirectParsingMode">
+		<exec executable="${mvn.executable}" dir="${project.dir}" failonerror="true">
+			<arg value="-o" />
+			<arg value="-e" />
+			<arg value="${plugin}:quality-report-direct-parsing-mode" />
+			<arg value="-Dsonargraph.reportType=XML" />
+			<arg value="-Dsonargraph.license=${param.license}" />
+			<arg value="-Dsonargraph.file=${param.file}" />
+			<arg value="-Dsonargraph.verbose=true" />
+			<arg value="-Dsonargraph.reportDirectory=C:/DummyReport" />
+			<arg value="-Dsonargraph.reportName=test" />
+			<arg value="-Dsonargraph.aggregate=true" />
+			<arg value="-Dsonargraph.useSonargraphWorkspace=true" />
+			<arg value="-Dsonargraph.prepareForSonar=true" />
+
+			<arg value="-Dsonargraph.failOnArchitectureViolations=false" />
+			<arg value="-Dsonargraph.failOnCyclicElements=false" />
+			<arg value="-Dsonargraph.failOnThresholdViolations=false" />
+			<arg value="-Dsonargraph.failOnArchitectureWarnings=false" />
+			<arg value="-Dsonargraph.failOnWorkspaceWarnings=false" />
+			<arg value="-Dsonargraph.failOnWorkItems=false" />
+			<arg value="-Dsonargraph.failOnEmptyWorkspace=false" />
+			<arg value="-Dsonargraph.failOnUnassignedTypes=false" />
+			<arg value="sonar:sonar" />
+
+		</exec>
+	</target>
+
+
+
+</project>

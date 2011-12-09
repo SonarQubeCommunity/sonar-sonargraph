@@ -339,13 +339,12 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
     XsdViolations violations = report.getViolations();
-    String uses = "uses ";
+    String uses = "Uses ";
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
       for (XsdTypeRelation rel : violation.getTypeRelation()) {
         String toType = Utilities.getAttribute(rel.getAttribute(), "To");
         String bu = Utilities.getAttribute(rel.getAttribute(), "From build unit");
-        String type = Utilities.getAttribute(rel.getAttribute(), "From");
 
         String dimension = violation.getDimension();
         String message = "";
@@ -354,8 +353,7 @@ public final class SonargraphSensor implements Sensor {
         } else {
           message = "Architecture violation: ";
         }
-        int indentation = message.length() - uses.length();
-        message = message + type + "\n" + Utilities.generateSpaces(indentation) + uses + toType;
+        message = message + uses + toType;
         String explanation = "\nExplanation: " + Utilities.getAttribute(rel.getAttribute(), "Explanation");
 
         bu = Utilities.getBuildUnitName(bu);
