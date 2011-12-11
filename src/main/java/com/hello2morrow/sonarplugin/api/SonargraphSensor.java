@@ -537,7 +537,9 @@ public final class SonargraphSensor implements Sensor {
 
     if (num == null) {
       LOG.error("Cannot find metric <" + key + "> in generated report");
-      LOG.error("Probably you forgot to set the prepareForSonar option to true (see documentation)");
+      LOG.error("Make sure you set the prepareForSonar option to true (see documentation).");
+      LOG.error("If you used Sonargraph Quality for report generation: "
+          + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
       return 0.0;
     }
     return num.doubleValue();
