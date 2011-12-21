@@ -132,8 +132,7 @@ public final class SonargraphSensor implements Sensor {
       /* Nothing to analyse for parent project, only decorators are executed */
       return;
     }
-      
-    
+
     // This is needed to ease testing
     if (null == report) {
       /* Report has not been set - live system */
@@ -162,8 +161,11 @@ public final class SonargraphSensor implements Sensor {
     double indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
         SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
     if (indexCost > 0) {
-      double structuralDebtCost = sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX).getValue()
-          * indexCost;
+      Measure erosionIndex = sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX);
+      double structuralDebtCost = 0;
+      if (null != erosionIndex) {
+        structuralDebtCost = erosionIndex.getValue() * indexCost;
+      } 
       saveMeasureToContext(SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
     }
 
@@ -186,7 +188,6 @@ public final class SonargraphSensor implements Sensor {
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
-
 
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     XsdBuildUnits buildUnits = report.getBuildUnits();
@@ -272,7 +273,7 @@ public final class SonargraphSensor implements Sensor {
         saveMeasureToContext(SonargraphSystemMetrics.RELATIVE_CYCLICITY, 0, 0);
         saveMeasureToContext(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
       }
-      
+
     }
     saveMeasureToContext(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
   }
