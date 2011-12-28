@@ -120,6 +120,12 @@ public final class SonargraphSensor implements Sensor {
   }
 
   public void analyse(final Project project, SensorContext sensorContext) {
+    if (null == project || null == sensorContext) {
+      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. "
+          + "Please check your project configuration!");
+      return;
+    }
+
     LOG.info("------------------------------------------------------------------------");
     LOG.info("Execute sonar-sonargraph-plugin for " + project.getName());
     LOG.info("------------------------------------------------------------------------");
@@ -161,11 +167,11 @@ public final class SonargraphSensor implements Sensor {
     double indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
         SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
     if (indexCost > 0) {
-      Measure erosionIndex = sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX);
+      Measure erosionIndex = this.sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX);
       double structuralDebtCost = 0;
       if (null != erosionIndex) {
         structuralDebtCost = erosionIndex.getValue() * indexCost;
-      } 
+      }
       saveMeasureToContext(SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
     }
 
