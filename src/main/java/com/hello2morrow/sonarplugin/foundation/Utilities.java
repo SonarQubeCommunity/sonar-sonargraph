@@ -24,8 +24,16 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.Violation;
 
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
@@ -110,7 +118,7 @@ public final class Utilities {
       return false;
     }
     List<Project> modules = project.getModules();
-    if (null == project.getParent() && null != modules && modules.size() > 0)  {
+    if (null == project.getParent() && null != modules && !modules.isEmpty())  {
       isRootParentProject = true;
     }
     return isRootParentProject;
@@ -204,6 +212,62 @@ public final class Utilities {
     }
     message.append(".");
     return message.toString();
+  }
+
+
+  public static void saveViolation(SensorContext sensorContext, Rule rule, RulePriority priority, String fqName, int line, String msg) {
+    Resource<JavaPackage> javaFile = sensorContext.getResource(new JavaFile(fqName));
+  
+    if (javaFile == null) {
+      LOG.error("Cannot obtain resource " + fqName);
+    } else {
+      Violation v = Violation.create(rule, javaFile);
+  
+      v.setMessage(msg);
+      if (line == 0) {
+        v.setLineId(null);
+      } else {
+        v.setLineId(line);
+      }
+      if (priority != null) {
+        v.setSeverity(priority);
+      }
+      sensorContext.saveViolation(v);
+    }
+  }
+
+
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics,
+      String key, Metric metric, int precision) {
+    double value = Utilities.getBuildUnitMetricValue(metrics, key);
+  
+    return Utilities.saveMeasureToContext(sensorContext, metric, value, precision);
+  }
+
+
+  public static Measure saveMeasureToContext(SensorContext sensorContext, Metric metric, double value, int precision) {
+    Measure m = new Measure(metric, value, precision);
+    sensorContext.saveMeasure(m);
+    return m;
+  }
+
+
+  public static double getBuildUnitMetricValue(Map<String, Number> metrics, String key) {
+    return getMetricValueFromMap(key, metrics);
+  }
+
+
+  public static double getMetricValueFromMap(String key, Map<String, Number> metrics) {
+    Number num = metrics.get(key);
+  
+    if (num == null) {
+      LOG.error("Cannot find metric <" + key + "> in generated report");
+      LOG.error("Make sure you set the prepareForSonar option to true (see documentation).");
+      LOG.error("If you used Sonargraph Quality for report generation: "
+          + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
+      return 0.0;
+    }
+    return num.doubleValue();
   }
   
 }

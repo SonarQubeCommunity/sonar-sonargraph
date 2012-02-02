@@ -41,11 +41,16 @@ public class ReportFileReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
 
+  private ReportFileReader() {
+  }
+
   /**
    * Unmarshals the Sonargraph Report into a ReportContext
    * 
-   * @param reportFileName the file name of the Sonargraph Report to be opened
-   * @param isRoot specifies if this project is the root project or a module
+   * @param reportFileName
+   *          the file name of the Sonargraph Report to be opened
+   * @param isRoot
+   *          specifies if this project is the root project or a module
    * @return {@link ReportContext} if successful, null otherwise
    */
   public static ReportContext readSonargraphReport(String reportFileName, boolean isRoot) {
@@ -63,7 +68,7 @@ public class ReportFileReader {
     } catch (JAXBException e) {
       LOG.error("JAXB Problem in " + reportFileName, e);
     } catch (FileNotFoundException e) {
-      if(isRoot) {
+      if (isRoot) {
         LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
         LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
             + "or with the commandline option -Dsonargraph.prepareForSonar=true?");

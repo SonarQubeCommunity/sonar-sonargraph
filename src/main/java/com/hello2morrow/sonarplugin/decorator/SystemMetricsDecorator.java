@@ -92,21 +92,14 @@ public class SystemMetricsDecorator implements Decorator {
     context.saveMeasure(SonargraphSystemMetrics.HIGHEST_ACD, highestACD);
     context.saveMeasure(SonargraphSystemMetrics.HIGHEST_NCCD, highestNCCD);
 
-    Measure cyclicity = context.getMeasure(SonargraphBuildUnitMetrics.CYCLICITY);
-    Measure packages = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES);
-    Measure cyclicPackages = context.getMeasure(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES);
+    saveCyclicityMeasures(context);
 
-    if (cyclicity == null || packages == null || cyclicPackages == null) {
-      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
-          + context.getProject().getKey());
-    } else {
-      double relCyclicity = 100.0 * Math.sqrt(cyclicity.getValue()) / packages.getValue();
-      double relCyclicPackages = 100.0 * cyclicPackages.getValue() / packages.getValue();
+    saveTypeMeasures(context);
 
-      context.saveMeasure(SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity);
-      context.saveMeasure(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
-    }
+    AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
+  }
 
+  private void saveTypeMeasures(DecoratorContext context) {
     Measure violatingTypes = context.getMeasure(SonargraphBuildUnitMetrics.VIOLATING_TYPES);
     if (null != violatingTypes) {
       LOG.debug("Number of violating types: " + violatingTypes.getValue());
@@ -127,8 +120,23 @@ public class SystemMetricsDecorator implements Decorator {
             / internalTypes.getValue());
       }
     }
+  }
 
-    AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
+  private void saveCyclicityMeasures(DecoratorContext context) {
+    Measure cyclicity = context.getMeasure(SonargraphBuildUnitMetrics.CYCLICITY);
+    Measure packages = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES);
+    Measure cyclicPackages = context.getMeasure(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES);
+
+    if (cyclicity == null || packages == null || cyclicPackages == null) {
+      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
+          + context.getProject().getKey());
+    } else {
+      double relCyclicity = 100.0 * Math.sqrt(cyclicity.getValue()) / packages.getValue();
+      double relCyclicPackages = 100.0 * cyclicPackages.getValue() / packages.getValue();
+
+      context.saveMeasure(SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity);
+      context.saveMeasure(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
+    }
   }
 
   private void saveMeasuresToContext(DecoratorContext context, List<Measure> measures) {

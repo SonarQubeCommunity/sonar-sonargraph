@@ -70,7 +70,7 @@ public class ReadTest extends TestCase {
       }
     });
 
-    SonargraphSensor sensor = new SonargraphSensor(ruleFinder, config);
+    SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
 
     final SensorContext sensorContext = mock(SensorContext.class);
 

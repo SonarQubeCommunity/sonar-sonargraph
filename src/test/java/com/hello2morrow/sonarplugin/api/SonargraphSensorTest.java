@@ -67,7 +67,7 @@ public class SonargraphSensorTest {
   
   @Before
   public void initSensor() {
-    this.sensor = new SonargraphSensor(ruleFinder, config);
+    this.sensor = new SonargraphSensor(ruleFinder /*, config*/);
     sensor.setReport(report);
   }
   

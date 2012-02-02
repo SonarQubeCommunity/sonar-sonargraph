@@ -50,7 +50,7 @@ public class SonargraphSystemMetrics implements Metrics {
       "Biggest Cycle Group", Metric.ValueType.INT).setDescription("Number of Packages in Biggest Cycle Group")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
- public static final Metric CYCLIC_PACKAGES_PERCENT = new Metric.Builder("sonargraph_cyclic_packages_percent",
+  public static final Metric CYCLIC_PACKAGES_PERCENT = new Metric.Builder("sonargraph_cyclic_packages_percent",
       "Percentage of Cyclic Packages", Metric.ValueType.PERCENT)
       .setDescription("Percentage of Cyclically Coupled Packages").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
@@ -85,7 +85,7 @@ public class SonargraphSystemMetrics implements Metrics {
       "Workspace Warnings", Metric.ValueType.INT).setDescription("Number of Sonargraph Parser Warnings")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
   
- public List<Metric> getMetrics() {
+  public List<Metric> getMetrics() {
     return Arrays.asList(ACD, NCCD, HIGHEST_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, 
         CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY, 
         ALL_WARNINGS, CYCLE_WARNINGS, WORKSPACE_WARNINGS, ARCHITECTURE_VIOLATIONS, 
