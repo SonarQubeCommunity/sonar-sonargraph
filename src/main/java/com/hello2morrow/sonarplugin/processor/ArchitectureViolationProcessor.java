@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin.handler;
+package com.hello2morrow.sonarplugin.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package com.hello2morrow.sonarplugin.handler;
+package com.hello2morrow.sonarplugin.processor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
