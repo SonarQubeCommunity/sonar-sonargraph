@@ -26,7 +26,7 @@ if measure('sonargraph_acd')
               <%= format_measure('sonargraph_biggest_cycle_group', :suffix => ' biggest cycle group size') -%> <%= tendency_icon(measure('sonargraph_biggest_cycle_group')) %>
         </td>
         <td>
-              <%= format_measure('sonargraph_nccd', :suffix => ' NCCD (John Lakos)') -%> <%= tendency_icon(measure('sonargraph_nccd')) %>
+              <%= format_measure('sonargraph_nccd') -%> <%= tendency_icon(measure('sonargraph_nccd')) %> NCCD (John Lakos)
         </td>
     </tr>
     <tr>
@@ -77,7 +77,7 @@ elsif measure('sonargraph_biggest_cycle_group')
               <%= format_measure('sonargraph_biggest_cycle_group', :suffix => ' biggest cycle group size') -%> <%= tendency_icon(measure('sonargraph_biggest_cycle_group')) %>
         </td>
         <td>
-              <%= format_measure('sonargraph_highest_nccd', :suffix => ' Highest NCCD') -%> <%= tendency_icon(measure('sonargraph_highest_nccd')) %>
+              <%= format_measure('sonargraph_highest_nccd') -%> <%= tendency_icon(measure('sonargraph_highest_nccd')) %> Highest NCCD
         </td>
     </tr>
     <tr>
