@@ -37,7 +37,7 @@ import com.hello2morrow.sonarplugin.xsd.ReportContext;
  * @author Ingmar
  * 
  */
-public class ReportFileReader {
+public final class ReportFileReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
 

@@ -118,7 +118,7 @@ public class WarningProcessor implements IProcessor {
     }
   }
   
-  private final void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule) {
+  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule) {
     LOG.debug("Analysing duplicate code blocks");
 
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
