@@ -39,10 +39,9 @@ import com.hello2morrow.sonarplugin.xsd.XsdPosition;
 import com.hello2morrow.sonarplugin.xsd.XsdTask;
 import com.hello2morrow.sonarplugin.xsd.XsdTasks;
 
-
 /**
  * @author Ingmar
- *
+ * 
  */
 public class TaskProcessor implements IProcessor {
 
@@ -53,40 +52,43 @@ public class TaskProcessor implements IProcessor {
     this.ruleFinder = ruleFinder;
     this.sensorContext = sensorContext;
   }
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
 
-  /* (non-Javadoc)
-   * @see com.hello2morrow.sonarplugin.handler.IProcessor#process(com.hello2morrow.sonarplugin.xsd.ReportContext, com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.hello2morrow.sonarplugin.handler.IProcessor#process(com.hello2morrow.sonarplugin.xsd.ReportContext,
+   * com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot)
    */
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
-      LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
+    LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
-      XsdTasks tasks = report.getTasks();
-      Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
+    XsdTasks tasks = report.getTasks();
+    Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
 
-      Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
-      int count = 0;
+    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
+    int count = 0;
 
-      if (rule == null) {
-        LOG.error("Sonargraph task rule not found");
-        return;
-      }
-
-      priorityMap.put("Low", RulePriority.INFO);
-      priorityMap.put("Medium", RulePriority.MINOR);
-      priorityMap.put("High", RulePriority.MAJOR);
-
-      for (XsdTask task : tasks.getTask()) {
-        String bu = Utilities.getAttribute(task.getAttribute(), "Build unit");
-
-        bu = Utilities.getBuildUnitName(bu);
-        if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-          count = handleTask(priorityMap, rule, count, task);
-        }
-      }
-      Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.TASK_REFS, count, 0);
+    if (rule == null) {
+      LOG.error("Sonargraph task rule not found");
+      return;
     }
+
+    priorityMap.put("Low", RulePriority.INFO);
+    priorityMap.put("Medium", RulePriority.MINOR);
+    priorityMap.put("High", RulePriority.MAJOR);
+
+    for (XsdTask task : tasks.getTask()) {
+      String bu = Utilities.getAttribute(task.getAttribute(), "Build unit");
+
+      bu = Utilities.getBuildUnitName(bu);
+      if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+        count = handleTask(priorityMap, rule, count, task);
+      }
+    }
+    Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.TASK_REFS, count, 0);
+  }
 
   private int handleTask(Map<String, RulePriority> priorityMap, Rule rule, int count, XsdTask task) {
     String priority = Utilities.getAttribute(task.getAttribute(), "Priority");
@@ -145,5 +147,4 @@ public class TaskProcessor implements IProcessor {
     return descr;
   }
 
-  
 }
