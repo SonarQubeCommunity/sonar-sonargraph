@@ -50,7 +50,6 @@ public class SonargraphSensorTest {
 
   private static ReportContext report;
   private static RuleFinder ruleFinder;
-  private static Configuration config;
   private static SensorContext sensorContext;
   private SonargraphSensor sensor;
   private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
@@ -59,7 +58,6 @@ public class SonargraphSensorTest {
   @BeforeClass
   public static void initialize() {
     ruleFinder = TestHelper.initRuleFinder();
-    config = TestHelper.initConfig();
     sensorContext = TestHelper.initSensorContext();
     report = TestHelper.initReport();
   }

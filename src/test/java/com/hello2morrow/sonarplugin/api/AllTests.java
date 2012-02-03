@@ -21,16 +21,22 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.hello2morrow.sonarplugin.decorator.SystemMetricsDecoratorTest;
 import com.hello2morrow.sonarplugin.foundation.ReportFileReaderTest;
 import com.hello2morrow.sonarplugin.foundation.UtilitiesTest;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetricsTest;
 import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetricsTest;
 
-
 @RunWith(Suite.class)
-@SuiteClasses({ ReadTest.class, SonargraphPluginTest.class, SonargraphSensorTest.class, 
-  ReportFileReaderTest.class, UtilitiesTest.class, 
-  SonargraphBuildUnitMetricsTest.class, SonargraphSystemMetricsTest.class})
+@SuiteClasses({ 
+  ReadTest.class, 
+  SonargraphPluginTest.class, 
+  SonargraphSensorTest.class, 
+  ReportFileReaderTest.class,
+  UtilitiesTest.class, 
+  SonargraphBuildUnitMetricsTest.class, 
+  SonargraphSystemMetricsTest.class,
+  SystemMetricsDecoratorTest.class})
 public class AllTests {
 
 }

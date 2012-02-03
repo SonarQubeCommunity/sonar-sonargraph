@@ -70,21 +70,10 @@ public class SystemMetricsDecorator implements Decorator {
       Measure localHighestACD = childContext.getMeasure(SonargraphSystemMetrics.HIGHEST_ACD);
       Measure localHighestNCCD = childContext.getMeasure(SonargraphSystemMetrics.HIGHEST_NCCD);
 
-      if (cycleGroup != null && cycleGroup.getValue() > biggestCycleGroupSize) {
-        biggestCycleGroupSize = cycleGroup.getValue();
-      }
+      biggestCycleGroupSize = getBiggerValue(biggestCycleGroupSize, cycleGroup);
+      highestACD = getBiggerValue(highestACD, acd, localHighestACD);
+      highestNCCD = getBiggerValue(highestNCCD, nccd, localHighestNCCD);
 
-      if (acd != null && acd.getValue() > highestACD) {
-        highestACD = acd.getValue();
-      } else if (localHighestACD != null && localHighestACD.getValue() > highestACD) {
-        highestACD = localHighestACD.getValue();
-      }
-
-      if (nccd != null && nccd.getValue() > highestNCCD) {
-        highestNCCD = nccd.getValue();
-      } else if (localHighestNCCD != null && localHighestNCCD.getValue() > highestNCCD) {
-        highestNCCD = localHighestNCCD.getValue();
-      }
       childContextCounter++;
     }
 
@@ -93,10 +82,25 @@ public class SystemMetricsDecorator implements Decorator {
     context.saveMeasure(SonargraphSystemMetrics.HIGHEST_NCCD, highestNCCD);
 
     saveCyclicityMeasures(context);
-
     saveTypeMeasures(context);
 
     AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
+  }
+
+  double getBiggerValue(double currentHighestValue, Measure measure, Measure localHighestMeasure) {
+    if (measure != null && measure.getValue() > currentHighestValue) {
+      return measure.getValue();
+    } else {
+      return getBiggerValue(currentHighestValue, localHighestMeasure);
+    }
+  }
+
+  double getBiggerValue(double currentBiggestValue, Measure measure) {
+    if (measure != null && measure.getValue() > currentBiggestValue) {
+      return measure.getValue();
+    } else {
+      return currentBiggestValue;
+    }
   }
 
   private void saveTypeMeasures(DecoratorContext context) {
