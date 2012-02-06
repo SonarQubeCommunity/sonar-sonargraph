@@ -151,9 +151,7 @@ public final class SonargraphSensor implements Sensor {
 
     LOG.info("Adding measures for " + project.getName());
     this.analyseBuildUnit(report, buildUnit);
-
-    extractStructuralCostMetrics(configuration);
-
+    this.extractStructuralCostMetrics(configuration);
     this.analyseSystemMeasures(report, null);
     this.analyseCylceGroups(report, buildUnit, project);
 
@@ -162,9 +160,15 @@ public final class SonargraphSensor implements Sensor {
       this.addArchitectureMeasures(report, buildUnit);
     }
 
+    this.processViolationsWarningsTasks(report, sensorContext, ruleFinder, buildUnit);
+
+    AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
+  }
+
+  private void processViolationsWarningsTasks(ReportContext report, SensorContext sensorContext, RuleFinder ruleFinder, XsdAttributeRoot buildUnit) {
     // TODO: Under what conditions can the ruleFinder be null?
     if (ruleFinder != null) {
-      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(this.ruleFinder, this.sensorContext);
+      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(ruleFinder, sensorContext);
       architectureViolationHandler.process(report, buildUnit);
       IProcessor warningProcessor = new WarningProcessor(ruleFinder, sensorContext);
       warningProcessor.process(report, buildUnit);
@@ -173,8 +177,6 @@ public final class SonargraphSensor implements Sensor {
     } else {
       LOG.error("RuleFinder must be set in constructor!");
     }
-
-    AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
 
   private void extractStructuralCostMetrics(Configuration configuration) {
@@ -323,7 +325,6 @@ public final class SonargraphSensor implements Sensor {
     Measure violatingTypes = Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_TYPES,
         SonargraphBuildUnitMetrics.VIOLATING_TYPES, 0);
 
-    // TODO: does it make sense to calculate them here for a build unit? Should it not be calculated on the overall project?
     double violatingTypesPercent = 100.0 * violatingTypes.getValue() / types;
     double unassignedTypesPercent = 100.0 * unassignedTypes.getValue() / types;
     Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.VIOLATING_TYPES_PERCENT,
