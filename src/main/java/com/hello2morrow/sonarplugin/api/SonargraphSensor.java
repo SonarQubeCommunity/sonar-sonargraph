@@ -119,7 +119,6 @@ public final class SonargraphSensor implements Sensor {
     LOG.info("------------------------------------------------------------------------");
 
     this.sensorContext = sensorContext;
-
     Configuration configuration = project.getConfiguration();
 
     if (Utilities.isRootParentProject(project)) {
@@ -138,12 +137,8 @@ public final class SonargraphSensor implements Sensor {
       LOG.info("Using Sonargraph metrics report: " + report.getName());
     }
 
-    XsdAttributeRoot buildUnit = null;
-
-    if (null != report) {
-      buildUnit = retrieveBuildUnit(project.getKey(), report);
-    }
-
+    XsdAttributeRoot buildUnit = retrieveBuildUnit(project.getKey(), report);
+   
     if (null == buildUnit) {
       LOG.error("No build units found in report file!");
       return;
@@ -164,6 +159,36 @@ public final class SonargraphSensor implements Sensor {
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
+  
+  XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
+    if (null == report) {
+      LOG.error("Report must not be null!");
+      return null;
+    }
+    
+    XsdBuildUnits buildUnits = report.getBuildUnits();
+    List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
+
+    if (buildUnitList.size() == 1) {
+      return buildUnitList.get(0);
+    } else if (buildUnitList.size() > 1) {
+
+      for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
+        String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
+        if (this.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
+          return sonarBuildUnit;
+        }
+      }
+
+      LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
+          + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
+
+      return null;
+    } else {
+      return null;
+    }
+  }
+  
 
   private void processViolationsWarningsTasks(ReportContext report, SensorContext sensorContext, RuleFinder ruleFinder, XsdAttributeRoot buildUnit) {
     // TODO: Under what conditions can the ruleFinder be null?
@@ -189,30 +214,6 @@ public final class SonargraphSensor implements Sensor {
         structuralDebtCost = erosionIndex.getValue() * indexCost;
       }
       Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
-    }
-  }
-
-  XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
-    XsdBuildUnits buildUnits = report.getBuildUnits();
-    List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
-
-    if (buildUnitList.size() == 1) {
-      return buildUnitList.get(0);
-    } else if (buildUnitList.size() > 1) {
-
-      for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
-        String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-        if (this.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
-          return sonarBuildUnit;
-        }
-      }
-
-      LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
-          + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
-
-      return null;
-    } else {
-      return null;
     }
   }
 
