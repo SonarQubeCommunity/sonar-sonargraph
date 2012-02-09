@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.3.400">
+<context version="7.1.4.118">
     <scope name="sonar-sonargraph-plugin" type="Project">
         <element name="Filter" type="TypeFilterReferenceOverridden">
             <element name="**" type="IncludeTypePattern"/>
@@ -40,6 +40,13 @@
                     <element name="com.hello2morrow.sonarplugin.xsd.**" type="IncludeTypePattern"/>
                 </element>
                 <dependency type="DisallowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Foundation"/>
+            </element>
+            <element name="Processors" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.processor.**" type="IncludeTypePattern"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Metric"/>
+                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Xsd"/>
             </element>
         </architecture>
         <workspace>
@@ -263,5 +270,13 @@
         <element name="Filter" type="TypeFilter">
             <element name="**" type="IncludeTypePattern"/>
         </element>
+        <itemDefinition>
+            <item type="ThresholdItem">
+                <property name="AttributeId" value="CyclomaticComplexity"/>
+                <property name="LowerValue" value=""/>
+                <property name="NamedElementGroup" value="Method"/>
+                <property name="UpperValue" value="10"/>
+            </item>
+        </itemDefinition>
     </scope>
 </context>
