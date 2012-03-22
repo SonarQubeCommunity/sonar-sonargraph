@@ -140,7 +140,9 @@ public final class SonargraphSensor implements Sensor {
     XsdAttributeRoot buildUnit = retrieveBuildUnit(project.getKey(), report);
    
     if (null == buildUnit) {
-      LOG.error("No build units found in report file!");
+      LOG.error("No Sonargraph build units found in report for [" + project.getName() + "]");
+      Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      sensorContext.saveMeasure(m);
       return;
     }
 
@@ -162,7 +164,6 @@ public final class SonargraphSensor implements Sensor {
   
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     if (null == report) {
-      LOG.error("Report must not be null!");
       return null;
     }
     
