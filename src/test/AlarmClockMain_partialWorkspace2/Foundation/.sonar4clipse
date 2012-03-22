@@ -1,0 +1,8 @@
+#
+#Tue Nov 29 13:11:08 CET 2011
+sonar.inactive.directories=
+sonar.buildunit.name=Foundation
+sonar.active.directories=Foundation/src/main/java|Foundation/src/main/resources|Foundation/src/test/java|Foundation/src/test/resources|Foundation/target/classes|Foundation/target/test-classes
+sonar.project.name=Foundation
+sonar.context.file=../AlarmClockMain.sonargraph
+sonar.violation.marker=Error
