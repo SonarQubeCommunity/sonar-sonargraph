@@ -11,7 +11,7 @@
 	</condition>
 
 	<!-- Adjust these properties -->
-	<property name="sonar.dir" value="D:/Programs/sonar-2.13" />
+	<property name="sonar.dir" value="D:/Programs/sonar-2.14" />
 	<property name="sonarBatDir" value="${sonar.dir}/bin/windows-x86-64" />
 	<property name="workspace" value="D:/00_workspace" />
 	<property name="param.license" value="C:/Users/Ingmar/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license" />
@@ -29,9 +29,9 @@
 	<property name="param.port" value="3308" />
 
 
-	<target name="buildSonargraphSonarMavenModule">
+	<target name="00_buildSonargraphSonarMavenModule">
 		<exec executable="${mvn.executable}" dir="${basedir}" failonerror="true">
-			<arg value="-o" />
+			<!-- arg value="-o" / -->
 			<arg value="clean" />
 			<arg value="package" />
 			<arg value="install" />
@@ -45,7 +45,7 @@
 		</exec>
 	</target>
 
-	<target name="00_copySonargraphSonarPlugin" depends="buildSonargraphSonarMavenModule">
+	<target name="00_copySonargraphSonarPlugin" depends="00_buildSonargraphSonarMavenModule">
 		<copy todir="${sonar.dir}/extensions/plugins" overwrite="true" failonerror="true">
 			<fileset dir="target" includes="sonar-sonargraph-plugin*.jar" />
 		</copy>
