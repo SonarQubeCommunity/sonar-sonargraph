@@ -29,12 +29,12 @@ import java.util.List;
 
 public final class SonargraphRulesRepository extends RuleRepository
 {
-  public final static Rule ARCH = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY, "Sonargraph Architecture Violation");
-  public final static Rule THRESHOLD = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY, "Sonargraph Threshold Violation");
-  public final static Rule DUPLICATES = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY, "Sonargraph Duplicate Code Block");
-  public final static Rule CYCLE_GROUPS = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY, "Sonargraph Cycle Group");
-  public final static Rule WORKSPACE = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY, "Sonargraph Workspace Warning");
-  public final static Rule TASK = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY, "Sonargraph Task");
+  public static final Rule ARCH = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY, "Sonargraph Architecture Violation");
+  public static final Rule THRESHOLD = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY, "Sonargraph Threshold Violation");
+  public static final Rule DUPLICATES = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY, "Sonargraph Duplicate Code Block");
+  public static final Rule CYCLE_GROUPS = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY, "Sonargraph Cycle Group");
+  public static final Rule WORKSPACE = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY, "Sonargraph Workspace Warning");
+  public static final Rule TASK = Rule.create(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY, "Sonargraph Task");
 
   public SonargraphRulesRepository()
   {
