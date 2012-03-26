@@ -18,6 +18,7 @@
 
 package com.hello2morrow.sonarplugin.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +139,7 @@ public final class SonargraphSensor implements Sensor {
     }
 
     XsdAttributeRoot buildUnit = retrieveBuildUnit(project.getKey(), report);
-   
+
     if (null == buildUnit) {
       LOG.error("No Sonargraph build units found in report for [" + project.getName() + "]");
       Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
@@ -161,12 +162,12 @@ public final class SonargraphSensor implements Sensor {
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
   }
-  
+
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
     if (null == report) {
       return null;
     }
-    
+
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
@@ -189,9 +190,9 @@ public final class SonargraphSensor implements Sensor {
       return null;
     }
   }
-  
 
-  private void processViolationsWarningsTasks(ReportContext report, SensorContext sensorContext, RuleFinder ruleFinder, XsdAttributeRoot buildUnit) {
+  private void processViolationsWarningsTasks(ReportContext report, SensorContext sensorContext, RuleFinder ruleFinder,
+      XsdAttributeRoot buildUnit) {
     // TODO: Under what conditions can the ruleFinder be null?
     if (ruleFinder != null) {
       IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(ruleFinder, sensorContext);
@@ -274,21 +275,18 @@ public final class SonargraphSensor implements Sensor {
         .saveMeasureToContext(sensorContext, SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
     Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
 
-    if (project.isRoot()) {
-      /* Decorators are not executed for projects with single build unit, therefore we need this calculation here */
-      double packages = sensorContext.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES).getValue();
-      if (packages > 0) {
-        double relCyclicity = 100.0 * Math.sqrt(cyclicity) / packages;
-        double relCyclicPackages = 100.0 * cyclicPackages / packages;
-        Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity, 0);
-        Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT,
-            relCyclicPackages, 1);
-      } else {
-        Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, 0, 0);
-        Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
-      }
-
+    double packages = sensorContext.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES).getValue();
+    if (packages > 0) {
+      double relCyclicity = 100.0 * Math.sqrt(cyclicity) / packages;
+      double relCyclicPackages = 100.0 * cyclicPackages / packages;
+      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity, 0);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages,
+          1);
+    } else {
+      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, 0, 0);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
     }
+
     Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
   }
 
@@ -360,21 +358,42 @@ public final class SonargraphSensor implements Sensor {
   private void handlePackageCycleGroup(XsdCycleGroup group) {
     Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
 
-    if (rule != null) {
-      for (XsdCyclePath pathElement : group.getCyclePath()) {
-        String fqName = pathElement.getParent();
-        Resource<JavaPackage> javaPackage = sensorContext.getResource(new JavaPackage(fqName));
+    if (rule == null) {
+      return;
+    }
 
-        if (javaPackage == null) {
-          LOG.error("Cannot obtain resource " + fqName);
+    List<Resource<JavaPackage>> packages = new ArrayList<Resource<JavaPackage>>();
+    for (XsdCyclePath pathElement : group.getCyclePath()) {
+      String fqName = pathElement.getParent();
+      Resource<JavaPackage> javaPackage = sensorContext.getResource(new JavaPackage(fqName));
+
+      if (javaPackage == null) {
+        LOG.error("Cannot obtain resource " + fqName);
+      } else {
+        packages.add(javaPackage);
+      }
+    }
+
+    for (Resource<JavaPackage> jPackage : packages) {
+      Violation v = Violation.create(rule, jPackage);
+      List<Resource<JavaPackage>> tempPackages = new ArrayList<Resource<JavaPackage>>(packages);
+      tempPackages.remove(jPackage);
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("Package participates in a cycle group");
+
+      boolean first = true;
+      for (Resource<JavaPackage> tPackage : tempPackages) {
+        if (first) {
+          buffer.append(" with package(s): ").append(tPackage.getName());
+          first = false;
         } else {
-          Violation v = Violation.create(rule, javaPackage);
-
-          v.setMessage("Package participates in a cycle group");
-          v.setLineId(null);
-          sensorContext.saveViolation(v);
+          buffer.append(", ").append(tPackage.getName());
         }
       }
+
+      v.setMessage(buffer.toString());
+      v.setLineId(null);
+      sensorContext.saveViolation(v);
     }
   }
 
