@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Example6-Foundation" basedir=".">
+	
+	<property name="src" location="./src/main/java"/>
+	<property name="target" location="./target/classes"/>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${target}" />
+		<javac encoding="UTF-8" destdir="${target}" debug="on" source="1.5" failonerror="true">
+			<src path="${src}" />
+		</javac>
+	</target>
+
+	<target name="clean" description="clean all generated files">
+		<delete dir="${target}" failonerror="false" />
+	</target>
+
+
+	<property name="sonar.projectKey" value="com.hello2morrow:Foundation" />
+	<property name="sonar.sources" value="${src}" />
+	<property name="sonar.binaries" value="${target}" />
+
+</project>

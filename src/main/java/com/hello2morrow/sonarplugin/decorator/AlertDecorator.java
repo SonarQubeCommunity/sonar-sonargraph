@@ -23,7 +23,7 @@ import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 
 public final class AlertDecorator {
 
@@ -64,16 +64,16 @@ public final class AlertDecorator {
     new AlertThreshold(SonargraphBuildUnitMetrics.VIOLATING_TYPES, 1.0, 10.0),
     new AlertThreshold(SonargraphBuildUnitMetrics.TASKS, 20.0, 50.0),
     new AlertThreshold(SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, 1.0, 25.0),
-    new AlertThreshold(SonargraphSystemMetrics.WORKSPACE_WARNINGS, 1.0, 10.0),
-    new AlertThreshold(SonargraphSystemMetrics.NCCD, 6.5, 10.0),
-    new AlertThreshold(SonargraphSystemMetrics.HIGHEST_NCCD, 6.5, 10.0),
-    new AlertThreshold(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, 4, 8),
-    new AlertThreshold(SonargraphSystemMetrics.RELATIVE_CYCLICITY, 5, 15),
+    new AlertThreshold(SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, 1.0, 10.0),
+    new AlertThreshold(SonargraphBuildUnitMetrics.NCCD, 6.5, 10.0),
+    new AlertThreshold(SonargraphDerivedMetrics.HIGHEST_NCCD, 6.5, 10.0),
+    new AlertThreshold(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, 4, 8),
+    new AlertThreshold(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, 5, 15),
     new AlertThreshold(SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, 1, 20),
-    new AlertThreshold(SonargraphSystemMetrics.CYCLE_WARNINGS, 1, 10),
-    new AlertThreshold(SonargraphSystemMetrics.WORKSPACE_WARNINGS, 1, 10),
-    new AlertThreshold(SonargraphSystemMetrics.ALL_WARNINGS, 1, 20),
-    new AlertThreshold(SonargraphSystemMetrics.ARCHITECTURE_VIOLATIONS, 1, 10),
+    new AlertThreshold(SonargraphBuildUnitMetrics.CYCLE_WARNINGS, 1, 10),
+    new AlertThreshold(SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, 1, 10),
+    new AlertThreshold(SonargraphBuildUnitMetrics.ALL_WARNINGS, 1, 20),
+    new AlertThreshold(SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, 1, 10),
     new AlertThreshold(SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, 1, 10) };
 
   private static void copyAlertLevel(IProjectContext context, Metric from, Metric to) {
@@ -87,7 +87,6 @@ public final class AlertDecorator {
         context.saveMeasure(toMeasure);
       }
     }
-
   }
 
   public static void setAlertLevels(IProjectContext context) {
@@ -99,10 +98,10 @@ public final class AlertDecorator {
         context.saveMeasure(m);
       }
     }
-    copyAlertLevel(context, SonargraphSystemMetrics.NCCD, SonargraphSystemMetrics.ACD);
-    copyAlertLevel(context, SonargraphSystemMetrics.HIGHEST_NCCD, SonargraphSystemMetrics.HIGHEST_ACD);
+    copyAlertLevel(context, SonargraphBuildUnitMetrics.NCCD, SonargraphBuildUnitMetrics.ACD);
+    copyAlertLevel(context, SonargraphDerivedMetrics.HIGHEST_NCCD, SonargraphDerivedMetrics.HIGHEST_ACD);
     copyAlertLevel(context, SonargraphBuildUnitMetrics.EROSION_INDEX, SonargraphBuildUnitMetrics.EROSION_COST);
     copyAlertLevel(context, SonargraphBuildUnitMetrics.TASKS, SonargraphBuildUnitMetrics.TASK_REFS);
-    copyAlertLevel(context, SonargraphSystemMetrics.RELATIVE_CYCLICITY, SonargraphBuildUnitMetrics.CYCLICITY);
+    copyAlertLevel(context, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, SonargraphBuildUnitMetrics.CYCLICITY);
   }
 }

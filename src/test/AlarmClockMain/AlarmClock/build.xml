@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Example6-AlarmClock" basedir=".">
+	
+	<property name="src" location="./src/main/java"/>
+	<property name="target" location="./target/classes"/>
+
+	<property name="foundation.classes" location="../Foundation/target/classes"/>
+	
+	<path id="classpath">
+		<pathelement location="${foundation.classes}"/>
+	</path>
+	
+	<target name="compile" depends="clean">
+		<mkdir dir="${target}" />
+		<javac encoding="UTF-8" 
+			classpathref="classpath" 
+			destdir="${target}" 
+			debug="true" 
+			source="1.5" 
+			failonerror="true" 
+			includeantruntime="false">
+			
+			<src path="${src}" />
+		</javac>
+	</target>
+
+	<target name="clean" description="clean all generated files">
+		<delete dir="${target}" failonerror="false" />
+	</target>
+
+	<property name="sonar.projectKey" value="com.hello2morrow:AlarmClock" />
+	<property name="sonar.sources" value="${src}" />
+	<property name="sonar.binaries" value="${target}" />
+	
+</project>

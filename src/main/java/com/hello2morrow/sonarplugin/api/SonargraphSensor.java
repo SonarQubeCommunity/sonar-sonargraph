@@ -41,7 +41,7 @@ import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.processor.ArchitectureViolationProcessor;
 import com.hello2morrow.sonarplugin.processor.IProcessor;
 import com.hello2morrow.sonarplugin.processor.TaskProcessor;
@@ -121,6 +121,7 @@ public final class SonargraphSensor implements Sensor {
 
     this.sensorContext = sensorContext;
     Configuration configuration = project.getConfiguration();
+    this.metrics.clear();
 
     if (Utilities.isRootParentProject(project)) {
       /* Nothing to analyse for parent project, only decorators are executed */
@@ -150,14 +151,8 @@ public final class SonargraphSensor implements Sensor {
     LOG.info("Adding measures for " + project.getName());
     this.analyseBuildUnit(report, buildUnit);
     this.extractStructuralCostMetrics(configuration);
-    this.analyseSystemMeasures(report, null);
     this.analyseCylceGroups(report, buildUnit, project);
-
-    if (hasBuildUnitMetric(metrics, UNASSIGNED_TYPES)) {
-      LOG.info("Adding architecture measures for " + project.getName());
-      this.addArchitectureMeasures(report, buildUnit);
-    }
-
+    this.addArchitectureMeasures(report, buildUnit);
     this.processViolationsWarningsTasks(report, sensorContext, ruleFinder, buildUnit);
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
@@ -234,8 +229,8 @@ public final class SonargraphSensor implements Sensor {
 
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_PACKAGES,
         SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, 0);
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, ACD, SonargraphSystemMetrics.ACD, 1);
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, NCCD, SonargraphSystemMetrics.NCCD, 1);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, ACD, SonargraphBuildUnitMetrics.ACD, 1);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, NCCD, SonargraphBuildUnitMetrics.NCCD, 1);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, INSTRUCTIONS,
         SonargraphBuildUnitMetrics.INSTRUCTIONS, 0);
     Utilities
@@ -271,20 +266,20 @@ public final class SonargraphSensor implements Sensor {
       }
     }
 
-    Utilities
-        .saveMeasureToContext(sensorContext, SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0);
+    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize,
+        0);
     Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
 
     double packages = sensorContext.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES).getValue();
     if (packages > 0) {
       double relCyclicity = 100.0 * Math.sqrt(cyclicity) / packages;
       double relCyclicPackages = 100.0 * cyclicPackages / packages;
-      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity, 0);
-      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages,
-          1);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity, 0);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT,
+          relCyclicPackages, 1);
     } else {
-      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.RELATIVE_CYCLICITY, 0, 0);
-      Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, 0, 0);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
     }
 
     Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
@@ -297,25 +292,12 @@ public final class SonargraphSensor implements Sensor {
     return group.getParent();
   }
 
-  void analyseSystemMeasures(ReportContext report, XsdAttributeRoot root) {
-    LOG.debug("Analysing system metrics");
-
-    Map<String, Number> systemAttributes = new HashMap<String, Number>();
-    Utilities.readAttributesToMap(report.getAttributes(), systemAttributes);
-
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.ARCHITECTURE_VIOLATIONS,
-        Utilities.getMetricValueFromMap(VIOLATING_REFERENCES, systemAttributes), 0);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.CYCLE_WARNINGS,
-        Utilities.getMetricValueFromMap(CYCLE_WARNINGS, systemAttributes), 0);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.WORKSPACE_WARNINGS,
-        Utilities.getMetricValueFromMap(WORKSPACE_WARNINGS, systemAttributes), 0);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.ALL_WARNINGS,
-        Utilities.getMetricValueFromMap(ALL_WARNINGS, systemAttributes), 0);
-  }
-
   void addArchitectureMeasures(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing architectural measures of build unit: " + buildUnit.getName());
-
+    if ( !hasBuildUnitMetric(metrics, UNASSIGNED_TYPES)) {
+      LOG.info("No architecture measures found for build unit: " + buildUnit.getName());
+      return;
+    }
     double types = Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_TYPES,
         SonargraphBuildUnitMetrics.INTERNAL_TYPES, 0).getValue();
     assert types >= 1.0 : "Project must not be empty !";
@@ -327,9 +309,9 @@ public final class SonargraphSensor implements Sensor {
 
     double violatingTypesPercent = 100.0 * violatingTypes.getValue() / types;
     double unassignedTypesPercent = 100.0 * unassignedTypes.getValue() / types;
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.VIOLATING_TYPES_PERCENT,
+    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT,
         violatingTypesPercent, 1);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSystemMetrics.UNASSIGNED_TYPES_PERCENT,
+    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
         unassignedTypesPercent, 1);
 
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_DEPENDENCIES,
@@ -348,6 +330,15 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveExistingMeasureToContext(sensorContext, metrics, DUPLICATE_WARNINGS,
           SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, 0);
     }
+
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_REFERENCES,
+        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, 0);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, CYCLE_WARNINGS,
+        SonargraphBuildUnitMetrics.CYCLE_WARNINGS, 0);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, WORKSPACE_WARNINGS,
+        SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, 0);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, ALL_WARNINGS,
+        SonargraphBuildUnitMetrics.ALL_WARNINGS, 0);
   }
 
   private boolean hasBuildUnitMetric(Map<String, Number> metrics, String key) {

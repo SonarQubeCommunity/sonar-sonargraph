@@ -40,22 +40,31 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    
-    /* Some of these metrics could also be directly retrieved from the "overview" section
-     * of the generated report, e.g. internal types, instructions... 
-     * But it is safe to add up the values from the different build units being analyzed.
+
+    /*
+     * Some of these metrics could also be directly retrieved from the "overview" section of the generated report, e.g. internal types,
+     * instructions... But it is safe to add up the values from the different build units being analyzed.
      */
-    return Arrays.asList(SonargraphBuildUnitMetrics.CYCLICITY,  
-        SonargraphBuildUnitMetrics.INSTRUCTIONS, 
-        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES, SonargraphBuildUnitMetrics.EROSION_REFS, 
-        SonargraphBuildUnitMetrics.EROSION_TYPES, SonargraphBuildUnitMetrics.EROSION_COST,
-        SonargraphBuildUnitMetrics.EROSION_INDEX, SonargraphBuildUnitMetrics.VIOLATING_TYPES, 
-        SonargraphBuildUnitMetrics.INTERNAL_TYPES, SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES,
-        SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES, SonargraphBuildUnitMetrics.JAVA_FILES, 
-        SonargraphBuildUnitMetrics.TASKS, SonargraphBuildUnitMetrics.TASK_REFS, 
-        SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS,
-        SonargraphBuildUnitMetrics.IGNORED_VIOLATONS, SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
-        SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES);
+    return Arrays.asList(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.JAVA_FILES,
+        SonargraphBuildUnitMetrics.INTERNAL_TYPES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES,
+        
+        /* structural debt metrics */
+        SonargraphBuildUnitMetrics.EROSION_INDEX, SonargraphBuildUnitMetrics.EROSION_COST,
+        SonargraphBuildUnitMetrics.TASKS, SonargraphBuildUnitMetrics.TASK_REFS,
+        
+        /*architecture metrics */
+        SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, SonargraphBuildUnitMetrics.VIOLATING_TYPES,
+        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, SonargraphBuildUnitMetrics.IGNORED_VIOLATONS, 
+        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES,
+        SonargraphBuildUnitMetrics.ALL_WARNINGS, SonargraphBuildUnitMetrics.CYCLE_WARNINGS,
+        SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS,
+        SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
+        
+        /* structure metrics*/
+        SonargraphBuildUnitMetrics.CYCLICITY, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, 
+        SonargraphBuildUnitMetrics.EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_TYPES,
+        SonargraphBuildUnitMetrics.INSTRUCTIONS
+        );
   }
 
   @Override
@@ -68,7 +77,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     if ( !shouldDecorateResource(resource)) {
       return;
     }
-    if (!Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
+    if ( !Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
       return;
     }
     super.decorate(resource, context);

@@ -11,7 +11,7 @@
 	</condition>
 
 	<!-- Adjust these properties -->
-	<property name="sonar.dir" value="D:/Programs/sonar-2.14" />
+	<property name="sonar.dir" value="D:/Programs/sonar-3.0" />
 	<property name="sonarBatDir" value="${sonar.dir}/bin/windows-x86-64" />
 	<property name="workspace" value="D:/00_workspace" />
 	<property name="param.license" value="C:/Users/Ingmar/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license" />

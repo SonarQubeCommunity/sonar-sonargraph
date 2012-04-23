@@ -38,7 +38,7 @@ import org.sonar.api.rules.RuleFinder;
 
 import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 
 
@@ -74,7 +74,7 @@ public class SonargraphSensorTest {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     project.setConfiguration(TestHelper.initConfig());
     sensor.analyse(project, sensorContext);
-    double value = sensorContext.getMeasure(SonargraphSystemMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
+    double value = sensorContext.getMeasure(SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
     assertEquals(0.0, value, 0.01);
     
     

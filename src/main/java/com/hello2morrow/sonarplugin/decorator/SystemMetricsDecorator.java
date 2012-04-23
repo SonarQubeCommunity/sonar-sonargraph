@@ -17,9 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,7 @@ import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 
 public class SystemMetricsDecorator implements Decorator {
 
@@ -51,40 +49,29 @@ public class SystemMetricsDecorator implements Decorator {
     double highestACD = -1.0;
     double highestNCCD = -1.0;
 
-    int childContextCounter = 0;
-
     for (DecoratorContext childContext : context.getChildren()) {
 
       Measure m = childContext.getMeasure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
-        LOG.warn("Skipping module [" + childContext.getResource().getName() + "] because it is not part of the Sonargraph workspace.");
+        LOG.warn("Skipping module [" + childContext.getResource().getName()
+            + "] because it is not part of the Sonargraph workspace.");
         continue;
       }
-      if (0 == childContextCounter) {
-        List<Measure> measures = new ArrayList<Measure>();
-        measures.add(childContext.getMeasure(SonargraphSystemMetrics.ARCHITECTURE_VIOLATIONS));
-        measures.add(childContext.getMeasure(SonargraphSystemMetrics.CYCLE_WARNINGS));
-        measures.add(childContext.getMeasure(SonargraphSystemMetrics.WORKSPACE_WARNINGS));
-        measures.add(childContext.getMeasure(SonargraphSystemMetrics.ALL_WARNINGS));
-        saveMeasuresToContext(context, measures);
-      }
 
-      Measure cycleGroup = childContext.getMeasure(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP);
-      Measure acd = childContext.getMeasure(SonargraphSystemMetrics.ACD);
-      Measure nccd = childContext.getMeasure(SonargraphSystemMetrics.NCCD);
-      Measure localHighestACD = childContext.getMeasure(SonargraphSystemMetrics.HIGHEST_ACD);
-      Measure localHighestNCCD = childContext.getMeasure(SonargraphSystemMetrics.HIGHEST_NCCD);
+      Measure cycleGroup = childContext.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP);
+      Measure acd = childContext.getMeasure(SonargraphBuildUnitMetrics.ACD);
+      Measure nccd = childContext.getMeasure(SonargraphBuildUnitMetrics.NCCD);
+      Measure localHighestACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_ACD);
+      Measure localHighestNCCD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD);
 
       biggestCycleGroupSize = getBiggerValue(biggestCycleGroupSize, cycleGroup);
       highestACD = getBiggerValue(highestACD, acd, localHighestACD);
       highestNCCD = getBiggerValue(highestNCCD, nccd, localHighestNCCD);
-
-      childContextCounter++;
     }
 
-    context.saveMeasure(SonargraphSystemMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
-    context.saveMeasure(SonargraphSystemMetrics.HIGHEST_ACD, highestACD);
-    context.saveMeasure(SonargraphSystemMetrics.HIGHEST_NCCD, highestNCCD);
+    context.saveMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
+    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_ACD, highestACD);
+    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD, highestNCCD);
 
     saveCyclicityMeasures(context);
     saveTypeMeasures(context);
@@ -121,11 +108,11 @@ public class SystemMetricsDecorator implements Decorator {
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
-        context.saveMeasure(SonargraphSystemMetrics.VIOLATING_TYPES_PERCENT, 100.0 * violatingTypes.getValue()
+        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, 100.0 * violatingTypes.getValue()
             / internalTypes.getValue());
       }
       if (unassignedTypes != null) {
-        context.saveMeasure(SonargraphSystemMetrics.UNASSIGNED_TYPES_PERCENT, 100 * unassignedTypes.getValue()
+        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, 100 * unassignedTypes.getValue()
             / internalTypes.getValue());
       }
     }
@@ -143,14 +130,8 @@ public class SystemMetricsDecorator implements Decorator {
       double relCyclicity = 100.0 * Math.sqrt(cyclicity.getValue()) / packages.getValue();
       double relCyclicPackages = 100.0 * cyclicPackages.getValue() / packages.getValue();
 
-      context.saveMeasure(SonargraphSystemMetrics.RELATIVE_CYCLICITY, relCyclicity);
-      context.saveMeasure(SonargraphSystemMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
-    }
-  }
-
-  private void saveMeasuresToContext(DecoratorContext context, List<Measure> measures) {
-    for (Measure measure : measures) {
-      context.saveMeasure(measure.getMetric(), measure.getValue());
+      context.saveMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
+      context.saveMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
     }
   }
 
