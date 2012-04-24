@@ -21,7 +21,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.hello2morrow.sonarplugin.decorator.SystemMetricsDecoratorTest;
+import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecoratorTest;
 import com.hello2morrow.sonarplugin.foundation.ReportFileReaderTest;
 import com.hello2morrow.sonarplugin.foundation.UtilitiesTest;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetricsTest;
@@ -36,7 +36,7 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSystemMetricsTest;
   UtilitiesTest.class, 
   SonargraphBuildUnitMetricsTest.class, 
   SonargraphSystemMetricsTest.class,
-  SystemMetricsDecoratorTest.class})
+  SonargraphDerivedMetricsDecoratorTest.class})
 public class AllTests {
 
 }

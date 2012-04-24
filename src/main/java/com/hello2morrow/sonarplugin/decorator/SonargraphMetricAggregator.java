@@ -47,24 +47,23 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
      */
     return Arrays.asList(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.JAVA_FILES,
         SonargraphBuildUnitMetrics.INTERNAL_TYPES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES,
-        
+
         /* structural debt metrics */
         SonargraphBuildUnitMetrics.EROSION_INDEX, SonargraphBuildUnitMetrics.EROSION_COST,
         SonargraphBuildUnitMetrics.TASKS, SonargraphBuildUnitMetrics.TASK_REFS,
-        
-        /*architecture metrics */
+
+        /* architecture metrics */
         SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, SonargraphBuildUnitMetrics.VIOLATING_TYPES,
-        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, SonargraphBuildUnitMetrics.IGNORED_VIOLATONS, 
-        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES,
-        SonargraphBuildUnitMetrics.ALL_WARNINGS, SonargraphBuildUnitMetrics.CYCLE_WARNINGS,
-        SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS,
-        SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
-        
-        /* structure metrics*/
-        SonargraphBuildUnitMetrics.CYCLICITY, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, 
+        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, SonargraphBuildUnitMetrics.IGNORED_VIOLATONS,
+        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES, SonargraphBuildUnitMetrics.ALL_WARNINGS,
+        SonargraphBuildUnitMetrics.CYCLE_WARNINGS, SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS,
+        SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS,
+        SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
+
+        /* structure metrics */
+        SonargraphBuildUnitMetrics.CYCLICITY, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES,
         SonargraphBuildUnitMetrics.EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_TYPES,
-        SonargraphBuildUnitMetrics.INSTRUCTIONS
-        );
+        SonargraphBuildUnitMetrics.INSTRUCTIONS);
   }
 
   @Override

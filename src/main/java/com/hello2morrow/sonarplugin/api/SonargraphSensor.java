@@ -179,11 +179,8 @@ public final class SonargraphSensor implements Sensor {
 
       LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
           + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
-
-      return null;
-    } else {
-      return null;
     }
+    return null;
   }
 
   private void processViolationsWarningsTasks(ReportContext report, SensorContext sensorContext, RuleFinder ruleFinder,

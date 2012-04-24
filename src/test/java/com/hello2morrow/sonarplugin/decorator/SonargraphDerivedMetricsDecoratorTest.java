@@ -23,22 +23,21 @@ import org.junit.Test;
 import org.sonar.api.measures.Measure;
 
 
-public class SystemMetricsDecoratorTest {
+public class SonargraphDerivedMetricsDecoratorTest {
 
   @Test
   public void testGetBiggerValueDoubleMeasureMeasure() {
-    SystemMetricsDecorator decorator = new SystemMetricsDecorator();
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator();
     Measure measure = new Measure();
     measure.setValue(10.0);
     Assert.assertEquals(12.0, decorator.getBiggerValue(12.0, measure));
     Assert.assertEquals(10.0, decorator.getBiggerValue(9.4, measure));
     Assert.assertEquals(10.0, decorator.getBiggerValue(10.0, null));
-    
   }
 
   @Test
   public void testGetBiggerValueDoubleMeasure() {
-    SystemMetricsDecorator decorator = new SystemMetricsDecorator();
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator();
     Measure measure1 = new Measure();
     measure1.setValue(10.0);
     Measure measure2 = new Measure();
@@ -49,9 +48,6 @@ public class SystemMetricsDecoratorTest {
     Assert.assertEquals(10.0, decorator.getBiggerValue(9.4, measure1, null));
     Assert.assertEquals(8.5, decorator.getBiggerValue(7.2, null, measure2));
     Assert.assertEquals(9.4, decorator.getBiggerValue(9.4, null, null));
-    
-    
-    
   }
 
 }

@@ -32,9 +32,9 @@ import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 
-public class SystemMetricsDecorator implements Decorator {
+public class SonargraphDerivedMetricsDecorator implements Decorator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SystemMetricsDecorator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
     return true;

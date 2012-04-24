@@ -26,7 +26,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 
-import com.hello2morrow.sonarplugin.decorator.SystemMetricsDecorator;
+import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecorator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
@@ -69,7 +69,7 @@ public final class SonargraphPlugin extends SonarPlugin
     list.add(SonargraphCyclicityDashboard.class);
     list.add(SonargraphArchitectureDashboard.class);
     list.add(SonargraphMetricAggregator.class);
-    list.add(SystemMetricsDecorator.class);
+    list.add(SonargraphDerivedMetricsDecorator.class);
     return list;
   }
 }
