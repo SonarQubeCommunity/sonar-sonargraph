@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-public final class SonargraphBuildUnitMetrics implements Metrics {
+public final class SonargraphSimpleMetrics implements Metrics {
 
   public static final String DOMAIN_SONARGRAPH = "Sonargraph";
 

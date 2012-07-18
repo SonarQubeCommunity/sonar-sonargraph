@@ -29,7 +29,7 @@ import org.sonar.api.SonarPlugin;
 import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecorator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.view.SonargraphArchitectureDashboard;
 import com.hello2morrow.sonarplugin.view.SonargraphCyclicityDashboard;
@@ -61,7 +61,7 @@ public final class SonargraphPlugin extends SonarPlugin
   {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
 
-    list.add(SonargraphBuildUnitMetrics.class);
+    list.add(SonargraphSimpleMetrics.class);
     list.add(SonargraphDerivedMetrics.class);
     list.add(SonargraphSensor.class);
     list.add(SonargraphRulesRepository.class);

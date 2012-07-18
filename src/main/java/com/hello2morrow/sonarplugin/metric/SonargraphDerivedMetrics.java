@@ -27,38 +27,38 @@ public class SonargraphDerivedMetrics implements Metrics {
 
   public static final Metric HIGHEST_ACD = new Metric.Builder("sonargraph_highest_acd", "Highest ACD",
       Metric.ValueType.FLOAT).setDescription("The highest ACD of all build units").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric HIGHEST_NCCD = new Metric.Builder("sonargraph_highest_nccd", "Highest NCCD",
       Metric.ValueType.FLOAT).setDescription("The highest NCCD of all build units")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
-      .setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric BIGGEST_CYCLE_GROUP = new Metric.Builder("sonargraph_biggest_cycle_group",
       "Biggest Cycle Group", Metric.ValueType.INT).setDescription("Number of Packages in Biggest Cycle Group")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
-      .setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric CYCLIC_PACKAGES_PERCENT = new Metric.Builder("sonargraph_cyclic_packages_percent",
       "Percentage of Cyclic Packages", Metric.ValueType.PERCENT)
       .setDescription("Percentage of Cyclically Coupled Packages").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric RELATIVE_CYCLICITY = new Metric.Builder("sonargraph_relative_cyclicity",
       "Relative Cyclicity", Metric.ValueType.PERCENT).setDescription("Relative Cyclicity on Package Level")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
-      .setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric UNASSIGNED_TYPES_PERCENT = new Metric.Builder("sonargraph_unassigned_types_percent",
       "Percentage of Unassigned Types", Metric.ValueType.PERCENT)
       .setDescription("Percentage of Types not Assigned to any Architectural Artifacts")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
-      .setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public static final Metric VIOLATING_TYPES_PERCENT = new Metric.Builder("sonargraph_violating_types_percent",
       "Percentage of Violating Types", Metric.ValueType.PERCENT)
       .setDescription("Percentage of Types with Outgoing Architecture Violations").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(SonargraphBuildUnitMetrics.DOMAIN_SONARGRAPH).create();
+      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public List<Metric> getMetrics() {
     return Arrays.asList(HIGHEST_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY,

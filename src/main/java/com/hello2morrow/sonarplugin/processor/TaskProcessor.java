@@ -32,7 +32,7 @@ import org.sonar.api.rules.RulePriority;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdPosition;
@@ -87,7 +87,7 @@ public class TaskProcessor implements IProcessor {
         count = handleTask(priorityMap, rule, count, task);
       }
     }
-    Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.TASK_REFS, count, 0);
+    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.TASK_REFS, count, 0);
   }
 
   private int handleTask(Map<String, RulePriority> priorityMap, Rule rule, int count, XsdTask task) {

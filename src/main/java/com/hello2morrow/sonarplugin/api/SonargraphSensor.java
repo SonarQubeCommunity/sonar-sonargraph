@@ -40,7 +40,7 @@ import com.hello2morrow.sonarplugin.decorator.AlertDecorator;
 import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.processor.ArchitectureViolationProcessor;
 import com.hello2morrow.sonarplugin.processor.IProcessor;
@@ -143,7 +143,7 @@ public final class SonargraphSensor implements Sensor {
 
     if (buildUnit == null) {
       LOG.error("No Sonargraph build units found in report for [" + project.getName() + "]. Module will not be processed by Sonargraph!");
-      Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure m = new Measure(SonargraphSimpleMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
       return;
     }
@@ -155,7 +155,7 @@ public final class SonargraphSensor implements Sensor {
     Number numberOfStatements = metrics.get("NumberOfStatements");
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
-      Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure m = new Measure(SonargraphSimpleMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
       return;
     }
@@ -217,39 +217,39 @@ public final class SonargraphSensor implements Sensor {
     double indexCost = configuration.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT,
         SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT);
     if (indexCost > 0) {
-      Measure erosionIndex = this.sensorContext.getMeasure(SonargraphBuildUnitMetrics.EROSION_INDEX);
+      Measure erosionIndex = this.sensorContext.getMeasure(SonargraphSimpleMetrics.EROSION_INDEX);
       double structuralDebtCost = 0;
       if (null != erosionIndex) {
         structuralDebtCost = erosionIndex.getValue() * indexCost;
       }
-      Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.EROSION_COST, structuralDebtCost, 0);
+      Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.EROSION_COST, structuralDebtCost, 0);
     }
   }
 
   void analyseBuildUnit(final ReportContext report, final XsdAttributeRoot buildUnit) {
     Number internalPackages = Utilities.getBuildUnitMetricValue(metrics, INTERNAL_PACKAGES);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_PACKAGES,
-        SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, 0);
+        SonargraphSimpleMetrics.INTERNAL_PACKAGES, 0);
 
     if (internalPackages.intValue() == 0) {
       LOG.warn("No packages found in buildUnit " + buildUnit.getName());
       return;
     }
 
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, ACD, SonargraphBuildUnitMetrics.ACD, 1);
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, NCCD, SonargraphBuildUnitMetrics.NCCD, 1);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, ACD, SonargraphSimpleMetrics.ACD, 1);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, NCCD, SonargraphSimpleMetrics.NCCD, 1);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, INSTRUCTIONS,
-        SonargraphBuildUnitMetrics.INSTRUCTIONS, 0);
+        SonargraphSimpleMetrics.INSTRUCTIONS, 0);
     Utilities
-        .saveExistingMeasureToContext(sensorContext, metrics, JAVA_FILES, SonargraphBuildUnitMetrics.JAVA_FILES, 0);
+        .saveExistingMeasureToContext(sensorContext, metrics, JAVA_FILES, SonargraphSimpleMetrics.JAVA_FILES, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, TYPE_DEPENDENCIES,
-        SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES, 0);
+        SonargraphSimpleMetrics.TYPE_DEPENDENCIES, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, EROSION_REFS,
-        SonargraphBuildUnitMetrics.EROSION_REFS, 0);
+        SonargraphSimpleMetrics.EROSION_REFS, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, EROSION_TYPES,
-        SonargraphBuildUnitMetrics.EROSION_TYPES, 0);
+        SonargraphSimpleMetrics.EROSION_TYPES, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, STUCTURAL_DEBT_INDEX,
-        SonargraphBuildUnitMetrics.EROSION_INDEX, 0).getValue();
+        SonargraphSimpleMetrics.EROSION_INDEX, 0).getValue();
   }
 
   void analyseCylceGroups(ReportContext report, XsdAttributeRoot buildUnit, Project project) {
@@ -275,9 +275,9 @@ public final class SonargraphSensor implements Sensor {
 
     Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize,
         0);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLICITY, cyclicity, 0);
+    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.CYCLICITY, cyclicity, 0);
 
-    double packages = sensorContext.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES).getValue();
+    double packages = sensorContext.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES).getValue();
     if (packages > 0) {
       double relCyclicity = 100.0 * Math.sqrt(cyclicity) / packages;
       double relCyclicPackages = 100.0 * cyclicPackages / packages;
@@ -289,7 +289,7 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, 0, 1);
     }
 
-    Utilities.saveMeasureToContext(sensorContext, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
+    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.CYCLIC_PACKAGES, cyclicPackages, 0);
   }
 
   private String getBuildUnitName(XsdCycleGroup group) {
@@ -306,13 +306,13 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
     double types = Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_TYPES,
-        SonargraphBuildUnitMetrics.INTERNAL_TYPES, 0).getValue();
+        SonargraphSimpleMetrics.INTERNAL_TYPES, 0).getValue();
     assert types >= 1.0 : "Project must not be empty !";
 
     Measure unassignedTypes = Utilities.saveExistingMeasureToContext(sensorContext, metrics, UNASSIGNED_TYPES,
-        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES, 0);
+        SonargraphSimpleMetrics.UNASSIGNED_TYPES, 0);
     Measure violatingTypes = Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_TYPES,
-        SonargraphBuildUnitMetrics.VIOLATING_TYPES, 0);
+        SonargraphSimpleMetrics.VIOLATING_TYPES, 0);
 
     double violatingTypesPercent = 100.0 * violatingTypes.getValue() / types;
     double unassignedTypesPercent = 100.0 * unassignedTypes.getValue() / types;
@@ -322,30 +322,30 @@ public final class SonargraphSensor implements Sensor {
         unassignedTypesPercent, 1);
 
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_DEPENDENCIES,
-        SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, 0);
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, TASKS, SonargraphBuildUnitMetrics.TASKS, 0);
+        SonargraphSimpleMetrics.VIOLATING_DEPENDENCIES, 0);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, TASKS, SonargraphSimpleMetrics.TASKS, 0);
     if (hasBuildUnitMetric(metrics, THRESHOLD_WARNINGS)) {
       Utilities.saveExistingMeasureToContext(sensorContext, metrics, THRESHOLD_WARNINGS,
-          SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, 0);
+          SonargraphSimpleMetrics.THRESHOLD_WARNINGS, 0);
     }
 
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, IGNORED_VIOLATIONS,
-        SonargraphBuildUnitMetrics.IGNORED_VIOLATONS, 0);
+        SonargraphSimpleMetrics.IGNORED_VIOLATONS, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, IGNORED_WARNINGS,
-        SonargraphBuildUnitMetrics.IGNORED_WARNINGS, 0);
+        SonargraphSimpleMetrics.IGNORED_WARNINGS, 0);
     if (hasBuildUnitMetric(metrics, DUPLICATE_WARNINGS)) {
       Utilities.saveExistingMeasureToContext(sensorContext, metrics, DUPLICATE_WARNINGS,
-          SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS, 0);
+          SonargraphSimpleMetrics.DUPLICATE_WARNINGS, 0);
     }
 
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, VIOLATING_REFERENCES,
-        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, 0);
+        SonargraphSimpleMetrics.ARCHITECTURE_VIOLATIONS, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, CYCLE_WARNINGS,
-        SonargraphBuildUnitMetrics.CYCLE_WARNINGS, 0);
+        SonargraphSimpleMetrics.CYCLE_WARNINGS, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, WORKSPACE_WARNINGS,
-        SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS, 0);
+        SonargraphSimpleMetrics.WORKSPACE_WARNINGS, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, ALL_WARNINGS,
-        SonargraphBuildUnitMetrics.ALL_WARNINGS, 0);
+        SonargraphSimpleMetrics.ALL_WARNINGS, 0);
   }
 
   private boolean hasBuildUnitMetric(Map<String, Number> metrics, String key) {

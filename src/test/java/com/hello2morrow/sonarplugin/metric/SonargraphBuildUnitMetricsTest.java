@@ -34,11 +34,11 @@ import org.sonar.api.measures.Metrics;
 public class SonargraphBuildUnitMetricsTest {
 
   /**
-   * Test method for {@link com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics#getMetrics()}.
+   * Test method for {@link com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics#getMetrics()}.
    */
   @Test
   public void testGetMetrics() {
-    Metrics metrics = new SonargraphBuildUnitMetrics();
+    Metrics metrics = new SonargraphSimpleMetrics();
     assertNotNull(metrics.getMetrics());
     assertTrue(metrics.getMetrics().size() > 0);
   }

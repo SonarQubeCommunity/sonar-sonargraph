@@ -29,7 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
@@ -41,7 +41,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
+    if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }
 
@@ -51,7 +51,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     for (DecoratorContext childContext : context.getChildren()) {
 
-      Measure m = childContext.getMeasure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure m = childContext.getMeasure(SonargraphSimpleMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
         LOG.warn("Skipping module [" + childContext.getResource().getName()
             + "] because it is not part of the Sonargraph workspace or does not contain any code.");
@@ -59,8 +59,8 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       }
 
       Measure cycleGroup = childContext.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP);
-      Measure acd = childContext.getMeasure(SonargraphBuildUnitMetrics.ACD);
-      Measure nccd = childContext.getMeasure(SonargraphBuildUnitMetrics.NCCD);
+      Measure acd = childContext.getMeasure(SonargraphSimpleMetrics.ACD);
+      Measure nccd = childContext.getMeasure(SonargraphSimpleMetrics.NCCD);
       Measure localHighestACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_ACD);
       Measure localHighestNCCD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD);
 
@@ -96,15 +96,15 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   }
 
   private void saveTypeMeasures(DecoratorContext context) {
-    Measure violatingTypes = context.getMeasure(SonargraphBuildUnitMetrics.VIOLATING_TYPES);
+    Measure violatingTypes = context.getMeasure(SonargraphSimpleMetrics.VIOLATING_TYPES);
     if (null != violatingTypes) {
       LOG.debug("Number of violating types: " + violatingTypes.getValue());
     }
-    Measure internalTypes = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_TYPES);
+    Measure internalTypes = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_TYPES);
     if (null != violatingTypes) {
       LOG.debug("Number of internal types: " + internalTypes.getValue());
     }
-    Measure unassignedTypes = context.getMeasure(SonargraphBuildUnitMetrics.UNASSIGNED_TYPES);
+    Measure unassignedTypes = context.getMeasure(SonargraphSimpleMetrics.UNASSIGNED_TYPES);
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
@@ -119,9 +119,9 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   }
 
   private void saveCyclicityMeasures(DecoratorContext context) {
-    Measure cyclicity = context.getMeasure(SonargraphBuildUnitMetrics.CYCLICITY);
-    Measure packages = context.getMeasure(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES);
-    Measure cyclicPackages = context.getMeasure(SonargraphBuildUnitMetrics.CYCLIC_PACKAGES);
+    Measure cyclicity = context.getMeasure(SonargraphSimpleMetrics.CYCLICITY);
+    Measure packages = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES);
+    Measure cyclicPackages = context.getMeasure(SonargraphSimpleMetrics.CYCLIC_PACKAGES);
 
     if (cyclicity == null || packages == null || cyclicPackages == null) {
       LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "

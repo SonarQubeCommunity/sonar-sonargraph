@@ -31,7 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorator {
 
@@ -46,28 +46,28 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
      * instructions... But it is safe to add up the values from the different build units being analyzed.
      * TODO: This is *NOT* true for cycle warnings, as cycles between logical architecture elements are not taken into account.
      */
-    return Arrays.asList(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.JAVA_FILES,
-        SonargraphBuildUnitMetrics.INTERNAL_TYPES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES,
+    return Arrays.asList(SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES,
+        SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
 
         /* structural debt metrics */
-        SonargraphBuildUnitMetrics.EROSION_INDEX, SonargraphBuildUnitMetrics.EROSION_COST,
-        SonargraphBuildUnitMetrics.TASKS, SonargraphBuildUnitMetrics.TASK_REFS,
+        SonargraphSimpleMetrics.EROSION_INDEX, SonargraphSimpleMetrics.EROSION_COST,
+        SonargraphSimpleMetrics.TASKS, SonargraphSimpleMetrics.TASK_REFS,
 
         /* architecture metrics */
-        SonargraphBuildUnitMetrics.VIOLATING_DEPENDENCIES, SonargraphBuildUnitMetrics.VIOLATING_TYPES,
-        SonargraphBuildUnitMetrics.ARCHITECTURE_VIOLATIONS, SonargraphBuildUnitMetrics.IGNORED_VIOLATONS,
-        SonargraphBuildUnitMetrics.UNASSIGNED_TYPES, SonargraphBuildUnitMetrics.ALL_WARNINGS,
-        SonargraphBuildUnitMetrics.CYCLE_WARNINGS, SonargraphBuildUnitMetrics.WORKSPACE_WARNINGS,
-        SonargraphBuildUnitMetrics.THRESHOLD_WARNINGS, SonargraphBuildUnitMetrics.DUPLICATE_WARNINGS,
-        SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
+        SonargraphSimpleMetrics.VIOLATING_DEPENDENCIES, SonargraphSimpleMetrics.VIOLATING_TYPES,
+        SonargraphSimpleMetrics.ARCHITECTURE_VIOLATIONS, SonargraphSimpleMetrics.IGNORED_VIOLATONS,
+        SonargraphSimpleMetrics.UNASSIGNED_TYPES, SonargraphSimpleMetrics.ALL_WARNINGS,
+        SonargraphSimpleMetrics.CYCLE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
+        SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS,
+        SonargraphSimpleMetrics.IGNORED_WARNINGS,
 
         /* structure metrics */
         //TODO: check if the cyclicity can be simply aggregated... How is it done in the standalone application? 
-        SonargraphBuildUnitMetrics.CYCLICITY, 
+        SonargraphSimpleMetrics.CYCLICITY, 
         
-        SonargraphBuildUnitMetrics.CYCLIC_PACKAGES,
-        SonargraphBuildUnitMetrics.EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_TYPES,
-        SonargraphBuildUnitMetrics.INSTRUCTIONS);
+        SonargraphSimpleMetrics.CYCLIC_PACKAGES,
+        SonargraphSimpleMetrics.EROSION_REFS, SonargraphSimpleMetrics.EROSION_TYPES,
+        SonargraphSimpleMetrics.INSTRUCTIONS);
   }
 
   @Override
@@ -80,7 +80,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     if ( !shouldDecorateResource(resource)) {
       return;
     }
-    if ( !Utilities.isAggregationProject(context, SonargraphBuildUnitMetrics.INSTRUCTIONS)) {
+    if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }
     super.decorate(resource, context);
