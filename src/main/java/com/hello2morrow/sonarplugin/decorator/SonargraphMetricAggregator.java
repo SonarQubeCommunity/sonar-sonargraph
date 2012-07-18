@@ -44,6 +44,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     /*
      * Some of these metrics could also be directly retrieved from the "overview" section of the generated report, e.g. internal types,
      * instructions... But it is safe to add up the values from the different build units being analyzed.
+     * TODO: This is *NOT* true for cycle warnings, as cycles between logical architecture elements are not taken into account.
      */
     return Arrays.asList(SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, SonargraphBuildUnitMetrics.JAVA_FILES,
         SonargraphBuildUnitMetrics.INTERNAL_TYPES, SonargraphBuildUnitMetrics.TYPE_DEPENDENCIES,
@@ -61,7 +62,10 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
         SonargraphBuildUnitMetrics.IGNORED_WARNINGS,
 
         /* structure metrics */
-        SonargraphBuildUnitMetrics.CYCLICITY, SonargraphBuildUnitMetrics.CYCLIC_PACKAGES,
+        //TODO: check if the cyclicity can be simply aggregated... How is it done in the standalone application? 
+        SonargraphBuildUnitMetrics.CYCLICITY, 
+        
+        SonargraphBuildUnitMetrics.CYCLIC_PACKAGES,
         SonargraphBuildUnitMetrics.EROSION_REFS, SonargraphBuildUnitMetrics.EROSION_TYPES,
         SonargraphBuildUnitMetrics.INSTRUCTIONS);
   }

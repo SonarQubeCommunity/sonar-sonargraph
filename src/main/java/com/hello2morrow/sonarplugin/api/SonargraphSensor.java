@@ -124,7 +124,7 @@ public final class SonargraphSensor implements Sensor {
     this.metrics.clear();
 
     if (Utilities.isRootParentProject(project)) {
-      /* Nothing to analyse for parent project, only decorators are executed */
+      getDashboardMetricsForRootProject();
       return;
     }
 
@@ -141,14 +141,25 @@ public final class SonargraphSensor implements Sensor {
 
     XsdAttributeRoot buildUnit = retrieveBuildUnit(project.getKey(), report);
 
-    if (null == buildUnit) {
-      LOG.error("No Sonargraph build units found in report for [" + project.getName() + "]");
+    if (buildUnit == null) {
+      LOG.error("No Sonargraph build units found in report for [" + project.getName() + "]. Module will not be processed by Sonargraph!");
       Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
       return;
     }
 
-    LOG.info("Adding measures for " + project.getName());
+    LOG.debug("Analysing buildUnit: " + buildUnit.getName());
+
+    /** Load all attributes and values in map */
+    Utilities.readAttributesToMap(buildUnit, metrics);
+    Number numberOfStatements = metrics.get("NumberOfStatements");
+    if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
+      LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
+      Measure m = new Measure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      sensorContext.saveMeasure(m);
+      return;
+    }
+
     this.analyseBuildUnit(report, buildUnit);
     this.extractStructuralCostMetrics(configuration);
     this.analyseCylceGroups(report, buildUnit, project);
@@ -156,6 +167,10 @@ public final class SonargraphSensor implements Sensor {
     this.processViolationsWarningsTasks(report, sensorContext, ruleFinder, buildUnit);
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
+  }
+
+  private void getDashboardMetricsForRootProject() {
+    
   }
 
   XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
@@ -212,20 +227,15 @@ public final class SonargraphSensor implements Sensor {
   }
 
   void analyseBuildUnit(final ReportContext report, final XsdAttributeRoot buildUnit) {
-    LOG.debug("Analysing buildUnit: " + buildUnit.getName());
-
-    /** Load all attributes and values in map */
-    Utilities.readAttributesToMap(buildUnit, metrics);
-
     Number internalPackages = Utilities.getBuildUnitMetricValue(metrics, INTERNAL_PACKAGES);
+    Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_PACKAGES,
+        SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, 0);
 
     if (internalPackages.intValue() == 0) {
       LOG.warn("No packages found in buildUnit " + buildUnit.getName());
       return;
     }
 
-    Utilities.saveExistingMeasureToContext(sensorContext, metrics, INTERNAL_PACKAGES,
-        SonargraphBuildUnitMetrics.INTERNAL_PACKAGES, 0);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, ACD, SonargraphBuildUnitMetrics.ACD, 1);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, NCCD, SonargraphBuildUnitMetrics.NCCD, 1);
     Utilities.saveExistingMeasureToContext(sensorContext, metrics, INSTRUCTIONS,

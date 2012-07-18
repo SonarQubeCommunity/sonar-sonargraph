@@ -54,7 +54,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       Measure m = childContext.getMeasure(SonargraphBuildUnitMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
         LOG.warn("Skipping module [" + childContext.getResource().getName()
-            + "] because it is not part of the Sonargraph workspace.");
+            + "] because it is not part of the Sonargraph workspace or does not contain any code.");
         continue;
       }
 
