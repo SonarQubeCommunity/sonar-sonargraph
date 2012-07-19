@@ -24,6 +24,12 @@ import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 
+/**
+ * Facade to the @link {@link org.sonar.api.batch.DecoratorContext} that only offers the methods needed to save and get measures.
+ * 
+ * @author Ingmar
+ *
+ */
 public class DecoratorProjectContext implements IProjectContext
 {
   private final DecoratorContext context;

@@ -46,7 +46,7 @@ if measure('sonargraph_architecture_violations')
 		if measure('sonargraph_duplicate_warnings')
 		%>
         <td>
-              <%= format_measure('sonargraph_threshold_warnings', :suffix => ' threshold violations', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.threshold") -%> <%= tendency_icon(measure('sonargraph_threshold_warnings')) %>
+              <%= format_measure('sonargraph_threshold_warnings', :suffix => ' threshold warnings', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.threshold") -%> <%= tendency_icon(measure('sonargraph_threshold_warnings')) %>
         </td>
         <%
 		end

@@ -31,6 +31,7 @@ import org.sonar.api.resources.Resource;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
 
@@ -51,7 +52,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     for (DecoratorContext childContext : context.getChildren()) {
 
-      Measure m = childContext.getMeasure(SonargraphSimpleMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
         LOG.warn("Skipping module [" + childContext.getResource().getName()
             + "] because it is not part of the Sonargraph workspace or does not contain any code.");

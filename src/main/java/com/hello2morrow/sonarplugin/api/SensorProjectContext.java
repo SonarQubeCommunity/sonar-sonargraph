@@ -24,6 +24,12 @@ import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 
+/**
+ * Facade for the {@link org.sonar.api.batch.SensorContext} that only allows to save and retrieve measures. 
+ * 
+ * @author Ingmar
+ *
+ */
 public final class SensorProjectContext implements IProjectContext
 {
   private final SensorContext context;

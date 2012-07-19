@@ -82,7 +82,7 @@ public final class SonargraphSimpleMetrics implements Metrics {
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
   /** Architecture Dashbox metrics */
-  public static final Metric VIOLATING_DEPENDENCIES = new Metric.Builder("sonargraph_violating_dependencies",
+  public static final Metric VIOLATING_TYPE_DEPENDENCIES = new Metric.Builder("sonargraph_violating_dependencies",
       "Violating Dependencies", Metric.ValueType.INT).setDescription("Number of Violating Type Dependencies")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
@@ -90,7 +90,7 @@ public final class SonargraphSimpleMetrics implements Metrics {
       Metric.ValueType.INT).setDescription("Number of Types with Outgoing Architecture Violations")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric ARCHITECTURE_VIOLATIONS = new Metric.Builder("sonargraph_architecture_violations",
+  public static final Metric VIOLATING_REFERENCES = new Metric.Builder("sonargraph_architecture_violations",
       "Architecture Violations (references)", Metric.ValueType.INT).setDescription("Number of Violating References")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
@@ -144,16 +144,11 @@ public final class SonargraphSimpleMetrics implements Metrics {
       Metric.ValueType.INT).setDescription("Number of Internal Packages").setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
 
-  /** Internally used metric to flag that this maven module is not part of the Sonargraph workspace and should therefore be ignored. **/
-  public static final Metric MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE = new Metric.Builder("sonargraph_ignore_module",
-      "Module", Metric.ValueType.BOOL).setDescription("Module must be excluded from Sonargraph processing")
-      .setDirection(Metric.DIRECTION_NONE).setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
-
   public List<Metric> getMetrics() {
     return Arrays.asList(EROSION_INDEX, EROSION_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, EROSION_TYPES,
-        EROSION_REFS, ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_DEPENDENCIES, VIOLATING_TYPES,
-        ARCHITECTURE_VIOLATIONS, IGNORED_VIOLATONS, UNASSIGNED_TYPES, ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS,
+        EROSION_REFS, ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES,
+        VIOLATING_REFERENCES, IGNORED_VIOLATONS, UNASSIGNED_TYPES, ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS,
         THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS, INTERNAL_PACKAGES, INTERNAL_TYPES, TYPE_DEPENDENCIES,
-        JAVA_FILES, MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+        JAVA_FILES);
   }
 }

@@ -110,14 +110,25 @@ public final class Utilities {
 
   public static boolean isRootParentProject(final Project project) {
     boolean isRootParentProject = false;
-    if (null == project) {
+    if (project == null) {
       return false;
     }
     List<Project> modules = project.getModules();
-    if (null == project.getParent() && null != modules && !modules.isEmpty()) {
+    if (project.getParent() == null && modules != null && !modules.isEmpty()) {
       isRootParentProject = true;
     }
     return isRootParentProject;
+  }
+
+  public static boolean isSingleModuleProject(final Project project) {
+    if (project == null) {
+      return false;
+    }
+    
+    if (project.getModules().isEmpty() && project.getParent() == null) {
+      return true;
+    }
+    return false;
   }
 
   public static String generateSpaceEntity(int numberOfSpaces) {
