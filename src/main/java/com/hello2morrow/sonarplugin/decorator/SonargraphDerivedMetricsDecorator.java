@@ -48,6 +48,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     double biggestCycleGroupSize = -1.0;
     double highestACD = -1.0;
+    double highestRelativeACD = -1.0;
     double highestNCCD = -1.0;
 
     for (DecoratorContext childContext : context.getChildren()) {
@@ -61,17 +62,22 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
       Measure cycleGroup = childContext.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP);
       Measure acd = childContext.getMeasure(SonargraphSimpleMetrics.ACD);
+      Measure relativeACD = childContext.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD);
       Measure nccd = childContext.getMeasure(SonargraphSimpleMetrics.NCCD);
+      
       Measure localHighestACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_ACD);
       Measure localHighestNCCD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD);
-
+      Measure localHighestRelativeACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD);
+      
       biggestCycleGroupSize = getBiggerValue(biggestCycleGroupSize, cycleGroup);
       highestACD = getBiggerValue(highestACD, acd, localHighestACD);
+      highestRelativeACD = getBiggerValue(highestRelativeACD, relativeACD, localHighestRelativeACD);
       highestNCCD = getBiggerValue(highestNCCD, nccd, localHighestNCCD);
     }
 
     context.saveMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
     context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_ACD, highestACD);
+    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD, highestRelativeACD);
     context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD, highestNCCD);
 
     saveCyclicityMeasures(context);

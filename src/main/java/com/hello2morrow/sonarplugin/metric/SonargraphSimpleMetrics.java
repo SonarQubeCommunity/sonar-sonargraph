@@ -29,12 +29,12 @@ public final class SonargraphSimpleMetrics implements Metrics {
   public static final String DOMAIN_SONARGRAPH = "Sonargraph";
 
   /** Structural Debt Dashbox metrics */
-  public static final Metric STRUCTURAL_DEBT_INDEX = new Metric.Builder("sonargraph_erosion_index", "Structural Debt Index",
-      Metric.ValueType.INT).setDescription("Structural Erosion Index").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
+  public static final Metric STRUCTURAL_DEBT_INDEX = new Metric.Builder("sonargraph_erosion_index",
+      "Structural Debt Index", Metric.ValueType.INT).setDescription("Structural Erosion Index")
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric STRUCTURAL_DEBT_COST = new Metric.Builder("sonargraph_erosion_cost", "Structural Debt Cost",
-      Metric.ValueType.INT).setDescription("Estimated Cost to Repair Structural Erosion")
+  public static final Metric STRUCTURAL_DEBT_COST = new Metric.Builder("sonargraph_erosion_cost",
+      "Structural Debt Cost", Metric.ValueType.INT).setDescription("Estimated Cost to Repair Structural Erosion")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
   public static final Metric TASKS = new Metric.Builder("sonargraph_tasks", "Open Tasks", Metric.ValueType.INT)
@@ -67,6 +67,10 @@ public final class SonargraphSimpleMetrics implements Metrics {
   public static final Metric ACD = new Metric.Builder("sonargraph_acd", "ACD", Metric.ValueType.FLOAT)
       .setDescription("Average Component Dependency (John Lakos)").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
+
+  public static final Metric RELATIVE_ACD = new Metric.Builder("sonargraph_relative_acd", "Relative ACD",
+      Metric.ValueType.FLOAT).setDescription("Relative Average Component Dependency (John Lakos)")
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
   public static final Metric NCCD = new Metric.Builder("sonargraph_nccd", "NCCD", Metric.ValueType.FLOAT)
       .setDescription("Normalized Cummulative Component Dependency (John Lakos)").setDirection(Metric.DIRECTION_WORST)
@@ -145,10 +149,10 @@ public final class SonargraphSimpleMetrics implements Metrics {
       .setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
 
   public List<Metric> getMetrics() {
-    return Arrays.asList(STRUCTURAL_DEBT_INDEX, STRUCTURAL_DEBT_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, TYPE_DEPENDENCIES_TO_CUT,
-        REFERENCES_TO_REMOVE, ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES,
-        VIOLATING_REFERENCES, IGNORED_VIOLATONS, UNASSIGNED_TYPES, ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS,
-        THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS, INTERNAL_PACKAGES, INTERNAL_TYPES, TYPE_DEPENDENCIES,
-        JAVA_FILES);
+    return Arrays.asList(STRUCTURAL_DEBT_INDEX, STRUCTURAL_DEBT_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES,
+        TYPE_DEPENDENCIES_TO_CUT, REFERENCES_TO_REMOVE, ACD, RELATIVE_ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE,
+        VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES, VIOLATING_REFERENCES, IGNORED_VIOLATONS, UNASSIGNED_TYPES,
+        ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS, THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS,
+        INTERNAL_PACKAGES, INTERNAL_TYPES, TYPE_DEPENDENCIES, JAVA_FILES);
   }
 }

@@ -29,6 +29,10 @@ public class SonargraphDerivedMetrics implements Metrics {
       Metric.ValueType.FLOAT).setDescription("The highest ACD of all build units").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
+  public static final Metric HIGHEST_RELATIVE_ACD = new Metric.Builder("sonargraph_highest_relative_acd", "Highest Relative ACD",
+      Metric.ValueType.FLOAT).setDescription("The highest Relative ACD of all build units").setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
+
   public static final Metric HIGHEST_NCCD = new Metric.Builder("sonargraph_highest_nccd", "Highest NCCD",
       Metric.ValueType.FLOAT).setDescription("The highest NCCD of all build units")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
@@ -61,7 +65,7 @@ public class SonargraphDerivedMetrics implements Metrics {
       .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).create();
 
   public List<Metric> getMetrics() {
-    return Arrays.asList(HIGHEST_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY,
+    return Arrays.asList(HIGHEST_ACD, HIGHEST_RELATIVE_ACD, HIGHEST_NCCD, BIGGEST_CYCLE_GROUP, CYCLIC_PACKAGES_PERCENT, RELATIVE_CYCLICITY,
         UNASSIGNED_TYPES_PERCENT, VIOLATING_TYPES_PERCENT);
   }
 }

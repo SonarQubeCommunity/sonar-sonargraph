@@ -33,19 +33,24 @@ if measure('sonargraph_acd')
         <td>
               <%= format_measure('sonargraph_cyclic_packages', :suffix => ' cyclic packages') -%> <%= format_measure('sonargraph_cyclic_packages_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_cyclic_packages')) %>
         </td>
+        <td>
+              <!-- <%= format_measure('sonargraph_relative_acd') -%> rACD (John Lakos) <%= tendency_icon(measure('sonargraph_relative_acd')) %> -->
+        </td>
     </tr>
     <tr>
     	<td>
     		  <%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
     	</td>
     	<td>
-              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
-        </td>
+    	</td>
     </tr>
     <tr>
     	<td>
     	<%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
     	</td>
+    	<td>
+              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
+        </td>
     </tr>
   </table>
 </div>
@@ -84,19 +89,24 @@ elsif measure('sonargraph_biggest_cycle_group')
         <td>
               <%= format_measure('sonargraph_cyclic_packages', :suffix => ' cyclic packages') -%> <%= format_measure('sonargraph_cyclic_packages_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_cyclic_packages')) %>
         </td>
+        <td>
+         <!--     <%= format_measure('sonargraph_highest_relative_acd') -%> Highest rACD (John Lakos) <%= tendency_icon(measure('sonargraph_highest_relative_acd')) %> -->
+        </td>
     </tr>
     <tr>
     	<td>
     	<%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
     	</td>
     	<td>
-              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
-        </td>
+    	</td>
     </tr>
     <tr>
     	<td>
     	      <%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
     	</td>
+    	<td>
+              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
+        </td>
     </tr>
   </table>
 </div>
