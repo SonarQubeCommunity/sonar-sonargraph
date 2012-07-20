@@ -21,15 +21,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
+import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
 
 /**
  * Utility class for reading in the Sonargraph Report.
@@ -40,7 +44,8 @@ import com.hello2morrow.sonarplugin.xsd.ReportContext;
 public final class ReportFileReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
-
+  private static final String REPORT_DIR = "sonargraph-sonar-plugin";
+  private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
   private ReportFileReader() {
   }
 
@@ -86,6 +91,38 @@ public final class ReportFileReader {
       }
     }
     return result;
+  }
+
+  public static String getReportFileName(String projectBuildPath, Configuration config) {
+    String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
+  
+    return config.getString("sonar.sonargraph.report.path", defaultLocation);
+  }
+
+  /* package access for testing */
+  public static XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
+    if (null == report) {
+      return null;
+    }
+  
+    XsdBuildUnits buildUnits = report.getBuildUnits();
+    List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
+  
+    if (buildUnitList.size() == 1) {
+      return buildUnitList.get(0);
+    } else if (buildUnitList.size() > 1) {
+  
+      for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
+        String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
+        if (Utilities.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
+          return sonarBuildUnit;
+        }
+      }
+  
+      LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
+          + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
+    }
+    return null;
   }
 
 }

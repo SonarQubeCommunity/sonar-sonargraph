@@ -38,6 +38,7 @@ import org.sonar.api.rules.Violation;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdWarning;
 
 public final class Utilities {
@@ -74,6 +75,13 @@ public final class Utilities {
       }
     }
     return buName;
+  }
+
+  public static String getBuildUnitName(XsdCycleGroup group) {
+    if ("(Default Build Unit)".equals(group.getParent())) {
+      return group.getElementScope();
+    }
+    return group.getParent();
   }
 
   public static String relativeFileNameToFqName(String fileName) {
@@ -288,6 +296,18 @@ public final class Utilities {
       return 0.0;
     }
     return num.doubleValue();
+  }
+
+  public static boolean buildUnitMatchesAnalyzedProject(String buName, String projectKey) {
+    final String[] elements = projectKey.split(":");
+    assert elements.length >= 1 : "project.getKey() must not return an empty string";
+    final String artifactId = elements[elements.length - 1];
+    final String groupId = elements[0];
+    final String longName = artifactId + "[" + groupId + "]";
+    final String longName2 = groupId + ':' + artifactId;
+  
+    return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName)
+        || buName.equalsIgnoreCase(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
   }
 
 }

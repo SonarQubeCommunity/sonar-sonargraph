@@ -50,7 +50,8 @@ public class UtilitiesTest {
 
   @Test
   public void testGetBuildUnitNameString() {
-    assertEquals("<UNKNOWN>", Utilities.getBuildUnitName(null));
+    String name = null;
+    assertEquals("<UNKNOWN>", Utilities.getBuildUnitName(name));
     assertEquals("<UNKNOWN>", Utilities.getBuildUnitName("AlarmClock-AlarmClock"));
     assertEquals("Old Sonarj Version", Utilities.getBuildUnitName("Old Sonarj Version::(Default Build Unit)"));
     assertEquals("AlarmClock", Utilities.getBuildUnitName("AlarmClock::AlarmClock"));

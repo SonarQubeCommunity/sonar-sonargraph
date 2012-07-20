@@ -99,7 +99,7 @@ public class ReadTest extends TestCase {
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
 
-    XsdAttributeRoot buildUnit = sensor.retrieveBuildUnit(project.getKey(), report);
+    XsdAttributeRoot buildUnit = ReportFileReader.retrieveBuildUnit(project.getKey(), report);
     assertNotNull(buildUnit);
     sensor.analyseBuildUnit(report, buildUnit);
   }

@@ -51,13 +51,13 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
         SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
 
         /* structural debt metrics */
-        SonargraphSimpleMetrics.EROSION_INDEX, SonargraphSimpleMetrics.EROSION_COST,
+        SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST,
         SonargraphSimpleMetrics.TASKS, SonargraphSimpleMetrics.TASK_REFS,
         
         /* structure metrics */
         //TODO: check if the cyclicity can be simply aggregated... How is it done in the standalone application? 
         SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES,
-        SonargraphSimpleMetrics.EROSION_REFS, SonargraphSimpleMetrics.EROSION_TYPES,
+        SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
         SonargraphSimpleMetrics.INSTRUCTIONS,
 
         /* architecture metrics */

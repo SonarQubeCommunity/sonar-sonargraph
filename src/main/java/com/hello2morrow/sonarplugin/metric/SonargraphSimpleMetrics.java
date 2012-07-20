@@ -29,11 +29,11 @@ public final class SonargraphSimpleMetrics implements Metrics {
   public static final String DOMAIN_SONARGRAPH = "Sonargraph";
 
   /** Structural Debt Dashbox metrics */
-  public static final Metric EROSION_INDEX = new Metric.Builder("sonargraph_erosion_index", "Structural Debt Index",
+  public static final Metric STRUCTURAL_DEBT_INDEX = new Metric.Builder("sonargraph_erosion_index", "Structural Debt Index",
       Metric.ValueType.INT).setDescription("Structural Erosion Index").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric EROSION_COST = new Metric.Builder("sonargraph_erosion_cost", "Structural Debt Cost",
+  public static final Metric STRUCTURAL_DEBT_COST = new Metric.Builder("sonargraph_erosion_cost", "Structural Debt Cost",
       Metric.ValueType.INT).setDescription("Estimated Cost to Repair Structural Erosion")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
@@ -54,12 +54,12 @@ public final class SonargraphSimpleMetrics implements Metrics {
       Metric.ValueType.INT).setDescription("Number of Cyclic Packages").setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric EROSION_TYPES = new Metric.Builder("sonargraph_erosion_types",
+  public static final Metric TYPE_DEPENDENCIES_TO_CUT = new Metric.Builder("sonargraph_erosion_types",
       "Structural Erosion - type level", Metric.ValueType.INT)
       .setDescription("Number of Type Dependencies to Cut to Achive Zero Package Cyclicity")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
 
-  public static final Metric EROSION_REFS = new Metric.Builder("sonargraph_erosion_ref",
+  public static final Metric REFERENCES_TO_REMOVE = new Metric.Builder("sonargraph_erosion_ref",
       "Structural Erosion - reference level", Metric.ValueType.INT)
       .setDescription("Number of References to Cut to Achieve Zero Package Cyclicity")
       .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
@@ -145,8 +145,8 @@ public final class SonargraphSimpleMetrics implements Metrics {
       .setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
 
   public List<Metric> getMetrics() {
-    return Arrays.asList(EROSION_INDEX, EROSION_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, EROSION_TYPES,
-        EROSION_REFS, ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES,
+    return Arrays.asList(STRUCTURAL_DEBT_INDEX, STRUCTURAL_DEBT_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, TYPE_DEPENDENCIES_TO_CUT,
+        REFERENCES_TO_REMOVE, ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES,
         VIOLATING_REFERENCES, IGNORED_VIOLATONS, UNASSIGNED_TYPES, ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS,
         THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS, INTERNAL_PACKAGES, INTERNAL_TYPES, TYPE_DEPENDENCIES,
         JAVA_FILES);

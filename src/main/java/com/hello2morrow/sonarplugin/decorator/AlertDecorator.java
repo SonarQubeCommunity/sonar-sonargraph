@@ -58,7 +58,7 @@ public final class AlertDecorator {
   }
 
   private static final AlertThreshold THRESHOLDS[] = {
-      new AlertThreshold(SonargraphSimpleMetrics.EROSION_INDEX, 400, 1600),
+      new AlertThreshold(SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, 400, 1600),
       new AlertThreshold(SonargraphSimpleMetrics.TASKS, 20.0, 50.0),
 
       new AlertThreshold(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, 5, 15),
@@ -102,7 +102,7 @@ public final class AlertDecorator {
     }
     copyAlertLevel(context, SonargraphSimpleMetrics.NCCD, SonargraphSimpleMetrics.ACD);
     copyAlertLevel(context, SonargraphDerivedMetrics.HIGHEST_NCCD, SonargraphDerivedMetrics.HIGHEST_ACD);
-    copyAlertLevel(context, SonargraphSimpleMetrics.EROSION_INDEX, SonargraphSimpleMetrics.EROSION_COST);
+    copyAlertLevel(context, SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST);
     copyAlertLevel(context, SonargraphSimpleMetrics.TASKS, SonargraphSimpleMetrics.TASK_REFS);
     copyAlertLevel(context, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, SonargraphSimpleMetrics.CYCLICITY);
   }
