@@ -35,6 +35,7 @@ import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
 
+  private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -115,11 +116,11 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, 100.0 * violatingTypes.getValue()
+        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, HUNDRET_PERCENT * violatingTypes.getValue()
             / internalTypes.getValue());
       }
       if (unassignedTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, 100 * unassignedTypes.getValue()
+        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, HUNDRET_PERCENT * unassignedTypes.getValue()
             / internalTypes.getValue());
       }
     }
@@ -134,8 +135,8 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
           + context.getProject().getKey());
     } else {
-      double relCyclicity = 100.0 * Math.sqrt(cyclicity.getValue()) / packages.getValue();
-      double relCyclicPackages = 100.0 * cyclicPackages.getValue() / packages.getValue();
+      double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getValue()) / packages.getValue();
+      double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getValue() / packages.getValue();
 
       context.saveMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
       context.saveMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);

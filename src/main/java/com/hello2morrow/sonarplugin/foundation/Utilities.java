@@ -306,8 +306,21 @@ public final class Utilities {
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
   
-    return buName.equalsIgnoreCase(artifactId) || buName.equalsIgnoreCase(longName)
-        || buName.equalsIgnoreCase(longName2) || (buName.startsWith("...") && longName2.endsWith(buName.substring(2)));
+    if (buName.equalsIgnoreCase(artifactId)){
+      return true;
+    }
+    if (buName.equalsIgnoreCase(longName))
+    {
+      return true;
+    }
+    if (buName.equalsIgnoreCase(longName2)) {
+      return true;
+    }
+    
+    if (buName.startsWith("...") && longName2.endsWith(buName.substring(2))) {
+      return true;
+    }
+    return false;
   }
 
 }

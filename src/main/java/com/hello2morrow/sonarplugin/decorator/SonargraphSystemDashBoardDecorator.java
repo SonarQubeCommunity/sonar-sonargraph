@@ -40,27 +40,26 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if (!shouldDecorateResource(resource)){
+    if ( !shouldDecorateResource(resource)) {
       return;
     }
 
-    if (!Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
+    if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
-    } 
-    
-    if (!getMeasuresFromChildContexts(context)) {
+    }
+
+    if ( !getMeasuresFromChildContexts(context)) {
       LOG.error("Failed to retrieve the warning metrics for the Sonargraph Architecture dashboard.");
     } else {
       AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
     }
   }
 
-  
   private boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return (resource != null && Qualifiers.PROJECT == resource.getQualifier());
   }
-  
+
   private boolean getMeasuresFromChildContexts(DecoratorContext context) {
     for (DecoratorContext childContext : context.getChildren()) {
       Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
@@ -70,7 +69,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
         continue;
       }
 
-      if (!getMeasures(context, childContext)) {
+      if ( !getMeasures(context, childContext)) {
         LOG.error("Try to find required metrics in next child module.");
         continue;
       }
@@ -80,20 +79,36 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getMeasures(DecoratorContext target, DecoratorContext source) {
-    return copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
-        SonargraphSimpleMetrics.ALL_WARNINGS)
-        && copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
-            SonargraphSimpleMetrics.CYCLE_WARNINGS)
-        && copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
-            SonargraphSimpleMetrics.THRESHOLD_WARNINGS)
-        && copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
-            SonargraphSimpleMetrics.WORKSPACE_WARNINGS)
-        && copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
-            SonargraphSimpleMetrics.IGNORED_WARNINGS);
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+        SonargraphSimpleMetrics.ALL_WARNINGS)) {
+      return false;
+    }
+
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
+        SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
+      return false;
+    }
+
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
+        SonargraphSimpleMetrics.THRESHOLD_WARNINGS)) {
+      return false;
+    }
+
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
+        SonargraphSimpleMetrics.WORKSPACE_WARNINGS)) {
+      return false;
+    }
+
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
+        SonargraphSimpleMetrics.IGNORED_WARNINGS)) {
+      return false;
+    }
+
+    return true;
   }
 
-  private boolean copyMeasureFromChildContext(DecoratorContext source, DecoratorContext target,
-      Metric sourceMetric, Metric targetMetric) {
+  private boolean copyMeasureFromChildContext(DecoratorContext source, DecoratorContext target, Metric sourceMetric,
+      Metric targetMetric) {
     Measure sourceMeasure = source.getMeasure(sourceMetric);
     if (sourceMeasure == null) {
       LOG.error("Metric " + sourceMetric.getDescription() + " could not be found in module "

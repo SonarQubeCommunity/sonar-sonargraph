@@ -45,6 +45,7 @@ import com.hello2morrow.sonarplugin.xsd.XsdTasks;
  */
 public class TaskProcessor implements IProcessor {
 
+  private static final String PACKAGE = " package";
   private SensorContext sensorContext;
   private RuleFinder ruleFinder;
 
@@ -90,7 +91,7 @@ public class TaskProcessor implements IProcessor {
     Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.TASK_REFS, count, 0);
   }
 
-  private int handleTask(Map<String, RulePriority> priorityMap, Rule rule, int count, XsdTask task) {
+  private int handleTask(Map<String, RulePriority> priorityMap, Rule rule, final int count, final XsdTask task) {
     String priority = Utilities.getAttribute(task.getAttribute(), "Priority");
     String description = Utilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = Utilities.getAttribute(task.getAttribute(), "Assigned to");
@@ -98,12 +99,13 @@ public class TaskProcessor implements IProcessor {
     // This should not be needed, but the current description sucks
     description = handleDescription(description);
 
-    int index = description.indexOf(" package");
+    int index = description.indexOf(PACKAGE);
+    int counter = count;
 
-    if (index > 0 && index < 8) {
+    if (index > 0 && index < PACKAGE.length()) {
       // Package refactorings won't get markers - this would
       // create to many non relevant markers
-      count++;
+      counter++;
     } else {
       if (assignedTo != null) {
         assignedTo = '[' + assignedTo.trim() + ']';
@@ -123,10 +125,10 @@ public class TaskProcessor implements IProcessor {
           }
           Utilities.saveViolation(sensorContext, rule, priorityMap.get(priority), fqName, line, description);
         }
-        count++;
+        counter++;
       }
     }
-    return count;
+    return counter;
   }
 
   private String handleDescription(String descr) {
