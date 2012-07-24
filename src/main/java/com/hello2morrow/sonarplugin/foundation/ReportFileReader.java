@@ -30,6 +30,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -41,25 +42,29 @@ import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
  * @author Ingmar
  * 
  */
-public final class ReportFileReader {
+public class ReportFileReader implements IReportReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
   private static final String REPORT_DIR = "sonargraph-sonar-plugin";
   private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
-  private ReportFileReader() {
+  private ReportContext report;
+
+  public ReportFileReader() {
   }
 
-  /**
-   * Unmarshals the Sonargraph Report into a ReportContext
-   * 
-   * @param reportFileName
-   *          the file name of the Sonargraph Report to be opened
-   * @param isRoot
-   *          specifies if this project is the root project or a module
-   * @return {@link ReportContext} if successful, null otherwise
+  /* (non-Javadoc)
+   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#readSonargraphReport(java.lang.String, boolean)
    */
-  public static ReportContext readSonargraphReport(String reportFileName, boolean isRoot) {
-    ReportContext result = null;
+  public void readSonargraphReport(final Project project, Configuration configuration) {
+    if (project == null)
+    {
+      LOG.error("No project provided for reading sonargraph report");
+      return;
+    }
+    
+    String reportFileName = determineReportFileName(project, configuration);
+    LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
+    report = null;
     InputStream input = null;
     ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
 
@@ -69,11 +74,11 @@ public final class ReportFileReader {
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
       JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       Unmarshaller u = context.createUnmarshaller();
-      result = (ReportContext) u.unmarshal(input);
+      report = (ReportContext) u.unmarshal(input);
     } catch (JAXBException e) {
       LOG.error("JAXB Problem in " + reportFileName, e);
     } catch (FileNotFoundException e) {
-      if (isRoot) {
+      if (project.isRoot()) {
         LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
         LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
             + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
@@ -90,39 +95,55 @@ public final class ReportFileReader {
         }
       }
     }
-    return result;
   }
 
-  public static String getReportFileName(String projectBuildPath, Configuration config) {
+  /* (non-Javadoc)
+   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#getReport()
+   */
+  public ReportContext getReport() {
+    return report;
+  }
+
+  /* (non-Javadoc)
+   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#getReportFileName(java.lang.String, org.apache.commons.configuration.Configuration)
+   */
+  public String getReportFileName(String projectBuildPath, Configuration config) {
     String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
-  
     return config.getString("sonar.sonargraph.report.path", defaultLocation);
   }
 
-  /* package access for testing */
-  public static XsdAttributeRoot retrieveBuildUnit(String projectKey, ReportContext report) {
+  protected String determineReportFileName(Project project, Configuration config) {
+    String projectBuildPath = project.getFileSystem().getBuildDir().getPath();
+    String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
+    return config.getString("sonar.sonargraph.report.path", defaultLocation);
+  }
+
+  
+  /* (non-Javadoc)
+   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#retrieveBuildUnit(java.lang.String)
+   */
+  public XsdAttributeRoot retrieveBuildUnit(String projectKey) {
     if (null == report) {
       return null;
     }
-  
+
     XsdBuildUnits buildUnits = report.getBuildUnits();
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
-  
+
     if (buildUnitList.size() == 1) {
       return buildUnitList.get(0);
     } else if (buildUnitList.size() > 1) {
-  
+
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
         String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
         if (Utilities.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
           return sonarBuildUnit;
         }
       }
-  
+
       LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
           + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
     }
     return null;
   }
-
 }

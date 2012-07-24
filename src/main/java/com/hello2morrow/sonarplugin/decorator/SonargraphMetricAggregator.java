@@ -90,7 +90,7 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
   @Override
   public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
-    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
+    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
         resource.getQualifier());
   }
 }

@@ -56,8 +56,12 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
-    LOG.debug("Checking for resource type: " + resource.getQualifier());
-    return (resource != null && Qualifiers.PROJECT == resource.getQualifier());
+    if (resource != null)
+    {
+      LOG.debug("Checking for resource type: " + resource.getQualifier());
+      return Qualifiers.PROJECT.equals(resource.getQualifier());
+    }
+    return false;
   }
 
   private boolean getMeasuresFromChildContexts(DecoratorContext context) {
@@ -79,13 +83,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getMeasures(DecoratorContext target, DecoratorContext source) {
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
-        SonargraphSimpleMetrics.ALL_WARNINGS)) {
-      return false;
-    }
-
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
-        SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
+    if (!getAllAndCycleWarnings(target, source)){
       return false;
     }
 
@@ -104,6 +102,19 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
       return false;
     }
 
+    return true;
+  }
+
+  private boolean getAllAndCycleWarnings(DecoratorContext target, DecoratorContext source) {
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+        SonargraphSimpleMetrics.ALL_WARNINGS)) {
+      return false;
+    }
+
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
+        SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
+      return false;
+    }
     return true;
   }
 

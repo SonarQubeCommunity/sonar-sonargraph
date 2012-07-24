@@ -43,6 +43,17 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarning;
 
 public final class Utilities {
 
+  public static final String DEFAULT_BUILD_UNIT = "(Default Build Unit)";
+  private static final String SPACE = " ";
+  private static final String START_LINE = "Start line";
+  private static final String ELEMENT = "Element";
+  private static final String ATTRIBUTE_VALUE = "Attribute value";
+  private static final String ELEMENT_TYPE = "Element type";
+  private static final String BUILD_UNIT = "Build unit";
+  private static final String PROJECT = "Project";
+  private static final String BLOCK_ID = "Block id";
+  private static final String SPACE_ENTITY = "&nbsp;";
+  private static final String UNKNOWN = "<UNKNOWN>";
   private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
   private Utilities() {
@@ -61,14 +72,14 @@ public final class Utilities {
   }
 
   public static String getBuildUnitName(String fqName) {
-    String buName = "<UNKNOWN>";
+    String buName = UNKNOWN;
 
     if (fqName != null) {
       int colonPos = fqName.indexOf("::");
 
       if (colonPos != -1) {
         buName = fqName.substring(colonPos + 2);
-        if ("(Default Build Unit)".equals(buName)) {
+        if (DEFAULT_BUILD_UNIT.equals(buName)) {
           // Compatibility with old SonarJ versions
           buName = fqName.substring(0, colonPos);
         }
@@ -78,7 +89,7 @@ public final class Utilities {
   }
 
   public static String getBuildUnitName(XsdCycleGroup group) {
-    if ("(Default Build Unit)".equals(group.getParent())) {
+    if (DEFAULT_BUILD_UNIT.equals(group.getParent())) {
       return group.getElementScope();
     }
     return group.getParent();
@@ -142,7 +153,7 @@ public final class Utilities {
   public static String generateSpaceEntity(int numberOfSpaces) {
     StringBuffer buffer = new StringBuffer();
     for (int i = 0; i < numberOfSpaces; i++) {
-      buffer.append("&nbsp;");
+      buffer.append(SPACE_ENTITY);
     }
     return buffer.toString();
   }
@@ -150,29 +161,29 @@ public final class Utilities {
   public static String generateSpaces(int numberOfSpaces) {
     StringBuffer buffer = new StringBuffer();
     for (int i = 0; i < numberOfSpaces; i++) {
-      buffer.append(" ");
+      buffer.append(SPACE);
     }
     return buffer.toString();
   }
 
   public static DuplicateCodeBlock createDuplicateCodeBlock(XsdWarning warning) {
     DuplicateCodeBlock block = new DuplicateCodeBlock();
-    String attribute = getAttribute(warning.getAttribute(), "Block id");
+    String attribute = getAttribute(warning.getAttribute(), BLOCK_ID);
     if (null == attribute) {
       LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
       return null;
     }
     block.setBlockId(Integer.parseInt(attribute));
-    block.setProjectName(getAttribute(warning.getAttribute(), "Project"));
-    block.setBuildUnitName(getAttribute(warning.getAttribute(), "Build unit"));
-    block.setElementType(getAttribute(warning.getAttribute(), "Element type"));
+    block.setProjectName(getAttribute(warning.getAttribute(), PROJECT));
+    block.setBuildUnitName(getAttribute(warning.getAttribute(), BUILD_UNIT));
+    block.setElementType(getAttribute(warning.getAttribute(), ELEMENT_TYPE));
 
-    String blockLength = getAttribute(warning.getAttribute(), "Attribute value");
+    String blockLength = getAttribute(warning.getAttribute(), ATTRIBUTE_VALUE);
     int pos = blockLength.indexOf(" lines");
     block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
 
-    block.setElementName(getAttribute(warning.getAttribute(), "Element"));
-    block.setStartLine(Integer.parseInt(getAttribute(warning.getAttribute(), "Start line")));
+    block.setElementName(getAttribute(warning.getAttribute(), ELEMENT));
+    block.setStartLine(Integer.parseInt(getAttribute(warning.getAttribute(), START_LINE)));
     return block;
   }
 

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 
 /**
  * @author Ingmar
@@ -33,14 +34,26 @@ public class ReportFileReaderTest {
 
   private static final String reportFileName = "src/test/resources/sonargraph-sonar-report.xml";
   
-  /**
-   * Test method for {@link com.hello2morrow.sonarplugin.foundation.ReportFileReader#readSonargraphReport(java.lang.String)}.
-   */
+  
   @Test
   public void testReadSonargraphReport() {
-    assertNotNull(ReportFileReader.readSonargraphReport(reportFileName, false));
-    assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", false));
-    assertNull(ReportFileReader.readSonargraphReport("src/test/resources/report_error.xml", false));
-    assertNull(ReportFileReader.readSonargraphReport("fakeDir/ReporFileName.xml", true));
+    Project project = new Project("test");
+    IReportReader reader = new ReportReaderMock(reportFileName);
+    reader.readSonargraphReport(project, null);
+    assertNotNull(reader.getReport());
+    
+    reader = new ReportReaderMock("fakeDir/ReporFileName.xml");
+    assertNull(reader.getReport());
+    
+    reader = new ReportReaderMock("src/test/resources/report_error.xml");
+    reader.readSonargraphReport(project, null);
+    assertNull(reader.getReport());
+    
+    Project module = new Project("module");
+    module.setParent(project);
+    
+    reader = new ReportReaderMock("fakeDir/ReporFileName.xml");
+    reader.readSonargraphReport(project, null);
+    assertNull(reader.getReport());
   }
 }

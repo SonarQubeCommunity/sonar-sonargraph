@@ -18,18 +18,25 @@
 package com.hello2morrow.sonarplugin.foundation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdWarning;
 
 public class UtilitiesTest {
@@ -124,6 +131,48 @@ public class UtilitiesTest {
     
     assertFalse(Utilities.isRootParentProject(singleProject));
     assertTrue(Utilities.isRootParentProject(parentRoot));
+  }
+  
+  @Test
+  public void testIsAggregationProject()
+  {
+    DecoratorContext context = mock(DecoratorContext.class);
+    Collection<Measure> measures = new ArrayList<Measure>(2);
+    measures.add(new Measure(SonargraphSimpleMetrics.ACD, 2.0, 1));
+    measures.add(new Measure(SonargraphSimpleMetrics.ACD, 3.4, 1));
+    when(context.getChildrenMeasures(SonargraphSimpleMetrics.ACD)).thenReturn(measures);
+    assertTrue(Utilities.isAggregationProject(context, SonargraphSimpleMetrics.ACD));
+    
+    when(context.getChildrenMeasures(SonargraphSimpleMetrics.ALL_WARNINGS)).thenReturn(new ArrayList<Measure>(0));
+    assertFalse(Utilities.isAggregationProject(context, SonargraphSimpleMetrics.ALL_WARNINGS));
+  }
+  
+  @Test
+  public void testGetBuildUnitNameCycleGroup()
+  {
+    XsdCycleGroup group = mock(XsdCycleGroup.class);
+    when(group.getParent()).thenReturn(Utilities.DEFAULT_BUILD_UNIT);
+    String projectName = "Alarm-Clock";
+    when(group.getElementScope()).thenReturn(projectName);
+    assertEquals(projectName, Utilities.getBuildUnitName(group));
+    
+    XsdCycleGroup group2 = mock(XsdCycleGroup.class);
+    String buildUnitName = "Alarm-Clock";
+    when(group2.getParent()).thenReturn(buildUnitName);
+    assertEquals(buildUnitName, Utilities.getBuildUnitName(group));
+  }
+
+  @Test
+  public void testIsSingleModuleProject()
+  {
+    assertFalse(Utilities.isSingleModuleProject(null));
+    
+    Project project = new Project("Test", null, "Test");
+    assertTrue(Utilities.isSingleModuleProject(project));
+    
+    Project module = new Project("Module");
+    module.setParent(project);
+    assertFalse(Utilities.isSingleModuleProject(project));
   }
   
   private List<DuplicateCodeBlock> createCodeBlocks() {

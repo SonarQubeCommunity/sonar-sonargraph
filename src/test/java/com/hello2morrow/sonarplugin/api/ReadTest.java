@@ -29,22 +29,25 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 
 import com.hello2morrow.sonarplugin.foundation.IProject;
-import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
+import com.hello2morrow.sonarplugin.foundation.IReportReader;
+import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
 public class ReadTest extends TestCase {
 
   @SuppressWarnings("rawtypes")
   public void testAnalyse() {
-    ReportContext report = ReportFileReader.readSonargraphReport("src/test/resources/infoglue21-report.xml", true);
+    IReportReader reader = new ReportReaderMock("src/test/resources/infoglue21-report.xml");
+    Project project1 = new Project("test");
+    reader.readSonargraphReport(project1, null);
 
-    assertNotNull(report);
+    assertNotNull(reader.getReport());
 
     final RuleFinder ruleFinder = mock(RuleFinder.class);
 
@@ -70,8 +73,6 @@ public class ReadTest extends TestCase {
       }
     });
 
-    SonargraphSensor sensor = new SonargraphSensor(ruleFinder);
-
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
@@ -90,17 +91,17 @@ public class ReadTest extends TestCase {
         return result;
       }
     });
-    
-    sensor.setSensorContext(sensorContext);
-    
+
+    SonargraphSensor sensor = new SonargraphSensor(ruleFinder, reader, sensorContext);
+
     final IProject project = mock(IProject.class);
 
     when(project.getConfiguration()).thenReturn(config);
     when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
     when(project.getName()).thenReturn("infoglue");
 
-    XsdAttributeRoot buildUnit = ReportFileReader.retrieveBuildUnit(project.getKey(), report);
+    XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project.getKey());
     assertNotNull(buildUnit);
-    sensor.analyseBuildUnit(report, buildUnit);
+    sensor.analyseBuildUnit(reader.getReport(), buildUnit);
   }
 }

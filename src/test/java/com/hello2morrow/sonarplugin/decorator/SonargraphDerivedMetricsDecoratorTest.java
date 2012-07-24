@@ -17,11 +17,21 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import junit.framework.Assert;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.Project;
 
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 public class SonargraphDerivedMetricsDecoratorTest {
 
@@ -30,9 +40,9 @@ public class SonargraphDerivedMetricsDecoratorTest {
     SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator();
     Measure measure = new Measure();
     measure.setValue(10.0);
-    Assert.assertEquals(12.0, decorator.getBiggerValue(12.0, measure));
-    Assert.assertEquals(10.0, decorator.getBiggerValue(9.4, measure));
-    Assert.assertEquals(10.0, decorator.getBiggerValue(10.0, null));
+    assertEquals(12.0, decorator.getBiggerValue(12.0, measure));
+    assertEquals(10.0, decorator.getBiggerValue(9.4, measure));
+    assertEquals(10.0, decorator.getBiggerValue(10.0, null));
   }
 
   @Test
@@ -42,12 +52,71 @@ public class SonargraphDerivedMetricsDecoratorTest {
     measure1.setValue(10.0);
     Measure measure2 = new Measure();
     measure2.setValue(8.5);
+
+    assertEquals(12.0, decorator.getBiggerValue(12.0, measure1, measure2));
+    assertEquals(10.0, decorator.getBiggerValue(9.4, measure1, measure2));
+    assertEquals(10.0, decorator.getBiggerValue(9.4, measure1, null));
+    assertEquals(8.5, decorator.getBiggerValue(7.2, null, measure2));
+    assertEquals(9.4, decorator.getBiggerValue(9.4, null, null));
+  }
+
+  @Test
+  public void testShouldDecorateResource() {
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator();
+    Project project = new Project("test");
+    assertTrue(decorator.shouldDecorateResource(project));
+  }
+
+  @Test
+  public void testDecorate() {
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator();
+    Project project = new Project("test");
     
-    Assert.assertEquals(12.0, decorator.getBiggerValue(12.0, measure1, measure2));
-    Assert.assertEquals(10.0, decorator.getBiggerValue(9.4, measure1, measure2));
-    Assert.assertEquals(10.0, decorator.getBiggerValue(9.4, measure1, null));
-    Assert.assertEquals(8.5, decorator.getBiggerValue(7.2, null, measure2));
-    Assert.assertEquals(9.4, decorator.getBiggerValue(9.4, null, null));
+    DecoratorContext child1 = mock(DecoratorContext.class);
+    DecoratorContext child2 = mock(DecoratorContext.class);
+    List<DecoratorContext> children = new ArrayList<DecoratorContext>();
+    children.add(child1);
+    children.add(child2);
+    DecoratorContext context = new MockDecoratorContext(project, children);
+    
+    /* Cyclicity measures */
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.CYCLICITY, 4.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.INTERNAL_PACKAGES, 20.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.CYCLIC_PACKAGES, 4.0));
+    
+    /* type measures */
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.VIOLATING_TYPES, 3.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.INTERNAL_TYPES, 60.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.UNASSIGNED_TYPES, 6.0));
+    
+    
+    double biggestCycleGroup = 12.0;
+    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+    when(child1.getMeasure(SonargraphSimpleMetrics.ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.ACD, 10.0));
+    double highestRACD = 0.70;
+    when(child1.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, highestRACD));
+    double highestNccd = 5.3;
+    when(child1.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
+    
+    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, 10.0));
+    double highestAcd = 11.0;
+    when(child2.getMeasure(SonargraphSimpleMetrics.ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.ACD, highestAcd));
+    when(child2.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, 0.60));
+    when(child2.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
+    
+    decorator.decorate(project, context);
+    
+    assertEquals(10.0, context.getMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY).getValue());
+    assertEquals(20.0, context.getMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT).getValue());
+    
+    assertEquals(5.0, context.getMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT).getValue());
+    assertEquals(10.0, context.getMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT).getValue());
+    
+    assertEquals(biggestCycleGroup, context.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP).getValue());
+    assertEquals(highestAcd, context.getMeasure(SonargraphDerivedMetrics.HIGHEST_ACD).getValue());
+    assertEquals(highestRACD, context.getMeasure(SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD).getValue());
+    assertEquals(highestNccd, context.getMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD).getValue());
+    
   }
 
 }

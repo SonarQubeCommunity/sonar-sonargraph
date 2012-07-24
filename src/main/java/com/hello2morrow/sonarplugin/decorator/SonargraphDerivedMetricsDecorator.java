@@ -18,6 +18,7 @@
 package com.hello2morrow.sonarplugin.decorator;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +36,13 @@ import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
 
+  private static final List<String> RESOURCES_TO_DECORATE = Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE,
+      Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return project.getQualifier().equals(Qualifiers.PROJECT);
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
@@ -65,11 +68,11 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       Measure acd = childContext.getMeasure(SonargraphSimpleMetrics.ACD);
       Measure relativeACD = childContext.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD);
       Measure nccd = childContext.getMeasure(SonargraphSimpleMetrics.NCCD);
-      
+
       Measure localHighestACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_ACD);
       Measure localHighestNCCD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD);
       Measure localHighestRelativeACD = childContext.getMeasure(SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD);
-      
+
       biggestCycleGroupSize = getBiggerValue(biggestCycleGroupSize, cycleGroup);
       highestACD = getBiggerValue(highestACD, acd, localHighestACD);
       highestRelativeACD = getBiggerValue(highestRelativeACD, relativeACD, localHighestRelativeACD);
@@ -109,19 +112,19 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       LOG.debug("Number of violating types: " + violatingTypes.getValue());
     }
     Measure internalTypes = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_TYPES);
-    if (null != violatingTypes) {
+    if (null != internalTypes) {
       LOG.debug("Number of internal types: " + internalTypes.getValue());
     }
     Measure unassignedTypes = context.getMeasure(SonargraphSimpleMetrics.UNASSIGNED_TYPES);
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, HUNDRET_PERCENT * violatingTypes.getValue()
-            / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT,
+            HUNDRET_PERCENT * violatingTypes.getValue() / internalTypes.getValue());
       }
       if (unassignedTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, HUNDRET_PERCENT * unassignedTypes.getValue()
-            / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
+            HUNDRET_PERCENT * unassignedTypes.getValue() / internalTypes.getValue());
       }
     }
   }
@@ -145,8 +148,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
   public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
-    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
-        resource.getQualifier());
+    return RESOURCES_TO_DECORATE.contains(resource.getQualifier());
   }
 
 }
