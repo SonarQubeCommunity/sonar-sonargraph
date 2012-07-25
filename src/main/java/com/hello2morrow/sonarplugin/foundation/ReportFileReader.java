@@ -104,14 +104,6 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  /* (non-Javadoc)
-   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#getReportFileName(java.lang.String, org.apache.commons.configuration.Configuration)
-   */
-  public String getReportFileName(String projectBuildPath, Configuration config) {
-    String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
-    return config.getString("sonar.sonargraph.report.path", defaultLocation);
-  }
-
   protected String determineReportFileName(Project project, Configuration config) {
     String projectBuildPath = project.getFileSystem().getBuildDir().getPath();
     String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;

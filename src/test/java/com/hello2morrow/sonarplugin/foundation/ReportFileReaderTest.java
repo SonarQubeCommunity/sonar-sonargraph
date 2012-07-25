@@ -56,4 +56,5 @@ public class ReportFileReaderTest {
     reader.readSonargraphReport(project, null);
     assertNull(reader.getReport());
   }
+  
 }

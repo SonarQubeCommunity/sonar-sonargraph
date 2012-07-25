@@ -36,7 +36,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSystemDashBoardDecorator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return Qualifiers.PROJECT.equals(project.getQualifier());
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
@@ -56,8 +56,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
-    if (resource != null)
-    {
+    if (resource != null) {
       LOG.debug("Checking for resource type: " + resource.getQualifier());
       return Qualifiers.PROJECT.equals(resource.getQualifier());
     }
@@ -68,7 +67,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
     for (DecoratorContext childContext : context.getChildren()) {
       Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
-        LOG.info("Skipping module [" + childContext.getResource().getName()
+        LOG.info("Skipping module [" + childContext.getProject().getName()
             + "] because it is not part of the Sonargraph workspace or does not contain any code.");
         continue;
       }
@@ -83,46 +82,49 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getMeasures(DecoratorContext target, DecoratorContext source) {
-    if (!getAllAndCycleWarnings(target, source)){
-      return false;
+    boolean foundMeasures = false;
+    if (getAllAndCycleWarnings(target, source)) {
+      foundMeasures = true;
     }
 
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
+    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
         SonargraphSimpleMetrics.THRESHOLD_WARNINGS)) {
-      return false;
+      foundMeasures = true;
     }
 
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
+    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
         SonargraphSimpleMetrics.WORKSPACE_WARNINGS)) {
-      return false;
+      foundMeasures = true;
     }
 
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
+    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
         SonargraphSimpleMetrics.IGNORED_WARNINGS)) {
-      return false;
+      foundMeasures = true;
     }
 
-    return true;
+    return foundMeasures;
   }
 
   private boolean getAllAndCycleWarnings(DecoratorContext target, DecoratorContext source) {
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+    boolean foundMeasures = false;
+    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
         SonargraphSimpleMetrics.ALL_WARNINGS)) {
-      return false;
+      foundMeasures = true;
     }
 
-    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
+    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
         SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
-      return false;
+      foundMeasures = true;
     }
-    return true;
+    return foundMeasures;
   }
 
   private boolean copyMeasureFromChildContext(DecoratorContext source, DecoratorContext target, Metric sourceMetric,
       Metric targetMetric) {
+
     Measure sourceMeasure = source.getMeasure(sourceMetric);
     if (sourceMeasure == null) {
-      LOG.error("Metric " + sourceMetric.getDescription() + " could not be found in module "
+      LOG.error("Metric '" + sourceMetric.getDescription() + "' could not be found in module "
           + source.getProject().getName() + ".");
       return false;
     }
