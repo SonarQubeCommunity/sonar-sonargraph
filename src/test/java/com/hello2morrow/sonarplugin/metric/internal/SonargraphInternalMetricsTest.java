@@ -38,8 +38,9 @@ public class SonargraphInternalMetricsTest {
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS));
+    assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_ALL_TASKS));
     
-    assertEquals(6, metrics.size());
+    assertEquals(7, metrics.size());
   }
 
 }

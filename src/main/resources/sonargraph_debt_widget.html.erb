@@ -21,14 +21,14 @@ if m && m.value > 0
     	</span>
 		</td>
     </tr>
-       <tr>
+    <tr>
         <td>
-              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%>
+              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks') -%>
         </td>
     </tr>
     <tr>
         <td>
-              <%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)') -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
+              <%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
         </td>
     </tr>
   </table>
@@ -52,8 +52,13 @@ elsif measure('sonargraph_erosion_index')
     </tr>
     <tr>
         <td>
-              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%> <%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)') -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
+              <%= format_measure('sonargraph_tasks', :suffix => ' open tasks') -%> 
         </td>
+    </tr>
+    <tr>
+    	<td>
+    		<%= format_measure('sonargraph_task_refs', :prefix => ' (with ', :suffix => ' references in code)', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.open_task") -%> <%= tendency_icon(measure('sonargraph_tasks')) %>
+    	</td>
     </tr>
   </table>
 </div>

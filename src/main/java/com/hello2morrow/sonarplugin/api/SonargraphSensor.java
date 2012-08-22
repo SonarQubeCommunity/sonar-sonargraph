@@ -63,7 +63,9 @@ public final class SonargraphSensor implements Sensor {
   private static final int NO_DECIMAL = 0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
-  private final Map<String, Number> buildUnitmetrics = new HashMap<String, Number>();
+  private Map<String, Number> buildUnitmetrics;
+  private Map<String, Number> systemMetrics;
+
   private SensorContext sensorContext;
   private final RuleFinder ruleFinder;
 
@@ -74,12 +76,14 @@ public final class SonargraphSensor implements Sensor {
     if (ruleFinder == null) {
       LOG.warn("No RulesManager provided to sensor");
     }
-    this.reportReader = new ReportFileReader();
+    reportReader = new ReportFileReader();
+    buildUnitmetrics = new HashMap<String, Number>();
+    systemMetrics = new HashMap<String, Number>(SONARGRAPH_METRICS_COUNT);
   }
 
   SonargraphSensor(final RuleFinder ruleFinder, final IReportReader reader, SensorContext sensorContext) {
     this(ruleFinder);
-    this.reportReader = reader;
+    reportReader = reader;
     this.sensorContext = sensorContext;
   }
 
@@ -105,9 +109,7 @@ public final class SonargraphSensor implements Sensor {
 
     this.sensorContext = sensorContext;
     Configuration configuration = project.getConfiguration();
-    this.buildUnitmetrics.clear();
 
-    
     reportReader.readSonargraphReport(project, configuration);
 
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project.getKey());
@@ -122,9 +124,11 @@ public final class SonargraphSensor implements Sensor {
 
     LOG.debug("Analysing buildUnit: " + buildUnit.getName());
 
-    /** Load all attributes and values in map */
     Utilities.readAttributesToMap(buildUnit, buildUnitmetrics);
-
+    
+    XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
+    Utilities.readAttributesToMap(attributesPart, systemMetrics);
+    
     Number numberOfStatements = buildUnitmetrics.get("NumberOfStatements");
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
@@ -134,7 +138,7 @@ public final class SonargraphSensor implements Sensor {
     }
 
     this.analyseBuildUnit(reportReader.getReport(), buildUnit);
-    this.analyseMetricsForStructuralDebtDashbox(sensorContext, configuration, buildUnit);
+    this.analyseMetricsForStructuralDebtDashbox(sensorContext, configuration, buildUnit, project);
     this.analyseMetricsForStructureDashbox(buildUnit);
     this.analyseMetricsForArchitectureDashbox(buildUnit, project);
 
@@ -158,7 +162,7 @@ public final class SonargraphSensor implements Sensor {
   }
 
   private void analyseMetricsForStructuralDebtDashbox(SensorContext sensorContext, Configuration configuration,
-      XsdAttributeRoot buildUnit) {
+      XsdAttributeRoot buildUnit, Project project) {
     Number structuralDebtIndex = buildUnitmetrics.get(SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX);
     Utilities
         .saveExistingMeasureToContext(sensorContext, buildUnitmetrics,
@@ -174,8 +178,15 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, structuralDebtCost,
           NO_DECIMAL);
     }
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TASKS,
-        SonargraphSimpleMetrics.TASKS, NO_DECIMAL);
+    if (project.getQualifier().equals(Qualifiers.MODULE)) {
+      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TASKS,
+          SonargraphSimpleMetrics.TASKS, NO_DECIMAL);
+      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS,
+          SonargraphInternalMetrics.SYSTEM_ALL_TASKS, NO_DECIMAL);
+    } else {
+      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS,
+          SonargraphSimpleMetrics.TASKS, NO_DECIMAL);
+    }
     IProcessor taskProcessor = new TaskProcessor(ruleFinder, sensorContext);
     taskProcessor.process(reportReader.getReport(), buildUnit);
   }
@@ -268,11 +279,6 @@ public final class SonargraphSensor implements Sensor {
   }
 
   private void analyseWarnings(Project project) {
-    /* Get overall system warnings */
-    XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
-    Map<String, Number> systemMetrics = new HashMap<String, Number>(SONARGRAPH_METRICS_COUNT);
-    Utilities.readAttributesToMap(attributesPart, systemMetrics);
-
     if (project.getQualifier().equals(Qualifiers.MODULE)) {
       LOG.debug("Values for warning metrics are only taken from build unit section for child module projects.");
       Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics,
@@ -305,6 +311,7 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics,
           SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
           NO_DECIMAL);
+
     } else {
       LOG.debug("Values for warning metrics are only taken from general section to also include logical cycle group warnings.");
       Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics,

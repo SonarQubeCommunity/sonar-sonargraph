@@ -52,10 +52,9 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
 
         /* structural debt metrics */
         SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST,
-        SonargraphSimpleMetrics.TASKS, SonargraphSimpleMetrics.TASK_REFS,
+        SonargraphSimpleMetrics.TASK_REFS,
         
         /* structure metrics */
-        //TODO: check if the cyclicity can be simply aggregated... How is it done in the standalone application? 
         SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES,
         SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
         SonargraphSimpleMetrics.INSTRUCTIONS,

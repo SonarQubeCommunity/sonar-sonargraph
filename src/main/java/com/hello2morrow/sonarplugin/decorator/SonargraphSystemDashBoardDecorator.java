@@ -82,41 +82,46 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getMeasures(DecoratorContext target, DecoratorContext source) {
-    boolean foundMeasures = false;
-    if (getAllAndCycleWarnings(target, source)) {
-      foundMeasures = true;
+    
+    if (!getAllAndCycleWarnings(target, source)) {
+      return false;
     }
 
-    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
         SonargraphSimpleMetrics.THRESHOLD_WARNINGS)) {
-      foundMeasures = true;
+      return false;
     }
 
-    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
         SonargraphSimpleMetrics.WORKSPACE_WARNINGS)) {
-      foundMeasures = true;
+      return false;
     }
 
-    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
         SonargraphSimpleMetrics.IGNORED_WARNINGS)) {
-      foundMeasures = true;
+      return false;
     }
 
-    return foundMeasures;
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_TASKS,
+        SonargraphSimpleMetrics.TASKS)) {
+      return false;
+    }
+
+    return true;
   }
 
   private boolean getAllAndCycleWarnings(DecoratorContext target, DecoratorContext source) {
-    boolean foundMeasures = false;
-    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+    
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
         SonargraphSimpleMetrics.ALL_WARNINGS)) {
-      foundMeasures = true;
+      return false;
     }
 
-    if (copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
+    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
         SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
-      foundMeasures = true;
+      return false;
     }
-    return foundMeasures;
+    return true;
   }
 
   private boolean copyMeasureFromChildContext(DecoratorContext source, DecoratorContext target, Metric sourceMetric,

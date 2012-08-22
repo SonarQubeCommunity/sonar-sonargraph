@@ -68,9 +68,15 @@ public class SonargraphInternalMetrics implements Metrics {
       .setDescription("Number of Ignord Warnings and Threshold Violations").setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
 
+  public static final Metric SYSTEM_ALL_TASKS = new Metric.Builder("sonargraph_system_all_tasks",
+      "System All Tasks", Metric.ValueType.INT)
+      .setDescription("Number of Tasks").setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
+
+  
   public List<Metric> getMetrics() {
     return Arrays.asList(MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, SYSTEM_ALL_WARNINGS, SYSTEM_CYCLE_WARNINGS,
-        SYSTEM_THRESHOLD_WARNINGS, SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS);
+        SYSTEM_THRESHOLD_WARNINGS, SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS, SYSTEM_ALL_TASKS);
   };
 
 }
