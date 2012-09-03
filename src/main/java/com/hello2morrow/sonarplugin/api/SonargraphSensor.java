@@ -129,7 +129,7 @@ public final class SonargraphSensor implements Sensor {
     XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
     Utilities.readAttributesToMap(attributesPart, systemMetrics);
     
-    Number numberOfStatements = buildUnitmetrics.get("NumberOfStatements");
+    Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
       Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
