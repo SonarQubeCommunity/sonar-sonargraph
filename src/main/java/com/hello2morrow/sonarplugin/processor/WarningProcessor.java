@@ -43,17 +43,15 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarnings;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttributeGroup;
 
-
 /**
  * @author Ingmar
- *
+ * 
  */
 public class WarningProcessor implements IProcessor {
-  
+
   private SensorContext sensorContext;
   private RuleFinder ruleFinder;
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
-
 
   public WarningProcessor(final RuleFinder ruleFinder, final SensorContext sensorContext) {
     this.sensorContext = sensorContext;
@@ -76,7 +74,7 @@ public class WarningProcessor implements IProcessor {
         continue;
       }
       if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
-        handleDuplicateCodeBlocks(warningGroup, rule);
+        handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
         continue;
       }
       for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
@@ -117,8 +115,8 @@ public class WarningProcessor implements IProcessor {
       }
     }
   }
-  
-  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule) {
+
+  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing duplicate code blocks");
 
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
@@ -140,7 +138,9 @@ public class WarningProcessor implements IProcessor {
       for (DuplicateCodeBlock block : entry.getValue()) {
         String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
         String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
-        Utilities.saveViolation(sensorContext, rule, null, fqName, block.getStartLine(), message);
+        if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
+          Utilities.saveViolation(sensorContext, rule, null, fqName, block.getStartLine(), message);
+        }
       }
     }
   }
