@@ -125,7 +125,6 @@ public class ReportFileReader implements IReportReader {
     if (buildUnitList.size() == 1) {
       return buildUnitList.get(0);
     } else if (buildUnitList.size() > 1) {
-
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
         String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
         if (Utilities.buildUnitMatchesAnalyzedProject(buName, projectKey)) {

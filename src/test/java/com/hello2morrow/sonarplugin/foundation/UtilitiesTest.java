@@ -175,6 +175,20 @@ public class UtilitiesTest {
     assertFalse(Utilities.isSingleModuleProject(project));
   }
   
+  @Test
+  public void testBuildUnitMatchesAnalyzedProject()
+  {
+    String projectKeyWithBranchTag = "com.hello2morrow:sonargraph.core:architect-branch_7.1.8";
+    String buildUnitName = "sonargraph.core";
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKeyWithBranchTag));
+    
+    String projectKey = "com.hello2morrow:sonargraph.core";
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKey));
+    
+    projectKey = "sonargraph.core";
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKey));
+  }
+  
   private List<DuplicateCodeBlock> createCodeBlocks() {
     List<DuplicateCodeBlock> list = new ArrayList<DuplicateCodeBlock>();
 

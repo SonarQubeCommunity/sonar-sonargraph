@@ -113,7 +113,8 @@ public final class SonargraphSensor implements Sensor {
     reportReader.readSonargraphReport(project, configuration);
 
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project.getKey());
-
+    
+    
     if (buildUnit == null) {
       LOG.error("No Sonargraph build units found in report for [" + project.getName()
           + "]. Module will not be processed by Sonargraph!");

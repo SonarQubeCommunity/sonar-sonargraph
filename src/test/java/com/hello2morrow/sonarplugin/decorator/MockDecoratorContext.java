@@ -71,7 +71,7 @@ public class MockDecoratorContext implements DecoratorContext {
     return null;
   }
 
-  public Collection<Measure> getChildrenMeasures(MeasuresFilter filter) {
+  public Collection<Measure> getChildrenMeasures(@SuppressWarnings("rawtypes") MeasuresFilter filter) {
     return null;
   }
 

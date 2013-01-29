@@ -143,7 +143,7 @@ public final class Utilities {
     if (project == null) {
       return false;
     }
-    
+
     if (project.getModules().isEmpty() && project.getParent() == null) {
       return true;
     }
@@ -316,21 +316,28 @@ public final class Utilities {
     final String groupId = elements[0];
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
-  
-    if (buName.equalsIgnoreCase(artifactId)){
+
+    if (buName.equalsIgnoreCase(artifactId)) {
       return true;
     }
-    if (buName.equalsIgnoreCase(longName))
-    {
+    if (buName.equalsIgnoreCase(longName)) {
       return true;
     }
     if (buName.equalsIgnoreCase(longName2)) {
       return true;
     }
-    
+
     if (buName.startsWith("...") && longName2.endsWith(buName.substring(2))) {
       return true;
     }
+
+    /** We need this check to support sonar.branch functionality.
+     *  Branch tags are appended to the project key <group-id>:<artifact-id>:<branch-tag> 
+     */
+    if (elements.length > 1 && elements[elements.length - 2].toLowerCase().startsWith(buName.toLowerCase())) {
+      return true;
+    }
+
     return false;
   }
 
