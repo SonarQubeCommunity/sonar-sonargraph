@@ -114,7 +114,7 @@ public class ReportFileReader implements IReportReader {
   /* (non-Javadoc)
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#retrieveBuildUnit(java.lang.String)
    */
-  public XsdAttributeRoot retrieveBuildUnit(String projectKey) {
+  public XsdAttributeRoot retrieveBuildUnit(Project project) {
     if (null == report) {
       return null;
     }
@@ -127,12 +127,12 @@ public class ReportFileReader implements IReportReader {
     } else if (buildUnitList.size() > 1) {
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
         String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-        if (Utilities.buildUnitMatchesAnalyzedProject(buName, projectKey)) {
+        if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
           return sonarBuildUnit;
         }
       }
 
-      LOG.warn("Project  with key [" + projectKey + "] could not be mapped to a build unit. "
+      LOG.warn("Project  with key [" + project.getKey() + "] could not be mapped to a build unit. "
           + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
     }
     return null;

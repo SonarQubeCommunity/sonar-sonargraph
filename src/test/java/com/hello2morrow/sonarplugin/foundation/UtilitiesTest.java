@@ -178,15 +178,14 @@ public class UtilitiesTest {
   @Test
   public void testBuildUnitMatchesAnalyzedProject()
   {
-    String projectKeyWithBranchTag = "com.hello2morrow:sonargraph.core:architect-branch_7.1.8";
     String buildUnitName = "sonargraph.core";
-    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKeyWithBranchTag));
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project("com.hello2morrow:sonargraph.core", "architect-branch_7.1.8", "test")));
     
     String projectKey = "com.hello2morrow:sonargraph.core";
-    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKey));
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
     
     projectKey = "sonargraph.core";
-    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, projectKey));
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
   }
   
   private List<DuplicateCodeBlock> createCodeBlocks() {

@@ -29,6 +29,6 @@ public interface IReportReader {
 
   ReportContext getReport();
 
-  XsdAttributeRoot retrieveBuildUnit(String projectKey);
+  XsdAttributeRoot retrieveBuildUnit(Project project);
 
 }

@@ -309,36 +309,41 @@ public final class Utilities {
     return num.doubleValue();
   }
 
-  public static boolean buildUnitMatchesAnalyzedProject(String buName, String projectKey) {
-    final String[] elements = projectKey.split(":");
+  public static boolean buildUnitMatchesAnalyzedProject(String buName, Project project) {
+    final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
+    final String[] elements = project.getKey().split(":");
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
-    final String artifactId = elements[elements.length - 1];
+
+    boolean result = false;
+    
     final String groupId = elements[0];
+    String artifactId = elements[elements.length - 1];
+    /**
+     * We need this check to support sonar.branch functionality. Branch tags are appended to the project key
+     * <group-id>:<artifact-id>:<branch-tag>
+     */
+    if (isBranch) {
+      artifactId = elements[elements.length - 2];
+    }
+
     final String longName = artifactId + "[" + groupId + "]";
     final String longName2 = groupId + ':' + artifactId;
 
     if (buName.equalsIgnoreCase(artifactId)) {
-      return true;
+      result = true;
     }
     if (buName.equalsIgnoreCase(longName)) {
-      return true;
+      result = true;
     }
     if (buName.equalsIgnoreCase(longName2)) {
-      return true;
+      result = true;
     }
 
     if (buName.startsWith("...") && longName2.endsWith(buName.substring(2))) {
-      return true;
+      result = true;
     }
 
-    /** We need this check to support sonar.branch functionality.
-     *  Branch tags are appended to the project key <group-id>:<artifact-id>:<branch-tag> 
-     */
-    if (elements.length > 1 && elements[elements.length - 2].toLowerCase().startsWith(buName.toLowerCase())) {
-      return true;
-    }
-
-    return false;
+    return result;
   }
 
 }

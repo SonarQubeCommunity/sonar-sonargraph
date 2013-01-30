@@ -112,7 +112,7 @@ public final class SonargraphSensor implements Sensor {
 
     reportReader.readSonargraphReport(project, configuration);
 
-    XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project.getKey());
+    XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
     
     
     if (buildUnit == null) {

@@ -33,7 +33,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 
-import com.hello2morrow.sonarplugin.foundation.IProject;
 import com.hello2morrow.sonarplugin.foundation.IReportReader;
 import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
@@ -94,13 +93,9 @@ public class ReadTest extends TestCase {
 
     SonargraphSensor sensor = new SonargraphSensor(ruleFinder, reader, sensorContext);
 
-    final IProject project = mock(IProject.class);
-
-    when(project.getConfiguration()).thenReturn(config);
-    when(project.getKey()).thenReturn("org.codehaus.sonar-plugins:infoglue21");
-    when(project.getName()).thenReturn("infoglue");
-
-    XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project.getKey());
+    Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
+    project.setConfiguration(config);
+    XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
     assertNotNull(buildUnit);
     sensor.analyseBuildUnit(reader.getReport(), buildUnit);
   }
