@@ -61,6 +61,7 @@ public final class SonargraphSensor implements Sensor {
   private static final int SONARGRAPH_METRICS_COUNT = 70;
   private static final double HUNDRET_PERCENT = 100.0;
   private static final int NO_DECIMAL = 0;
+  private static final String VERSION = "3.0.6";
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private Map<String, Number> buildUnitmetrics;
@@ -89,7 +90,7 @@ public final class SonargraphSensor implements Sensor {
 
   /* called from maven */
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return !Utilities.isAggregatingProject(project);
   }
 
   public void analyse(final Project project, SensorContext sensorContext) {
@@ -99,10 +100,6 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    if (Utilities.isAggregatingProject(project)) {
-      LOG.debug("There is no Sonargraph Sonar report generated for aggregating maven modules.");
-      return;
-    }
     LOG.info("------------------------------------------------------------------------");
     LOG.info("Execute sonar-sonargraph-plugin for " + project.getName());
     LOG.info("------------------------------------------------------------------------");
@@ -113,8 +110,7 @@ public final class SonargraphSensor implements Sensor {
     reportReader.readSonargraphReport(project, configuration);
 
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
-    
-    
+
     if (buildUnit == null) {
       LOG.error("No Sonargraph build units found in report for [" + project.getName()
           + "]. Module will not be processed by Sonargraph!");
@@ -126,10 +122,10 @@ public final class SonargraphSensor implements Sensor {
     LOG.debug("Analysing buildUnit: " + buildUnit.getName());
 
     Utilities.readAttributesToMap(buildUnit, buildUnitmetrics);
-    
+
     XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
     Utilities.readAttributesToMap(attributesPart, systemMetrics);
-    
+
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
@@ -144,6 +140,11 @@ public final class SonargraphSensor implements Sensor {
     this.analyseMetricsForArchitectureDashbox(buildUnit, project);
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
+  }
+
+  @Override
+  public String toString() {
+    return SonargraphSensor.class.getSimpleName() + ", version: " + SonargraphSensor.VERSION;
   }
 
   /* package access to ease testing */

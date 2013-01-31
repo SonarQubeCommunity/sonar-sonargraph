@@ -20,6 +20,7 @@ package com.hello2morrow.sonarplugin.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,10 +43,9 @@ import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
-
 /**
  * @author Ingmar
- *
+ * 
  */
 public class SonargraphSensorTest {
 
@@ -54,20 +54,17 @@ public class SonargraphSensorTest {
   private SonargraphSensor sensor;
   private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
 
-
   @BeforeClass
   public static void initialize() {
     ruleFinder = TestHelper.initRuleFinder();
     sensorContext = TestHelper.initSensorContext();
   }
 
-  
   @Before
   public void initSensor() {
     IReportReader reader = new ReportReaderMock(REPORT);
     this.sensor = new SonargraphSensor(ruleFinder, reader, sensorContext);
   }
-  
 
   @Test
   public void testAnalyseRootParentProject() {
@@ -76,14 +73,11 @@ public class SonargraphSensorTest {
     module.setParent(rootProject);
     SensorContext context = mock(SensorContext.class);
     when(context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES)).thenReturn(null);
-    
-    sensor.analyse(rootProject, context);
-    assertNull(context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES));
-    
+
     sensor.analyse(null, context);
     assertNull(context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES));
   }
-  
+
   @Test
   public void testAnalyse() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
@@ -97,22 +91,26 @@ public class SonargraphSensorTest {
   public void testShouldExecuteOnProject() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     assertTrue(sensor.shouldExecuteOnProject(project));
+
+    Project module = new Project("hello2morrow:Foundation", "", "Foundation");
+    module.setParent(project);
+    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertTrue(sensor.shouldExecuteOnProject(module));
   }
-  
-  
+
   public void testHandleDuplicateCodeBlocks() {
-//    sensor.handleDuplicateCodeBlocks(warningGroup, buildUnitName, Rule.create(repositoryKey, key, name)());
+    // sensor.handleDuplicateCodeBlocks(warningGroup, buildUnitName, Rule.create(repositoryKey, key, name)());
   }
-  
+
   static class TestHelper {
-   
+
     public static RuleFinder initRuleFinder() {
       RuleFinder ruleFinder = mock(RuleFinder.class);
 
       when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).thenReturn(
           SonargraphRulesRepository.TASK);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.CYCLE_GROUPS);
+      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY))
+          .thenReturn(SonargraphRulesRepository.CYCLE_GROUPS);
       when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).thenReturn(
           SonargraphRulesRepository.DUPLICATES);
       when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).thenReturn(
@@ -123,7 +121,7 @@ public class SonargraphSensorTest {
           SonargraphRulesRepository.WORKSPACE);
       return ruleFinder;
     }
-    
+
     public static Configuration initConfig() {
       Configuration config = mock(Configuration.class);
 
@@ -133,10 +131,13 @@ public class SonargraphSensorTest {
           return (String) invocationOnMock.getArguments()[1];
         }
       });
-      when(config.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT)).thenReturn(7.0);
+      when(
+          config
+              .getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT))
+          .thenReturn(7.0);
       return config;
     }
-    
+
     @SuppressWarnings("rawtypes")
     public static SensorContext initSensorContext() {
       SensorContext sensorContext = mock(SensorContext.class);
@@ -157,9 +158,9 @@ public class SonargraphSensorTest {
           return result;
         }
       });
-      
+
       return sensorContext;
     }
   }
-  
+
 }
