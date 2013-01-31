@@ -20,8 +20,6 @@ package com.hello2morrow.sonarplugin.processor;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
-
 public interface IProcessor {
-
   void process(ReportContext report, XsdAttributeRoot buildUnit);
 }

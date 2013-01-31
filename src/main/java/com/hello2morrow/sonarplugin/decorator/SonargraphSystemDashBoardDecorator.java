@@ -40,10 +40,6 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !shouldDecorateResource(resource)) {
-      return;
-    }
-
     if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }
@@ -53,14 +49,6 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
     } else {
       AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
     }
-  }
-
-  private boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
-    if (resource != null) {
-      LOG.debug("Checking for resource type: " + resource.getQualifier());
-      return Qualifiers.PROJECT.equals(resource.getQualifier());
-    }
-    return false;
   }
 
   private boolean getMeasuresFromChildContexts(DecoratorContext context) {
@@ -82,27 +70,26 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getMeasures(DecoratorContext target, DecoratorContext source) {
-    
-    if (!getAllAndCycleWarnings(target, source)) {
+    if ( !getAllAndCycleWarnings(target, source)) {
       return false;
     }
 
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
         SonargraphSimpleMetrics.THRESHOLD_WARNINGS)) {
       return false;
     }
 
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
         SonargraphSimpleMetrics.WORKSPACE_WARNINGS)) {
       return false;
     }
 
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
         SonargraphSimpleMetrics.IGNORED_WARNINGS)) {
       return false;
     }
 
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_TASKS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_TASKS,
         SonargraphSimpleMetrics.TASKS)) {
       return false;
     }
@@ -111,13 +98,12 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   private boolean getAllAndCycleWarnings(DecoratorContext target, DecoratorContext source) {
-    
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
         SonargraphSimpleMetrics.ALL_WARNINGS)) {
       return false;
     }
 
-    if (!copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
+    if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
         SonargraphSimpleMetrics.CYCLE_WARNINGS)) {
       return false;
     }
@@ -126,7 +112,6 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
 
   private boolean copyMeasureFromChildContext(DecoratorContext source, DecoratorContext target, Metric sourceMetric,
       Metric targetMetric) {
-
     Measure sourceMeasure = source.getMeasure(sourceMetric);
     if (sourceMeasure == null) {
       LOG.error("Metric '" + sourceMetric.getDescription() + "' could not be found in module "

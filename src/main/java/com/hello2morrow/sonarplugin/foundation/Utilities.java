@@ -127,6 +127,13 @@ public final class Utilities {
     return context.getChildrenMeasures(indicator).size() > 0;
   }
 
+  public static boolean isAggregatingProject(final Project project) {
+    if (project == null) {
+      return false;
+    }
+    return project.getModules().size() > 0;
+  }
+
   public static boolean isRootParentProject(final Project project) {
     boolean isRootParentProject = false;
     if (project == null) {
@@ -315,7 +322,7 @@ public final class Utilities {
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
 
     boolean result = false;
-    
+
     final String groupId = elements[0];
     String artifactId = elements[elements.length - 1];
     /**

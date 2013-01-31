@@ -37,7 +37,6 @@ import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
 
-
 public class CycleGroupProcessor implements IProcessor {
 
   private SensorContext sensorContext;
@@ -51,10 +50,10 @@ public class CycleGroupProcessor implements IProcessor {
     this.ruleFinder = ruleFinder;
     this.sensorContext = sensorContext;
   }
-  
+
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     XsdCycleGroups cycleGroups = report.getCycleGroups();
-    
+
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
       if ("Physical package".equals(group.getNamedElementGroup())
           && Utilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
@@ -68,15 +67,15 @@ public class CycleGroupProcessor implements IProcessor {
       }
     }
   }
-  
+
   public double getCyclicity() {
     return cyclicity;
   }
-  
+
   public double getBiggestCycleGroupSize() {
     return biggestCycleGroupSize;
   }
-  
+
   public double getCyclicPackages() {
     return cyclicPackages;
   }

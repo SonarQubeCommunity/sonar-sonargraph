@@ -99,7 +99,7 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    if (Utilities.isRootParentProject(project)) {
+    if (Utilities.isAggregatingProject(project)) {
       LOG.debug("There is no Sonargraph Sonar report generated for aggregating maven modules.");
       return;
     }

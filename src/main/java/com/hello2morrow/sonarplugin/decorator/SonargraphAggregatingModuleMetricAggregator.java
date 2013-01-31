@@ -35,42 +35,26 @@ import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 /**
- * These metrics are safe to be simply summed up for the parent project.
+ * This decorator is applicable for aggregating modules but that are not root projects. The warning metrics are simply added from the child
+ * modules.
  * 
  * @author Ingmar
  * 
  */
-public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorator {
+public final class SonargraphAggregatingModuleMetricAggregator extends AbstractSumChildrenDecorator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SonargraphMetricAggregator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonargraphAggregatingModuleMetricAggregator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return Utilities.isAggregatingProject(project);
+    return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project);
   }
 
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-
-    return Arrays.asList(SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES,
-        SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
-
-        /* structural debt metrics */
-        SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST,
-        SonargraphSimpleMetrics.TASK_REFS,
-
-        /* structure metrics */
-        SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES,
-        SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
-        SonargraphSimpleMetrics.INSTRUCTIONS,
-
-        /* architecture metrics */
-        SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, SonargraphSimpleMetrics.VIOLATING_TYPES,
-        SonargraphSimpleMetrics.VIOLATING_REFERENCES, SonargraphSimpleMetrics.IGNORED_VIOLATONS,
-        SonargraphSimpleMetrics.UNASSIGNED_TYPES,
-
-        /* warnings */
-        SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+    return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
+        SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
+        SonargraphSimpleMetrics.IGNORED_WARNINGS);
   }
 
   @Override
@@ -83,9 +67,6 @@ public final class SonargraphMetricAggregator extends AbstractSumChildrenDecorat
     if ( !shouldDecorateResource(resource)) {
       return;
     }
-    // if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
-    // return;
-    // }
     super.decorate(resource, context);
 
     AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));

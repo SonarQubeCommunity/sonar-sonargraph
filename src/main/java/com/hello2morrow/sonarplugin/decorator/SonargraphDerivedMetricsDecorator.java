@@ -42,7 +42,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getQualifier().equals(Qualifiers.PROJECT);
+    return project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project);
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {

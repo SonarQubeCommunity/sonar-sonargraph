@@ -38,7 +38,6 @@ public class ArchitectureViolationProcessor implements IProcessor {
   private SensorContext context;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-
   public ArchitectureViolationProcessor(final RuleFinder ruleFinder, final SensorContext context) {
     this.ruleFinder = ruleFinder;
     this.context = context;
@@ -97,5 +96,4 @@ public class ArchitectureViolationProcessor implements IProcessor {
       }
     }
   }
-
 }

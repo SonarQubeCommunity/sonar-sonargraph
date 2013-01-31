@@ -45,6 +45,7 @@ import com.hello2morrow.sonarplugin.xsd.XsdTasks;
  */
 public class TaskProcessor implements IProcessor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
   private static final String PACKAGE = " package";
   private SensorContext sensorContext;
   private RuleFinder ruleFinder;
@@ -53,8 +54,6 @@ public class TaskProcessor implements IProcessor {
     this.ruleFinder = ruleFinder;
     this.sensorContext = sensorContext;
   }
-
-  private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
 
   /*
    * (non-Javadoc)
@@ -138,12 +137,10 @@ public class TaskProcessor implements IProcessor {
     }
     if (descr.startsWith("Cut type")) {
       String toType = descr.substring(descr.indexOf("to "));
-
       return "Cut dependency " + toType;
     }
     if (descr.startsWith("Move type")) {
       String to = descr.substring(descr.indexOf("to "));
-
       return "Move " + to;
     }
     return descr;
