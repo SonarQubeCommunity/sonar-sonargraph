@@ -279,10 +279,26 @@ public final class Utilities {
    */
   public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics,
       String key, Metric metric, int precision) {
-    double value = Utilities.getBuildUnitMetricValue(metrics, key);
+    return saveExistingMeasureToContext(sensorContext, metrics, key, metric, precision, false);
+  }
+  
+  /**
+   * Retrieves the metric from the build unit and saves it as a measure to the sensor context.
+   * 
+   * @param sensorContext
+   * @param metrics
+   * @param key
+   * @param metric
+   * @param precision
+   * @return the saved measure
+   */
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics,
+      String key, Metric metric, int precision, boolean flagMissingMetric) {
+    double value = Utilities.getBuildUnitMetricValue(metrics, key, flagMissingMetric);
 
     return Utilities.saveMeasureToContext(sensorContext, metric, value, precision);
   }
+  
 
   /**
    * Creates a new measure for the specified metric and saves it to the sensor context.
@@ -299,20 +315,31 @@ public final class Utilities {
     return m;
   }
 
-  public static double getBuildUnitMetricValue(Map<String, Number> metrics, String key) {
-    return getMetricValueFromMap(key, metrics);
-  }
-
-  public static double getMetricValueFromMap(String key, Map<String, Number> metrics) {
+  /**
+   * Creates a new measure for the specified metric and saves it to the sensor context.
+   * 
+   * @param sensorContext
+   * @param metric
+   * @param value
+   * @param precision
+   * @param flagMissingMetric indicates if a logging statement should be generated if metric cannot be found
+   * @return
+   */
+  public static double getBuildUnitMetricValue(Map<String, Number> metrics, String key, boolean flagMissingMetric) {
     Number num = metrics.get(key);
 
-    if (num == null) {
+    if (flagMissingMetric && num == null) {
       LOG.error("Cannot find metric <" + key + "> in generated report");
       LOG.error("Make sure you set the prepareForSonar option to true (see documentation).");
       LOG.error("If you used Sonargraph Quality for report generation: "
           + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
+    }
+    
+    if (num == null)
+    {
       return 0.0;
     }
+    
     return num.doubleValue();
   }
 

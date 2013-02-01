@@ -292,7 +292,7 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics,
           SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS, NO_DECIMAL);
       Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics,
-          SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS, NO_DECIMAL);
+          SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS, NO_DECIMAL, false);
       Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics,
           SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS, NO_DECIMAL);
 

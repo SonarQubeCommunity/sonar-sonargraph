@@ -21,15 +21,10 @@ package com.hello2morrow.sonarplugin.decorator;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AbstractSumChildrenDecorator;
-import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
@@ -41,9 +36,8 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
  * @author Ingmar
  * 
  */
-public final class SonargraphAggregatingModuleMetricAggregator extends AbstractSumChildrenDecorator {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SonargraphAggregatingModuleMetricAggregator.class);
+public final class SonargraphAggregatingModuleMetricAggregator extends 
+AbstractMetricAggregator {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project);
@@ -55,27 +49,5 @@ public final class SonargraphAggregatingModuleMetricAggregator extends AbstractS
     return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
         SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
         SonargraphSimpleMetrics.IGNORED_WARNINGS);
-  }
-
-  @Override
-  protected boolean shouldSaveZeroIfNoChildMeasures() {
-    return true;
-  }
-
-  @Override
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !shouldDecorateResource(resource)) {
-      return;
-    }
-    super.decorate(resource, context);
-
-    AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
-  }
-
-  @Override
-  public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
-    LOG.debug("Checking for resource type: " + resource.getQualifier());
-    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
-        resource.getQualifier());
   }
 }
