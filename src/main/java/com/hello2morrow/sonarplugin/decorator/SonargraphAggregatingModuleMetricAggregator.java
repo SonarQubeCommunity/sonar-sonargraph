@@ -36,8 +36,7 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
  * @author Ingmar
  * 
  */
-public final class SonargraphAggregatingModuleMetricAggregator extends 
-AbstractMetricAggregator {
+public final class SonargraphAggregatingModuleMetricAggregator extends AbstractMetricAggregator {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project);

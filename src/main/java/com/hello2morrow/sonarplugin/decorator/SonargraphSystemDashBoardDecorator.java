@@ -74,7 +74,6 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
       return false;
     }
 
-
     if ( !copyMeasureFromChildContext(source, target, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
         SonargraphSimpleMetrics.WORKSPACE_WARNINGS)) {
       return false;

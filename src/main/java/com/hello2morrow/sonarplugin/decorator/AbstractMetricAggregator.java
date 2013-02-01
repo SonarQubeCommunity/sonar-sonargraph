@@ -29,7 +29,7 @@ import org.sonar.api.resources.Resource;
 public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetricAggregator.class);
-  
+
   public AbstractMetricAggregator() {
     super();
   }
@@ -45,7 +45,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
       return;
     }
     super.decorate(resource, context);
-  
+
     AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
   }
 
