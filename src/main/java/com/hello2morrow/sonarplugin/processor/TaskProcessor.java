@@ -26,8 +26,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
@@ -48,10 +48,10 @@ public class TaskProcessor implements IProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
   private static final String PACKAGE = " package";
   private SensorContext sensorContext;
-  private RuleFinder ruleFinder;
+  private RulesProfile rulesProfile;
 
-  public TaskProcessor(final RuleFinder ruleFinder, final SensorContext sensorContext) {
-    this.ruleFinder = ruleFinder;
+  public TaskProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
+    this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
   }
 
@@ -67,7 +67,7 @@ public class TaskProcessor implements IProcessor {
     XsdTasks tasks = report.getTasks();
     Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
 
-    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
+    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
     int count = 0;
 
     if (rule == null) {
@@ -90,7 +90,7 @@ public class TaskProcessor implements IProcessor {
     Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.TASK_REFS, count, 0);
   }
 
-  private int handleTask(Map<String, RulePriority> priorityMap, Rule rule, final int count, final XsdTask task) {
+  private int handleTask(Map<String, RulePriority> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
     String priority = Utilities.getAttribute(task.getAttribute(), "Priority");
     String description = Utilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = Utilities.getAttribute(task.getAttribute(), "Assigned to");

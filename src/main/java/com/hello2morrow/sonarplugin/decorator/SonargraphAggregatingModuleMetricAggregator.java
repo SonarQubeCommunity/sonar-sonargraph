@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
@@ -30,7 +31,7 @@ import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 /**
- * This decorator is applicable for aggregating modules but that are not root projects. The warning metrics are simply added from the child
+ * This decorator is applicable for aggregating modules that are not root projects. The warning metrics are simply added from the child
  * modules.
  * 
  * @author Ingmar
@@ -38,8 +39,13 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
  */
 public final class SonargraphAggregatingModuleMetricAggregator extends AbstractMetricAggregator {
 
+  public SonargraphAggregatingModuleMetricAggregator(RulesProfile profile) {
+    super(profile);
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project);
+    return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project)
+        && super.shouldExecuteOnProject(project);
   }
 
   @Override

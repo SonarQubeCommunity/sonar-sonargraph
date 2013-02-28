@@ -20,8 +20,8 @@ package com.hello2morrow.sonarplugin.processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -34,21 +34,21 @@ import com.hello2morrow.sonarplugin.xsd.XsdViolations;
 
 public class ArchitectureViolationProcessor implements IProcessor {
 
-  private RuleFinder ruleFinder;
+  private RulesProfile rulesProfile;
   private SensorContext context;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-  public ArchitectureViolationProcessor(final RuleFinder ruleFinder, final SensorContext context) {
-    this.ruleFinder = ruleFinder;
+  public ArchitectureViolationProcessor(final RulesProfile rulesProfile, final SensorContext context) {
+    this.rulesProfile = rulesProfile;
     this.context = context;
   }
 
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing architecture violation of buildUnit: " + buildUnit.getName());
 
-    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
+    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
-      LOG.error("Sonargraph architecture rule not found");
+      LOG.info("Sonargraph architecture rule not found");
       return;
     }
     XsdViolations violations = report.getViolations();
@@ -77,7 +77,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
     }
   }
 
-  private void processPosition(Rule rule, XsdTypeRelation rel, String message, String explanation) {
+  private void processPosition(ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
     for (XsdPosition pos : rel.getPosition()) {
       String relFileName = pos.getFile();
       int line = 0;

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -36,8 +37,12 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
  */
 public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
+  public SonargraphMetricAggregator(RulesProfile profile) {
+    super(profile);
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
-    return Utilities.isAggregatingProject(project);
+    return Utilities.isAggregatingProject(project) && super.shouldExecuteOnProject(project);
   }
 
   @Override

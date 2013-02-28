@@ -29,8 +29,8 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
 
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
@@ -50,12 +50,12 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttributeGroup;
 public class WarningProcessor implements IProcessor {
 
   private SensorContext sensorContext;
-  private RuleFinder ruleFinder;
+  private RulesProfile rulesProfile;
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
 
-  public WarningProcessor(final RuleFinder ruleFinder, final SensorContext sensorContext) {
+  public WarningProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
     this.sensorContext = sensorContext;
-    this.ruleFinder = ruleFinder;
+    this.rulesProfile = rulesProfile;
   }
 
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
@@ -68,9 +68,9 @@ public class WarningProcessor implements IProcessor {
       if (key == null) {
         continue;
       }
-      Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, key);
+      ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
       if (rule == null) {
-        LOG.error("Sonargraph threshold rule not found");
+        LOG.info("Sonargraph threshold rule not found");
         continue;
       }
       if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
@@ -93,7 +93,7 @@ public class WarningProcessor implements IProcessor {
     }
   }
 
-  private void processPosition(Rule rule, XsdWarning warning, String msg) {
+  private void processPosition(ActiveRule rule, XsdWarning warning, String msg) {
     if (warning.getPosition().size() > 0) {
       for (XsdPosition pos : warning.getPosition()) {
         String relFileName = pos.getFile();
@@ -116,7 +116,8 @@ public class WarningProcessor implements IProcessor {
     }
   }
 
-  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, Rule rule, XsdAttributeRoot buildUnit) {
+  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule,
+      XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing duplicate code blocks");
 
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
@@ -138,7 +139,8 @@ public class WarningProcessor implements IProcessor {
       for (DuplicateCodeBlock block : entry.getValue()) {
         String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
         String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
-        if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
+        if (Utilities.getBuildUnitName(buildUnit.getName())
+            .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
           Utilities.saveViolation(sensorContext, rule, null, fqName, block.getStartLine(), message);
         }
       }

@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
@@ -40,9 +41,15 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
+  private RulesProfile profile;
+
+  public SonargraphDerivedMetricsDecorator(RulesProfile profile) {
+    this.profile = profile;
+  }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project);
+    return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project))
+        && Utilities.isSonargraphProject(project, profile);
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {

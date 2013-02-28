@@ -15,13 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.hello2morrow.sonarplugin.api;
+package com.hello2morrow.sonarplugin.foundation;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import junit.framework.TestCase;
 
 import org.apache.commons.configuration.Configuration;
 import org.mockito.invocation.InvocationOnMock;
@@ -30,26 +28,26 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.RulePriority;
 
-import com.hello2morrow.sonarplugin.foundation.IReportReader;
-import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
-import com.hello2morrow.sonarplugin.foundation.TestHelper;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
 
-public class ReadTest extends TestCase {
+public class TestHelper {
 
-  @SuppressWarnings("rawtypes")
-  public void testAnalyse() {
-    IReportReader reader = new ReportReaderMock("src/test/resources/infoglue21-report.xml");
-    Project project1 = new Project("test");
-    reader.readSonargraphReport(project1, null);
+  public static RulesProfile initRulesProfile() {
+    RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
+    profile.activateRule(SonargraphRulesRepository.TASK, RulePriority.MAJOR);
+    profile.activateRule(SonargraphRulesRepository.CYCLE_GROUPS, RulePriority.MAJOR);
+    profile.activateRule(SonargraphRulesRepository.DUPLICATES, RulePriority.MAJOR);
+    profile.activateRule(SonargraphRulesRepository.ARCH, RulePriority.MAJOR);
+    profile.activateRule(SonargraphRulesRepository.THRESHOLD, RulePriority.MAJOR);
+    profile.activateRule(SonargraphRulesRepository.WORKSPACE, RulePriority.MAJOR);
+    return profile;
+  }
 
-    assertNotNull(reader.getReport());
-
-    final RulesProfile profile = TestHelper.initRulesProfile();
-    final Configuration config = mock(Configuration.class);
+  public static Configuration initConfig() {
+    Configuration config = mock(Configuration.class);
 
     when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
 
@@ -57,8 +55,14 @@ public class ReadTest extends TestCase {
         return (String) invocationOnMock.getArguments()[1];
       }
     });
+    when(config.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT))
+        .thenReturn(7.0);
+    return config;
+  }
 
-    final SensorContext sensorContext = mock(SensorContext.class);
+  @SuppressWarnings("rawtypes")
+  public static SensorContext initSensorContext() {
+    SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
 
@@ -77,12 +81,6 @@ public class ReadTest extends TestCase {
       }
     });
 
-    SonargraphSensor sensor = new SonargraphSensor(profile, reader, sensorContext);
-
-    Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
-    project.setConfiguration(config);
-    XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
-    assertNotNull(buildUnit);
-    sensor.analyseBuildUnit(reader.getReport(), buildUnit);
+    return sensorContext;
   }
 }

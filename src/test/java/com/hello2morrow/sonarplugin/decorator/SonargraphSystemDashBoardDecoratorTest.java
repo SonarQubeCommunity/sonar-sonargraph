@@ -30,8 +30,10 @@ import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 
+import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
@@ -40,10 +42,12 @@ public class SonargraphSystemDashBoardDecoratorTest {
   @Test
   public void testShouldExecuteOnProject() {
     Project project = new Project("project");
+    project.setLanguage(Java.INSTANCE);
     Project module = new Project("module");
+    module.setLanguage(Java.INSTANCE);
     module.setParent(project);
 
-    Decorator decorator = new SonargraphSystemDashBoardDecorator();
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
     assertTrue(decorator.shouldExecuteOnProject(project));
     assertFalse(decorator.shouldExecuteOnProject(module));
   }
@@ -55,7 +59,7 @@ public class SonargraphSystemDashBoardDecoratorTest {
     Project module2 = new Project("module2", "", "module2");
     module1.setParent(project);
     module2.setParent(project);
-    
+
     DecoratorContext child1 = mock(DecoratorContext.class);
     DecoratorContext child2 = mock(DecoratorContext.class);
     List<DecoratorContext> children = new ArrayList<DecoratorContext>();
@@ -67,21 +71,28 @@ public class SonargraphSystemDashBoardDecoratorTest {
     double thresholdWarnings = 3.0;
     double workspaceWarnings = 4.0;
     double ignoredWarnings = 5.0;
-    
-    when(child1.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE)).thenReturn(new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, 1.0));
+
+    when(child1.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE)).thenReturn(
+        new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, 1.0));
     when(child1.getProject()).thenReturn(module1);
-    
+
     when(child2.getProject()).thenReturn(module2);
-    when(child2.getMeasure(SonargraphSimpleMetrics.INSTRUCTIONS)).thenReturn(new Measure(SonargraphSimpleMetrics.INSTRUCTIONS, 23.0));
-    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS)).thenReturn(new Measure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, allWarnings));
-    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS)).thenReturn(new Measure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, cycleWarnings));
-    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS)).thenReturn(new Measure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, thresholdWarnings));
-    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS)).thenReturn(new Measure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS, workspaceWarnings));
-    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS)).thenReturn(new Measure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, ignoredWarnings));
-    
-    Decorator decorator = new SonargraphSystemDashBoardDecorator();
+    when(child2.getMeasure(SonargraphSimpleMetrics.INSTRUCTIONS)).thenReturn(
+        new Measure(SonargraphSimpleMetrics.INSTRUCTIONS, 23.0));
+    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS)).thenReturn(
+        new Measure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, allWarnings));
+    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS)).thenReturn(
+        new Measure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, cycleWarnings));
+    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS)).thenReturn(
+        new Measure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, thresholdWarnings));
+    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS)).thenReturn(
+        new Measure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS, workspaceWarnings));
+    when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS)).thenReturn(
+        new Measure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, ignoredWarnings));
+
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
     decorator.decorate(project, context);
-    
+
     assertEquals(allWarnings, context.getMeasure(SonargraphSimpleMetrics.ALL_WARNINGS).getValue());
     assertEquals(cycleWarnings, context.getMeasure(SonargraphSimpleMetrics.CYCLE_WARNINGS).getValue());
     assertEquals(thresholdWarnings, context.getMeasure(SonargraphSimpleMetrics.THRESHOLD_WARNINGS).getValue());

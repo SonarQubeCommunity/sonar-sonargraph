@@ -27,11 +27,13 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
@@ -245,7 +247,7 @@ public final class Utilities {
     return message.toString();
   }
 
-  public static void saveViolation(SensorContext sensorContext, Rule rule, RulePriority priority, String fqName,
+  public static void saveViolation(SensorContext sensorContext, ActiveRule rule, RulePriority priority, String fqName,
       int line, String msg) {
     Resource<JavaPackage> javaFile = sensorContext.getResource(new JavaFile(fqName));
 
@@ -281,7 +283,7 @@ public final class Utilities {
       String key, Metric metric, int precision) {
     return saveExistingMeasureToContext(sensorContext, metrics, key, metric, precision, false);
   }
-  
+
   /**
    * Retrieves the metric from the build unit and saves it as a measure to the sensor context.
    * 
@@ -298,7 +300,6 @@ public final class Utilities {
 
     return Utilities.saveMeasureToContext(sensorContext, metric, value, precision);
   }
-  
 
   /**
    * Creates a new measure for the specified metric and saves it to the sensor context.
@@ -322,7 +323,8 @@ public final class Utilities {
    * @param metric
    * @param value
    * @param precision
-   * @param flagMissingMetric indicates if a logging statement should be generated if metric cannot be found
+   * @param flagMissingMetric
+   *          indicates if a logging statement should be generated if metric cannot be found
    * @return
    */
   public static double getBuildUnitMetricValue(Map<String, Number> metrics, String key, boolean flagMissingMetric) {
@@ -334,12 +336,11 @@ public final class Utilities {
       LOG.error("If you used Sonargraph Quality for report generation: "
           + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
     }
-    
-    if (num == null)
-    {
+
+    if (num == null) {
       return 0.0;
     }
-    
+
     return num.doubleValue();
   }
 
@@ -378,6 +379,21 @@ public final class Utilities {
     }
 
     return result;
+  }
+
+  public static boolean isSonargraphProject(Project project, RulesProfile profile) {
+    return areSonargraphRulesActive(profile) && isJavaProject(project);
+  }
+
+  public static boolean areSonargraphRulesActive(RulesProfile profile) {
+    return profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).size() > 0;
+  }
+
+  public static boolean isJavaProject(Project project) {
+    if (project.getLanguage() == null || !project.getLanguage().equals(Java.INSTANCE)) {
+      return false;
+    }
+    return true;
   }
 
 }

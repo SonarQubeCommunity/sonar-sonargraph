@@ -23,15 +23,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 
 public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetricAggregator.class);
+  private RulesProfile profile;
 
-  public AbstractMetricAggregator() {
+  public AbstractMetricAggregator(RulesProfile profile) {
     super();
+    this.profile = profile;
+  }
+
+  @Override
+  public boolean shouldExecuteOnProject(Project project) {
+    return Utilities.isSonargraphProject(project, profile);
   }
 
   @Override

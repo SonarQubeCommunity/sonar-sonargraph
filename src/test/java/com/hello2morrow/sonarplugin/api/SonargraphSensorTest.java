@@ -18,29 +18,23 @@
 package com.hello2morrow.sonarplugin.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.RuleFinder;
 
 import com.hello2morrow.sonarplugin.foundation.IReportReader;
 import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 /**
@@ -49,21 +43,21 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
  */
 public class SonargraphSensorTest {
 
-  private static RuleFinder ruleFinder;
+  private static RulesProfile rulesProfile;
   private static SensorContext sensorContext;
   private SonargraphSensor sensor;
   private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
 
   @BeforeClass
   public static void initialize() {
-    ruleFinder = TestHelper.initRuleFinder();
+    rulesProfile = TestHelper.initRulesProfile();
     sensorContext = TestHelper.initSensorContext();
   }
 
   @Before
   public void initSensor() {
     IReportReader reader = new ReportReaderMock(REPORT);
-    this.sensor = new SonargraphSensor(ruleFinder, reader, sensorContext);
+    this.sensor = new SonargraphSensor(rulesProfile, reader, sensorContext);
   }
 
   @Test
@@ -90,9 +84,11 @@ public class SonargraphSensorTest {
   @Test
   public void testShouldExecuteOnProject() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
+    project.setLanguage(Java.INSTANCE);
     assertTrue(sensor.shouldExecuteOnProject(project));
 
     Project module = new Project("hello2morrow:Foundation", "", "Foundation");
+    module.setLanguage(Java.INSTANCE);
     module.setParent(project);
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
@@ -101,66 +97,4 @@ public class SonargraphSensorTest {
   public void testHandleDuplicateCodeBlocks() {
     // sensor.handleDuplicateCodeBlocks(warningGroup, buildUnitName, Rule.create(repositoryKey, key, name)());
   }
-
-  static class TestHelper {
-
-    public static RuleFinder initRuleFinder() {
-      RuleFinder ruleFinder = mock(RuleFinder.class);
-
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.TASK);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY))
-          .thenReturn(SonargraphRulesRepository.CYCLE_GROUPS);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.DUPLICATES);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.ARCH);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.THRESHOLD);
-      when(ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).thenReturn(
-          SonargraphRulesRepository.WORKSPACE);
-      return ruleFinder;
-    }
-
-    public static Configuration initConfig() {
-      Configuration config = mock(Configuration.class);
-
-      when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
-
-        public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-          return (String) invocationOnMock.getArguments()[1];
-        }
-      });
-      when(
-          config
-              .getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT))
-          .thenReturn(7.0);
-      return config;
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static SensorContext initSensorContext() {
-      SensorContext sensorContext = mock(SensorContext.class);
-
-      when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
-
-        public Object answer(InvocationOnMock invocation) {
-          Object[] args = invocation.getArguments();
-          return args[0];
-        }
-      });
-      when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
-
-        public Object answer(InvocationOnMock invocation) {
-          Object arg = invocation.getArguments()[0];
-          Measure result = new Measure((Metric) arg);
-          result.setValue(0.0);
-          return result;
-        }
-      });
-
-      return sensorContext;
-    }
-  }
-
 }

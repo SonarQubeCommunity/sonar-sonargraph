@@ -23,10 +23,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
@@ -40,14 +40,14 @@ import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
 public class CycleGroupProcessor implements IProcessor {
 
   private SensorContext sensorContext;
-  private RuleFinder ruleFinder;
+  private RulesProfile rulesProfile;
   private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
 
-  public CycleGroupProcessor(final RuleFinder ruleFinder, final SensorContext sensorContext) {
-    this.ruleFinder = ruleFinder;
+  public CycleGroupProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
+    this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
   }
 
@@ -82,7 +82,8 @@ public class CycleGroupProcessor implements IProcessor {
 
   @SuppressWarnings("unchecked")
   private void handlePackageCycleGroup(XsdCycleGroup group) {
-    Rule rule = ruleFinder.findByKey(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY,
+        SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
     if (rule == null) {
       return;
     }
