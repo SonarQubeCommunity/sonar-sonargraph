@@ -145,9 +145,16 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
           + context.getProject().getKey());
     } else {
-      double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getValue()) / packages.getValue();
-      double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getValue() / packages.getValue();
-
+      double relCyclicity = 0.0;
+      double relCyclicPackages = 0.0;
+      
+      double numberOfPackages = packages.getValue().doubleValue();
+      if (numberOfPackages > 0.0)
+      {
+        relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getValue()) / numberOfPackages;
+        relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getValue() / numberOfPackages;
+      }
+      
       context.saveMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
       context.saveMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
     }

@@ -5,12 +5,16 @@
             <element name="**" type="IncludeTypePattern"/>
             <element name="**.*Test*" type="ExcludeTypePattern"/>
         </element>
+        <dependency type="AllowedDependency" toName="External|External"/>
         <architecture>
             <element name="Foundation" type="Layer">
                 <element name="Assignment" type="TypeFilter">
                     <element name="com.hello2morrow.sonarplugin.foundation.**" type="IncludeTypePattern"/>
                 </element>
                 <stereotype name="Public"/>
+                <dependency type="AllowedDependency" toName="External|External::Layer|Common"/>
+                <dependency type="AllowedDependency" toName="External|External::Layer|JAXB"/>
+                <dependency type="AllowedDependency" toName="External|External::Layer|Sonar"/>
                 <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Xsd"/>
             </element>
             <element name="Api" type="Layer">
@@ -40,6 +44,7 @@
                     <element name="com.hello2morrow.sonarplugin.xsd.**" type="IncludeTypePattern"/>
                 </element>
                 <dependency type="DisallowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Foundation"/>
+                <dependency type="AllowedDependency" toName="External|External::Layer|JAXB"/>
             </element>
             <element name="Processors" type="Layer">
                 <element name="Assignment" type="TypeFilter">
@@ -100,34 +105,44 @@
             <element name="java.util.zip.*" type="ExcludeTypePattern"/>
         </element>
         <architecture>
-            <element name="jaxb" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="javax.xml.bind.*" type="IncludeTypePattern"/>
-                    <element name="javax.xml.bind.annotation.*" type="IncludeTypePattern"/>
+            <element name="JAXB" type="Layer">
+                <element name="Assignment" type="TypeFilter"/>
+                <element name="jaxb" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="javax.xml.bind.*" type="IncludeTypePattern"/>
+                        <element name="javax.xml.bind.annotation.*" type="IncludeTypePattern"/>
+                    </element>
+                </element>
+                <stereotype name="Hidden"/>
+            </element>
+            <element name="Sonar" type="Layer">
+                <element name="Assignment" type="TypeFilter"/>
+                <element name="sonar-api" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="org.sonar.api.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.resources.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.batch.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.web.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.rules.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.measures.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.profiles.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.batch.maven.*" type="IncludeTypePattern"/>
+                    </element>
                 </element>
             </element>
-            <element name="sonar-api" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="org.sonar.api.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.resources.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.batch.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.web.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.rules.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.measures.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.profiles.*" type="IncludeTypePattern"/>
-                    <element name="org.sonar.api.batch.maven.*" type="IncludeTypePattern"/>
+            <element name="Common" type="Layer">
+                <element name="Assignment" type="TypeFilter"/>
+                <element name="apache-commons" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="org.apache.commons.*" type="IncludeTypePattern"/>
+                        <element name="org.apache.commons.lang.*" type="IncludeTypePattern"/>
+                        <element name="org.apache.commons.configuration.*" type="IncludeTypePattern"/>
+                    </element>
                 </element>
-            </element>
-            <element name="logging" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="org.slf4j.*" type="IncludeTypePattern"/>
-                </element>
-            </element>
-            <element name="apache-commons" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="org.apache.commons.*" type="IncludeTypePattern"/>
-                    <element name="org.apache.commons.lang.*" type="IncludeTypePattern"/>
-                    <element name="org.apache.commons.configuration.*" type="IncludeTypePattern"/>
+                <element name="logging" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="org.slf4j.*" type="IncludeTypePattern"/>
+                    </element>
                 </element>
             </element>
         </architecture>

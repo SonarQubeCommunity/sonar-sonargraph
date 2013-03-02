@@ -126,4 +126,33 @@ public class SonargraphDerivedMetricsDecoratorTest {
 
   }
 
+  @Test
+  public void testDecorateNoPackages() {
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
+    Project project = new Project("test");
+
+    DecoratorContext child1 = mock(DecoratorContext.class);
+    DecoratorContext child2 = mock(DecoratorContext.class);
+    List<DecoratorContext> children = new ArrayList<DecoratorContext>();
+    children.add(child1);
+    children.add(child2);
+    DecoratorContext context = new MockDecoratorContext(project, children);
+
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.CYCLICITY, 0.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.INTERNAL_PACKAGES, 0.0));
+    context.saveMeasure(new Measure(SonargraphSimpleMetrics.CYCLIC_PACKAGES, 0.0));
+
+    double biggestCycleGroup = 0.0;
+    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
+        new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+    
+    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
+        new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+   
+    decorator.decorate(project, context);
+
+    assertEquals(0.0, context.getMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY).getValue());
+    assertEquals(0.0, context.getMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT).getValue());
+    assertEquals(biggestCycleGroup, context.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP).getValue());
+  }
 }
