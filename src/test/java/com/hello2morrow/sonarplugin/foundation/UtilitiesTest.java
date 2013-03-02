@@ -105,11 +105,20 @@ public class UtilitiesTest {
 
   @Test
   public void testGenerateDuplicateCodeBlockMessage() {
-    List<DuplicateCodeBlock> blocks = createCodeBlocks();
+    List<DuplicateCodeBlock> blocks = createTwoCodeBlocks();
     String message = Utilities.generateDuplicateCodeBlockMessage(blocks.get(0), blocks);
-    String expected = "Line 10 to 51 is a duplicate of\n" + "line 4 to 44 of com/h2m/common/observer/T1.java and\n"
-        + "line 10 to 50 of com/h2m/alarm/model/AlarmClock.java.";
-    assertEquals(expected, message);
+    String expected = "Line 10 to 51 is a duplicate of\n" + "line 4 to 44 of com/h2m/common/observer/T1.java";
+    assertEquals(expected + ".", message);
+    
+    blocks = createThreeCodeBlocks();
+    message = Utilities.generateDuplicateCodeBlockMessage(blocks.get(0), blocks);
+    String expected2 = "line 10 to 50 of com/h2m/alarm/model/AlarmClock.java";
+    assertEquals("Expected additional 'and' not present!", expected + " and\n" + expected2 + ".", message);
+    
+    blocks = createFourCodeBlocks();
+    message = Utilities.generateDuplicateCodeBlockMessage(blocks.get(0), blocks);
+    String expected3 = "line 10 to 50 of com/h2m/alarm/presentation/AlarmToConsole.java";
+    assertEquals("Expected additional ', and' not present!", expected + ",\n" + expected2 + ", and\n" + expected3 + ".", message);
   }
 
   @Test
@@ -188,7 +197,8 @@ public class UtilitiesTest {
     assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
   }
   
-  private List<DuplicateCodeBlock> createCodeBlocks() {
+  
+  private List<DuplicateCodeBlock> createTwoCodeBlocks() {
     List<DuplicateCodeBlock> list = new ArrayList<DuplicateCodeBlock>();
 
     DuplicateCodeBlock block1 = new DuplicateCodeBlock();
@@ -205,16 +215,33 @@ public class UtilitiesTest {
     block2.setStartLine(4);
     list.add(block2);
 
+    return list;
+  }
+  
+  private List<DuplicateCodeBlock> createThreeCodeBlocks() {
+    List<DuplicateCodeBlock> list = createTwoCodeBlocks();
+    
     DuplicateCodeBlock block3 = new DuplicateCodeBlock();
     block3.setBlockId(1);
     block3.setBlockLength(41);
     block3.setElementName("com/h2m/alarm/model/AlarmClock.java");
     block3.setStartLine(10);
     list.add(block3);
-
+    
     return list;
   }
-  
-  
+
+  private List<DuplicateCodeBlock> createFourCodeBlocks() {
+    List<DuplicateCodeBlock> list = createThreeCodeBlocks();
+    
+    DuplicateCodeBlock block4 = new DuplicateCodeBlock();
+    block4.setBlockId(1);
+    block4.setBlockLength(41);
+    block4.setElementName("com/h2m/alarm/presentation/AlarmToConsole.java");
+    block4.setStartLine(10);
+    list.add(block4);
+    
+    return list;
+  }
 
 }

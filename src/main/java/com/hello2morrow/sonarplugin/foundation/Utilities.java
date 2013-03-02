@@ -74,18 +74,19 @@ public final class Utilities {
   }
 
   public static String getBuildUnitName(String fqName) {
-    String buName = UNKNOWN;
+    if (fqName == null) {
+      return UNKNOWN;
+    }
 
-    if (fqName != null) {
-      int colonPos = fqName.indexOf("::");
+    int colonPos = fqName.indexOf("::");
+    if (colonPos == -1) {
+      return UNKNOWN;
+    }
 
-      if (colonPos != -1) {
-        buName = fqName.substring(colonPos + 2);
-        if (DEFAULT_BUILD_UNIT.equals(buName)) {
-          // Compatibility with old SonarJ versions
-          buName = fqName.substring(0, colonPos);
-        }
-      }
+    String buName = fqName.substring(colonPos + 2);
+    if (DEFAULT_BUILD_UNIT.equals(buName)) {
+      // Compatibility with old SonarJ versions
+      buName = fqName.substring(0, colonPos);
     }
     return buName;
   }
@@ -208,40 +209,36 @@ public final class Utilities {
 
     final StringBuilder message = new StringBuilder();
     message.append("Line ").append(block.getStartLine()).append(" to ").append(endLine).append(" is a duplicate of\n");
+    int toBeDescribed = blocks.size() - 1;
+    boolean isFirst = true;
 
-    final int toBeDescribed = blocks.size() - 1;
-    int yetToDescribe = toBeDescribed;
-
-    for (final DuplicateCodeBlock duplicate : blocks) {
+    for (int i = 0; i < blocks.size(); i++) {
+      DuplicateCodeBlock duplicate = blocks.get(i);
       if (duplicate == block) {
         continue;
       }
+      int remaining = toBeDescribed - i;
 
       // No connection for first described element.
-      if (toBeDescribed != yetToDescribe) {
-        if (yetToDescribe == 1) {
-          // Last.
-          switch (toBeDescribed) {
-            case 2:
-              // Just two parts.
-              message.append(" and\n");
-              break;
-            default:
-              // More than two parts: Enumeration.
-              message.append(", and\n");
-              break;
-          }
-        } else {
+      if ( !isFirst && blocks.size() > 2) {
+        if (remaining > 0) {
           // Not last, and not first: enumerate.
-          message.append(", ");
+          message.append(",\n");
+        } else {
+          // Last.
+          if (toBeDescribed == 2) {
+            // Just two parts.
+            message.append(" and\n");
+          } else {
+            // More than two parts: Enumeration.
+            message.append(", and\n");
+          }
         }
       }
-
+      isFirst = false;
       final int endLineDuplicate = duplicate.getBlockLength() + duplicate.getStartLine() - 1;
       message.append("line " + duplicate.getStartLine() + " to " + endLineDuplicate + " of "
           + duplicate.getElementName());
-
-      yetToDescribe--;
     }
     message.append(".");
     return message.toString();
