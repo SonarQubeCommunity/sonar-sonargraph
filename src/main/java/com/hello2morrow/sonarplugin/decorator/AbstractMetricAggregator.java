@@ -46,7 +46,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
   }
 
   @Override
-  final protected boolean shouldSaveZeroIfNoChildMeasures() {
+  protected final boolean shouldSaveZeroIfNoChildMeasures() {
     return true;
   }
 

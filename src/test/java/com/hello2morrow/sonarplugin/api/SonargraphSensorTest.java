@@ -28,12 +28,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 
-import com.hello2morrow.sonarplugin.foundation.IReportReader;
-import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
@@ -56,8 +56,9 @@ public class SonargraphSensorTest {
 
   @Before
   public void initSensor() {
-    IReportReader reader = new ReportReaderMock(REPORT);
-    this.sensor = new SonargraphSensor(rulesProfile, reader, sensorContext);
+    Settings settings = TestHelper.initSettings();
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, REPORT);
+    this.sensor = new SonargraphSensor(rulesProfile, settings, sensorContext);
   }
 
   @Test
@@ -75,7 +76,6 @@ public class SonargraphSensorTest {
   @Test
   public void testAnalyse() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setConfiguration(TestHelper.initConfig());
     sensor.analyse(project, sensorContext);
     double value = sensorContext.getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
     assertEquals(0.0, value, 0.01);
@@ -92,9 +92,5 @@ public class SonargraphSensorTest {
     module.setParent(project);
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
-  }
-
-  public void testHandleDuplicateCodeBlocks() {
-    // sensor.handleDuplicateCodeBlocks(warningGroup, buildUnitName, Rule.create(repositoryKey, key, name)());
   }
 }

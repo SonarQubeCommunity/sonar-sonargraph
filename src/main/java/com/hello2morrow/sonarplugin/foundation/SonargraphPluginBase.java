@@ -24,9 +24,10 @@ import java.text.DecimalFormatSymbols;
 public final class SonargraphPluginBase
 {
   public static final String COST_PER_INDEX_POINT = "sonargraph.index_point_cost";
-  public static final double COST_PER_INDEX_POINT_DEFAULT = 11;
+  public static final double COST_PER_INDEX_POINT_DEFAULT = 11.0;
   public static final String CURRENCY = "sonargraph.currency";
   public static final String CURRENCY_DEFAULT = "USD";
+  public static final String REPORT_PATH = "sonar.sonargraph.report.path";
 
   public static final String PLUGIN_KEY = "Sonargraph";
 

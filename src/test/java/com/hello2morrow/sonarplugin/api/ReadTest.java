@@ -23,10 +23,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import junit.framework.TestCase;
 
-import org.apache.commons.configuration.Configuration;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
@@ -34,7 +34,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.IReportReader;
-import com.hello2morrow.sonarplugin.foundation.ReportReaderMock;
+import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
@@ -42,22 +43,15 @@ public class ReadTest extends TestCase {
 
   @SuppressWarnings("rawtypes")
   public void testAnalyse() {
-    IReportReader reader = new ReportReaderMock("src/test/resources/infoglue21-report.xml");
     Project project1 = new Project("test");
-    reader.readSonargraphReport(project1, null);
+    Settings settings = TestHelper.initSettings();
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/infoglue21-report.xml");
+    IReportReader reader = new ReportFileReader();
+    reader.readSonargraphReport(project1, settings);
 
     assertNotNull(reader.getReport());
 
     final RulesProfile profile = TestHelper.initRulesProfile();
-    final Configuration config = mock(Configuration.class);
-
-    when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
-
-      public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-        return (String) invocationOnMock.getArguments()[1];
-      }
-    });
-
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
@@ -77,10 +71,9 @@ public class ReadTest extends TestCase {
       }
     });
 
-    SonargraphSensor sensor = new SonargraphSensor(profile, reader, sensorContext);
+    SonargraphSensor sensor = new SonargraphSensor(profile, TestHelper.initSettings(), sensorContext);
 
     Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
-    project.setConfiguration(config);
     XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
     assertNotNull(buildUnit);
     sensor.analyseBuildUnit(reader.getReport(), buildUnit);

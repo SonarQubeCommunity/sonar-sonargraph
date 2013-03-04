@@ -21,10 +21,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.configuration.Configuration;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
@@ -46,20 +46,13 @@ public class TestHelper {
     return profile;
   }
 
-  public static Configuration initConfig() {
-    Configuration config = mock(Configuration.class);
-
-    when(config.getString(any(String.class), any(String.class))).thenAnswer(new Answer<String>() {
-
-      public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-        return (String) invocationOnMock.getArguments()[1];
-      }
-    });
-    when(config.getDouble(SonargraphPluginBase.COST_PER_INDEX_POINT, SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT))
-        .thenReturn(7.0);
-    return config;
+  public static Settings initSettings()
+  {
+    Settings settings = new Settings();
+    settings.setProperty(SonargraphPluginBase.COST_PER_INDEX_POINT, 7.0);
+    return settings;
   }
-
+  
   @SuppressWarnings("rawtypes")
   public static SensorContext initSensorContext() {
     SensorContext sensorContext = mock(SensorContext.class);

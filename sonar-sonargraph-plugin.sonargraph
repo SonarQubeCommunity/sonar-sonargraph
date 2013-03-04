@@ -119,14 +119,7 @@
                 <element name="Assignment" type="TypeFilter"/>
                 <element name="sonar-api" type="Subsystem">
                     <element name="Assignment" type="TypeFilter">
-                        <element name="org.sonar.api.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.resources.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.batch.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.web.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.rules.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.measures.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.profiles.*" type="IncludeTypePattern"/>
-                        <element name="org.sonar.api.batch.maven.*" type="IncludeTypePattern"/>
+                        <element name="org.sonar.api.**" type="IncludeTypePattern"/>
                     </element>
                 </element>
             </element>
@@ -138,6 +131,7 @@
                         <element name="org.apache.commons.lang.*" type="IncludeTypePattern"/>
                         <element name="org.apache.commons.configuration.*" type="IncludeTypePattern"/>
                     </element>
+                    <stereotype name="Hidden"/>
                 </element>
                 <element name="logging" type="Subsystem">
                     <element name="Assignment" type="TypeFilter">

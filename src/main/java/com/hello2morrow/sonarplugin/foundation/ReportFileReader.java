@@ -27,10 +27,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -52,17 +53,13 @@ public class ReportFileReader implements IReportReader {
   public ReportFileReader() {
   }
 
-  /* (non-Javadoc)
-   * @see com.hello2morrow.sonarplugin.foundation.IReportReader#readSonargraphReport(java.lang.String, boolean)
-   */
-  public void readSonargraphReport(final Project project, Configuration configuration) {
-    if (project == null)
-    {
+  public void readSonargraphReport(final Project project, Settings settings) {
+    if (project == null) {
       LOG.error("No project provided for reading sonargraph report");
       return;
     }
-    
-    String reportFileName = determineReportFileName(project, configuration);
+
+    String reportFileName = determineReportFileName(project, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
     InputStream input = null;
@@ -97,21 +94,34 @@ public class ReportFileReader implements IReportReader {
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#getReport()
    */
   public ReportContext getReport() {
     return report;
   }
 
-  protected String determineReportFileName(Project project, Configuration config) {
-    String projectBuildPath = project.getFileSystem().getBuildDir().getPath();
-    String defaultLocation = projectBuildPath + '/' + REPORT_DIR + '/' + REPORT_NAME;
-    return config.getString("sonar.sonargraph.report.path", defaultLocation);
+  protected String determineReportFileName(Project project, Settings settings) {
+    String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
+
+    ProjectFileSystem fileSystem = project.getFileSystem();
+    if (fileSystem == null)
+    {
+      return configuredReportPath;
+    }
+
+    if (configuredReportPath == null || configuredReportPath.length() == 0) {
+      return fileSystem.getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+    }
+
+    return configuredReportPath;
   }
 
-  
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#retrieveBuildUnit(java.lang.String)
    */
   public XsdAttributeRoot retrieveBuildUnit(Project project) {

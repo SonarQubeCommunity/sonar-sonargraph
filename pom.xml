@@ -9,10 +9,9 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.0.7-SNAPSHOT</version>
+  <version>3.1-SNAPSHOT</version>
   
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
@@ -52,14 +51,13 @@
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>2.10</sonar.version>
+    <sonar.version>3.0</sonar.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
   </properties>
 
   <dependencies>
-  
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -119,6 +117,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.4</version>
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>

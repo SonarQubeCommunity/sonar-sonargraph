@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
 /**
@@ -38,22 +39,25 @@ public class ReportFileReaderTest {
   @Test
   public void testReadSonargraphReport() {
     Project project = new Project("test");
-    IReportReader reader = new ReportReaderMock(reportFileName);
-    reader.readSonargraphReport(project, null);
+    IReportReader reader = new ReportFileReader();
+    Settings settings = TestHelper.initSettings();
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, reportFileName);
+    reader.readSonargraphReport(project, settings);
     assertNotNull(reader.getReport());
     
-    reader = new ReportReaderMock("fakeDir/ReporFileName.xml");
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, "fakeDir/ReporFileName.xml");
+    reader.readSonargraphReport(project, settings);
     assertNull(reader.getReport());
     
-    reader = new ReportReaderMock("src/test/resources/report_error.xml");
-    reader.readSonargraphReport(project, null);
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/report_error.xml");
+    reader.readSonargraphReport(project, settings);
     assertNull(reader.getReport());
     
     Project module = new Project("module");
     module.setParent(project);
     
-    reader = new ReportReaderMock("fakeDir/ReporFileName.xml");
-    reader.readSonargraphReport(project, null);
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, "fakeDir/ReporFileName.xml");
+    reader.readSonargraphReport(project, settings);
     assertNull(reader.getReport());
   }
   

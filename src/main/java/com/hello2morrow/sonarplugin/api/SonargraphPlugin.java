@@ -41,27 +41,21 @@ import com.hello2morrow.sonarplugin.view.SonargraphStructuralDebtDashboard;
 /**
  * This class is the container for all others extensions
  */
-@Properties({@Property(
-    key = SonargraphPluginBase.CURRENCY,
-    defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT,
-    name = "Currency",
-    project = false,
-    module = false,
-    global = true),
+@Properties({
+    @Property(key = SonargraphPluginBase.CURRENCY, defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT,
+        name = "Currency", project = false, module = false, global = true),
 
-    @Property(
-        key = SonargraphPluginBase.COST_PER_INDEX_POINT,
-        defaultValue = "" + SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT,
-        name = "Cost per metric point of 'Structural debt index' (0 means not displayed)",
-        project = false,
-        module = false,
-        global = true)})
+    @Property(key = SonargraphPluginBase.COST_PER_INDEX_POINT, defaultValue = ""
+        + SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT,
+        name = "Cost per metric point of 'Structural debt index' (0 means not displayed)", project = false,
+        module = false, global = true),
 
-public final class SonargraphPlugin extends SonarPlugin
-{
-  
-  public List<Class<? extends Extension>> getExtensions()
-  {
+    @Property(key = SonargraphPluginBase.REPORT_PATH, defaultValue = "",
+        name = "Path of the Sonargraph report (empty means default value)", project = true,
+        module = false, global = false) })
+public final class SonargraphPlugin extends SonarPlugin {
+
+  public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
 
     list.add(SonargraphSimpleMetrics.class);
@@ -78,4 +72,5 @@ public final class SonargraphPlugin extends SonarPlugin
     list.add(SonargraphAggregatingModuleMetricAggregator.class);
     return list;
   }
+
 }

@@ -17,7 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import org.apache.commons.configuration.Configuration;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
@@ -25,7 +25,7 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
 public interface IReportReader {
   
-  void readSonargraphReport(Project project, Configuration configuration);
+  void readSonargraphReport(Project project, Settings settings);
 
   ReportContext getReport();
 
