@@ -38,6 +38,7 @@ import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.SonargraphStandaloneMetricNames;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import com.hello2morrow.sonarplugin.processor.ArchitectureViolationProcessor;
@@ -91,7 +92,8 @@ public final class SonargraphSensor implements Sensor {
 
   /* called from maven */
   public boolean shouldExecuteOnProject(Project project) {
-    return !Utilities.isAggregatingProject(project) && Utilities.isSonargraphProject(project, this.profile);
+    return !Utilities.isAggregatingProject(project)
+        && Utilities.isSonargraphProject(project, this.profile, SonargraphMetrics.getAll());
   }
 
   public void analyse(final Project project, SensorContext sensorContext) {

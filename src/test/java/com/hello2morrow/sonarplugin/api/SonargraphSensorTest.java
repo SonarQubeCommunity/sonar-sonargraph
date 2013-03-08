@@ -24,17 +24,21 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
+import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 
 /**
@@ -92,5 +96,19 @@ public class SonargraphSensorTest {
     module.setParent(project);
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
+  }
+  
+  @Test
+  public void testShouldExecuteOnProjectWithActiveAlert()
+  {
+    rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
+    initSensor();
+    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
+    project.setLanguage(Java.INSTANCE);
+    assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));
+    
+    rulesProfile.setAlerts(Arrays.asList(new Alert(rulesProfile, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, Alert.OPERATOR_GREATER, "3", "1")));
+    initSensor();
+    assertTrue("Alert active for sonargraph rule, sensor must be executed", sensor.shouldExecuteOnProject(project));
   }
 }

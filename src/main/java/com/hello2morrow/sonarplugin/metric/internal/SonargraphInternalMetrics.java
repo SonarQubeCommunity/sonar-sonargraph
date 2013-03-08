@@ -45,22 +45,22 @@ public class SonargraphInternalMetrics implements Metrics {
 
   public static final Metric SYSTEM_ALL_WARNINGS = new Metric.Builder("sonargraph_system_all_warnings", INTERNAL_PREFIX
       + "System All Warnings", Metric.ValueType.INT).setDescription("Number of All Warnings")
-      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
       .setHidden(true).create();
 
   public static final Metric SYSTEM_CYCLE_WARNINGS = new Metric.Builder("sonargraph_system_cycle_warnings",
       INTERNAL_PREFIX + "System Cycle Warnings", Metric.ValueType.INT).setDescription("Number of Cycle Warnings")
-      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
       .setHidden(true).create();
 
   public static final Metric SYSTEM_THRESHOLD_WARNINGS = new Metric.Builder("sonargraph_system_threshold_warnings",
       "System Threshold Warnings", Metric.ValueType.INT).setDescription("Number of Threshold Violations")
-      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
       .setHidden(true).create();
 
   public static final Metric SYSTEM_WORKSPACE_WARNINGS = new Metric.Builder("sonargraph_system_workspace_warnings",
       "System Workspace Warnings", Metric.ValueType.INT).setDescription("Number of Sonargraph Parser Warnings")
-      .setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
       .setHidden(true).create();
 
   public static final Metric SYSTEM_IGNORED_WARNINGS = new Metric.Builder("sonargraph_system_ignored_warnings",
@@ -68,15 +68,20 @@ public class SonargraphInternalMetrics implements Metrics {
       .setDescription("Number of Ignord Warnings and Threshold Violations").setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
 
-  public static final Metric SYSTEM_ALL_TASKS = new Metric.Builder("sonargraph_system_all_tasks",
-      "System All Tasks", Metric.ValueType.INT)
-      .setDescription("Number of Tasks").setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
+  public static final Metric SYSTEM_ALL_TASKS = new Metric.Builder("sonargraph_system_all_tasks", "System All Tasks",
+      Metric.ValueType.INT).setDescription("Number of Tasks").setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
 
-  
+  public static final Metric SHOULD_EXECUTE = new Metric.Builder("sonargraph_should_execute",
+      "Should Execute on Project", Metric.ValueType.BOOL).setDescription("Should execute on project")
+      .setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH)
+      .setHidden(true).create();
+
   public List<Metric> getMetrics() {
-    return Arrays.asList(MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, SYSTEM_ALL_WARNINGS, SYSTEM_CYCLE_WARNINGS,
-        SYSTEM_THRESHOLD_WARNINGS, SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS, SYSTEM_ALL_TASKS);
+    return Arrays
+        .asList(MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, SYSTEM_ALL_WARNINGS, SYSTEM_CYCLE_WARNINGS,
+            SYSTEM_THRESHOLD_WARNINGS, SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS, SYSTEM_ALL_TASKS,
+            SHOULD_EXECUTE);
   };
 
 }

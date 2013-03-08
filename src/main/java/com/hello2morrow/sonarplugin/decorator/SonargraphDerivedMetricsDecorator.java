@@ -32,6 +32,7 @@ import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
@@ -49,7 +50,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
     return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project))
-        && Utilities.isSonargraphProject(project, profile);
+        && Utilities.isSonargraphProject(project, profile, SonargraphMetrics.getAll());
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
@@ -147,14 +148,13 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     } else {
       double relCyclicity = 0.0;
       double relCyclicPackages = 0.0;
-      
+
       double numberOfPackages = packages.getValue().doubleValue();
-      if (numberOfPackages > 0.0)
-      {
+      if (numberOfPackages > 0.0) {
         relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getValue()) / numberOfPackages;
         relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getValue() / numberOfPackages;
       }
-      
+
       context.saveMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
       context.saveMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
     }

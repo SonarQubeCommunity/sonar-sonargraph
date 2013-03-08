@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 
 public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecorator {
 
@@ -42,7 +43,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return Utilities.isSonargraphProject(project, profile);
+    return Utilities.isSonargraphProject(project, profile, SonargraphMetrics.getAll());
   }
 
   @Override

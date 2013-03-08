@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-
 public class SonargraphInternalMetricsTest {
 
   @Test
@@ -40,7 +39,6 @@ public class SonargraphInternalMetricsTest {
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_ALL_TASKS));
     
-    assertEquals(7, metrics.size());
+    assertEquals(8, metrics.size());
   }
-
 }

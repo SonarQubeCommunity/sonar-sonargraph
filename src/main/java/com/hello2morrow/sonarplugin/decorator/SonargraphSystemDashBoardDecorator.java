@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 
@@ -42,7 +43,8 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return Qualifiers.PROJECT.equals(project.getQualifier()) && Utilities.isSonargraphProject(project, this.profile);
+    return Qualifiers.PROJECT.equals(project.getQualifier())
+        && Utilities.isSonargraphProject(project, this.profile, SonargraphMetrics.getAll());
   }
 
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {

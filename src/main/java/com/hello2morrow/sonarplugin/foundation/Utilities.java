@@ -27,6 +27,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
@@ -378,8 +379,17 @@ public final class Utilities {
     return result;
   }
 
-  public static boolean isSonargraphProject(Project project, RulesProfile profile) {
-    return areSonargraphRulesActive(profile) && isJavaProject(project);
+  public static boolean isSonargraphProject(Project project, RulesProfile profile, List<Metric> sonargraphMetrics) {
+    List<Alert> alerts = profile.getAlerts();
+    boolean sonargraphAlertFound = false;
+    for (Alert alert : alerts) {
+      if (sonargraphMetrics.contains(alert.getMetric())) {
+        sonargraphAlertFound = true;
+        break;
+      }
+    }
+
+    return isJavaProject(project) && (areSonargraphRulesActive(profile) || sonargraphAlertFound);
   }
 
   public static boolean areSonargraphRulesActive(RulesProfile profile) {
