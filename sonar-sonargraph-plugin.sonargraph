@@ -1,158 +1,177 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.9.198">
-    <scope name="sonar-sonargraph-plugin" type="Project">
-        <element name="Filter" type="TypeFilterReferenceOverridden">
-            <element name="**" type="IncludeTypePattern"/>
-            <element name="**.*Test*" type="ExcludeTypePattern"/>
+<context version="7.1.9.205">
+    <scope type="Project" name="sonar-sonargraph-plugin">
+        <element type="TypeFilterReferenceOverridden" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="**.*Test*"/>
         </element>
-        <dependency type="AllowedDependency" toName="External|External"/>
+        <dependency toName="External|External" type="AllowedDependency"/>
         <architecture>
-            <element name="Foundation" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.foundation.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Foundation">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.foundation.**"/>
                 </element>
                 <stereotype name="Public"/>
-                <dependency type="AllowedDependency" toName="External|External::Layer|Common"/>
-                <dependency type="AllowedDependency" toName="External|External::Layer|JAXB"/>
-                <dependency type="AllowedDependency" toName="External|External::Layer|Sonar"/>
-                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Xsd"/>
+                <dependency toName="External|External::Layer|Common" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|JAXB" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|Sonar" type="AllowedDependency"/>
             </element>
-            <element name="Api" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.api.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Facade">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.api.**"/>
                 </element>
                 <stereotype name="Unrestricted"/>
             </element>
-            <element name="Decorator" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.decorator.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Decorator">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.decorator.**"/>
                 </element>
-                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Metric"/>
+                <dependency toName="Project|sonar-sonargraph-plugin::Layer|Metric" type="AllowedDependency"/>
             </element>
-            <element name="Metric" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.metric.**" type="IncludeTypePattern"/>
-                </element>
-            </element>
-            <element name="View" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.view.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Metric">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.metric.**"/>
                 </element>
             </element>
-            <element name="Xsd" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.sonarplugin.xsd.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="View">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.view.**"/>
                 </element>
-                <dependency type="DisallowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Foundation"/>
-                <dependency type="AllowedDependency" toName="External|External::Layer|JAXB"/>
             </element>
-            <element name="Processors" type="Layer">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="**.processor.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Persistence">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.xsd.**"/>
+                    <element type="IncludeTypePattern" name="**.persistence.**"/>
                 </element>
-                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Metric"/>
-                <dependency type="AllowedDependency" toName="Project|sonar-sonargraph-plugin::Layer|Xsd"/>
+                <element type="Subsystem" name="Xsd">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="**.xsd.**"/>
+                    </element>
+                    <dependency toName="External|External::Layer|JAXB::Subsystem|jaxb" type="AllowedDependency"/>
+                </element>
+                <dependency toName="External|External::Layer|Common" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|JAXB" type="AllowedDependency"/>
+                <dependency toName="External|External::Layer|Sonar" type="AllowedDependency"/>
+            </element>
+            <element type="Layer" name="Processors">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="**.processor.**"/>
+                </element>
+                <dependency toName="Project|sonar-sonargraph-plugin::Layer|Metric" type="AllowedDependency"/>
+                <dependency toName="Project|sonar-sonargraph-plugin::Layer|Persistence" type="AllowedDependency"/>
             </element>
         </architecture>
         <workspace>
-            <element name="src/main/java" type="JavaRootDirectory">
+            <element type="JavaRootDirectory" name="src/main/java">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="target/classes" type="JavaRootDirectory">
+            <element type="JavaRootDirectory" name="target/classes">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="src/test/java" type="JavaRootDirectory">
+            <element type="JavaRootDirectory" name="src/test/java">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="target/test-classes" type="JavaRootDirectory">
+            <element type="JavaRootDirectory" name="target/test-classes">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
-            <element name="target/generated-sources/jaxb" type="JavaRootDirectory">
+            <element type="JavaRootDirectory" name="target/generated-sources/jaxb">
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
         </workspace>
         <itemDefinition>
             <item type="IgnoreWarningFilterItem">
-                <property name="AttributeId" value="DuplicateCodeBlocks"/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-03-18 15:44:24"/>
-                <property name="ElementType" value="JavaSourceFile"/>
-                <property name="Pattern" value="com/hello2morrow/sonarplugin/xsd/*.java # com/hello2morrow/sonarplugin/xsd/*.java"/>
+                <property value="DuplicateCodeBlocks" name="AttributeId"/>
+                <property value="" name="Comment"/>
+                <property value="2010-03-18 15:44:24" name="Date"/>
+                <property value="JavaSourceFile" name="ElementType"/>
+                <property value="com/hello2morrow/sonarplugin/xsd/*.java # com/hello2morrow/sonarplugin/xsd/*.java" name="Pattern"/>
             </item>
         </itemDefinition>
         <physical>
-            <element name="sonar-sonargraph-plugin" type="BuildUnit"/>
+            <element type="BuildUnit" name="sonar-sonargraph-plugin"/>
         </physical>
     </scope>
-    <scope name="External" type="External">
-        <element name="Filter" type="TypeFilter">
-            <element name="**" type="IncludeTypePattern"/>
-            <element name="java.io.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.annotation.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.ref.*" type="ExcludeTypePattern"/>
-            <element name="java.math.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.channels.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.channels.spi.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.charset.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.charset.spi.*" type="ExcludeTypePattern"/>
-            <element name="java.text.*" type="ExcludeTypePattern"/>
-            <element name="java.util.*" type="ExcludeTypePattern"/>
-            <element name="java.util.jar.*" type="ExcludeTypePattern"/>
-            <element name="java.util.prefs.*" type="ExcludeTypePattern"/>
-            <element name="java.util.regex.*" type="ExcludeTypePattern"/>
-            <element name="java.util.zip.*" type="ExcludeTypePattern"/>
+    <scope type="External" name="External">
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="java.io.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.annotation.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.ref.*"/>
+            <element type="ExcludeTypePattern" name="java.math.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.channels.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.channels.spi.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.charset.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.charset.spi.*"/>
+            <element type="ExcludeTypePattern" name="java.text.*"/>
+            <element type="ExcludeTypePattern" name="java.util.*"/>
+            <element type="ExcludeTypePattern" name="java.util.jar.*"/>
+            <element type="ExcludeTypePattern" name="java.util.prefs.*"/>
+            <element type="ExcludeTypePattern" name="java.util.regex.*"/>
+            <element type="ExcludeTypePattern" name="java.util.zip.*"/>
         </element>
         <architecture>
-            <element name="JAXB" type="Layer">
-                <element name="Assignment" type="TypeFilter"/>
-                <element name="jaxb" type="Subsystem">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="javax.xml.bind.*" type="IncludeTypePattern"/>
-                        <element name="javax.xml.bind.annotation.*" type="IncludeTypePattern"/>
+            <element type="Layer" name="JAXB">
+                <element type="TypeFilter" name="Assignment"/>
+                <element type="Subsystem" name="jaxb">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="javax.xml.bind.*"/>
+                        <element type="IncludeTypePattern" name="javax.xml.bind.annotation.*"/>
                     </element>
                 </element>
                 <stereotype name="Hidden"/>
             </element>
-            <element name="Sonar" type="Layer">
-                <element name="Assignment" type="TypeFilter"/>
-                <element name="sonar-api" type="Subsystem">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="org.sonar.api.**" type="IncludeTypePattern"/>
+            <element type="Layer" name="Sonar">
+                <element type="TypeFilter" name="Assignment"/>
+                <element type="Subsystem" name="sonar-api">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="org.sonar.api.**"/>
                     </element>
                 </element>
             </element>
-            <element name="Common" type="Layer">
-                <element name="Assignment" type="TypeFilter"/>
-                <element name="apache-commons" type="Subsystem">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="org.apache.commons.*" type="IncludeTypePattern"/>
-                        <element name="org.apache.commons.lang.*" type="IncludeTypePattern"/>
-                        <element name="org.apache.commons.configuration.*" type="IncludeTypePattern"/>
+            <element type="Layer" name="Common">
+                <element type="TypeFilter" name="Assignment"/>
+                <element type="Subsystem" name="apache-commons">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="org.apache.commons.*"/>
+                        <element type="IncludeTypePattern" name="org.apache.commons.lang.*"/>
+                        <element type="IncludeTypePattern" name="org.apache.commons.configuration.*"/>
                     </element>
                     <stereotype name="Hidden"/>
                 </element>
-                <element name="logging" type="Subsystem">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="org.slf4j.*" type="IncludeTypePattern"/>
+                <element type="Subsystem" name="logging">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="org.slf4j.*"/>
                     </element>
                 </element>
             </element>
         </architecture>
     </scope>
-    <scope name="Global" type="Global">
-        <element name="Configuration" type="Configuration"/>
-        <element name="Filter" type="TypeFilter">
-            <element name="**" type="IncludeTypePattern"/>
+    <scope type="Global" name="Global">
+        <element type="Configuration" name="Configuration"/>
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
         </element>
         <itemDefinition>
             <item type="ThresholdItem">
-                <property name="AttributeId" value="CyclomaticComplexity"/>
-                <property name="LowerValue" value=""/>
-                <property name="NamedElementGroup" value="Method"/>
-                <property name="UpperValue" value="10"/>
+                <property value="CyclomaticComplexity" name="AttributeId"/>
+                <property value="" name="LowerValue"/>
+                <property value="Method" name="NamedElementGroup"/>
+                <property value="10" name="UpperValue"/>
             </item>
         </itemDefinition>
     </scope>
+    <itemDefinition>
+        <item type="MoveTypeItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2013-09-11 10:41:13" name="Date"/>
+            <property value="Medium" name="Priority"/>
+            <property value="sonar-sonargraph-plugin" name="SourceScope"/>
+            <property value="com.hello2morrow.sonarplugin.persistence" name="TargetNamespace"/>
+            <property value="sonar-sonargraph-plugin" name="TargetScope"/>
+            <property value="com.hello2morrow.sonarplugin.foundation.IReportReader" name="Type"/>
+        </item>
+    </itemDefinition>
 </context>

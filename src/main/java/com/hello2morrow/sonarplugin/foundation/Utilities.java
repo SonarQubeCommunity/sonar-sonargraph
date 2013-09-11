@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,40 +37,24 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
-import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
-import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
-import com.hello2morrow.sonarplugin.xsd.XsdWarning;
-
 public final class Utilities {
 
   public static final String DEFAULT_BUILD_UNIT = "(Default Build Unit)";
+  private static final String PROJECT_BUILDUNIT_SEPARATOR = "::";
+  private static final String GROUP_ARTIFACT_SEPARATOR = ":";
   private static final String SPACE = " ";
-  private static final String START_LINE = "Start line";
-  private static final String ELEMENT = "Element";
-  private static final String ATTRIBUTE_VALUE = "Attribute value";
-  private static final String ELEMENT_TYPE = "Element type";
-  private static final String BUILD_UNIT = "Build unit";
-  private static final String PROJECT = "Project";
-  private static final String BLOCK_ID = "Block id";
+  public static final String START_LINE = "Start line";
+  public static final String ELEMENT = "Element";
+  public static final String ATTRIBUTE_VALUE = "Attribute value";
+  public static final String ELEMENT_TYPE = "Element type";
+  public static final String BUILD_UNIT = "Build unit";
+  public static final String PROJECT = "Project";
+  public static final String BLOCK_ID = "Block id";
   private static final String SPACE_ENTITY = "&nbsp;";
   private static final String UNKNOWN = "<UNKNOWN>";
-  private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
   private Utilities() {
-  }
-
-  public static String getAttribute(List<XsdAttribute> list, String name) {
-    String value = null;
-
-    for (XsdAttribute attr : list) {
-      if (attr.getName().equals(name)) {
-        value = attr.getValue();
-        break;
-      }
-    }
-    return value;
   }
 
   public static String getBuildUnitName(String fqName) {
@@ -79,52 +62,30 @@ public final class Utilities {
       return UNKNOWN;
     }
 
-    int colonPos = fqName.indexOf("::");
-    if (colonPos == -1) {
+    int projectSeparatorPos = fqName.indexOf(PROJECT_BUILDUNIT_SEPARATOR);
+    if (projectSeparatorPos == -1) {
       return UNKNOWN;
     }
 
-    String buName = fqName.substring(colonPos + 2);
+    String buName = fqName.substring(projectSeparatorPos + 2);
+    
+    int groupSeparatorPos = buName.indexOf(GROUP_ARTIFACT_SEPARATOR);
+    if (groupSeparatorPos > -1)
+    {
+      buName = buName.substring(groupSeparatorPos + 1);
+    }
+    
     if (DEFAULT_BUILD_UNIT.equals(buName)) {
       // Compatibility with old SonarJ versions
-      buName = fqName.substring(0, colonPos);
+      buName = fqName.substring(0, projectSeparatorPos);
     }
     return buName;
-  }
-
-  public static String getBuildUnitName(XsdCycleGroup group) {
-    if (DEFAULT_BUILD_UNIT.equals(group.getParent())) {
-      return group.getElementScope();
-    }
-    return group.getParent();
   }
 
   public static String relativeFileNameToFqName(String fileName) {
     int lastDot = fileName.lastIndexOf('.');
 
     return fileName.substring(0, lastDot).replace('/', '.');
-  }
-
-  public static void readAttributesToMap(XsdAttributeRoot root, final Map<String, Number> attributeMap) {
-    attributeMap.clear();
-
-    for (XsdAttributeCategory cat : root.getAttributeCategory()) {
-      for (XsdAttribute attr : cat.getAttribute()) {
-        String attrName = attr.getStandardName();
-        String value = attr.getValue();
-
-        try {
-          if (value.contains(".")) {
-            attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(value));
-          } else {
-            attributeMap.put(attrName, SonargraphPluginBase.INTEGER_FORMAT.parse(value));
-          }
-        } catch (ParseException e) {
-          // Ignore this value
-          LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
-        }
-      }
-    }
   }
 
   public static boolean isAggregationProject(DecoratorContext context, final Metric indicator) {
@@ -177,34 +138,6 @@ public final class Utilities {
     return buffer.toString();
   }
 
-  public static DuplicateCodeBlock createDuplicateCodeBlock(XsdWarning warning) {
-    DuplicateCodeBlock block = new DuplicateCodeBlock();
-    String attribute = getAttribute(warning.getAttribute(), BLOCK_ID);
-    if (null == attribute) {
-      LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
-      return null;
-    }
-    block.setBlockId(Integer.parseInt(attribute));
-    block.setProjectName(getAttribute(warning.getAttribute(), PROJECT));
-    block.setBuildUnitName(getAttribute(warning.getAttribute(), BUILD_UNIT));
-    block.setElementType(getAttribute(warning.getAttribute(), ELEMENT_TYPE));
-
-    String blockLength = getAttribute(warning.getAttribute(), ATTRIBUTE_VALUE);
-    int pos = blockLength.indexOf(" lines");
-    block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
-
-    block.setElementName(getAttribute(warning.getAttribute(), ELEMENT));
-    block.setStartLine(Integer.parseInt(getAttribute(warning.getAttribute(), START_LINE)));
-    return block;
-  }
-
-  public static void addAttributeToList(List<XsdAttribute> attributeList, String name, String value) {
-    XsdAttribute attribute = new XsdAttribute();
-    attribute.setName(name);
-    attribute.setValue(value);
-    attributeList.add(attribute);
-  }
-
   public static String generateDuplicateCodeBlockMessage(DuplicateCodeBlock block, List<DuplicateCodeBlock> blocks) {
     final int endLine = block.getBlockLength() + block.getStartLine() - 1;
 
@@ -251,20 +184,21 @@ public final class Utilities {
 
     if (javaFile == null) {
       LOG.error("Cannot obtain resource " + fqName);
-    } else {
-      Violation v = Violation.create(rule, javaFile);
-
-      v.setMessage(msg);
-      if (line == 0) {
-        v.setLineId(null);
-      } else {
-        v.setLineId(line);
-      }
-      if (priority != null) {
-        v.setSeverity(priority);
-      }
-      sensorContext.saveViolation(v);
+      return;
     }
+
+    Violation v = Violation.create(rule, javaFile);
+
+    v.setMessage(msg);
+    if (line == 0) {
+      v.setLineId(null);
+    } else {
+      v.setLineId(line);
+    }
+    if (priority != null) {
+      v.setSeverity(priority);
+    }
+    sensorContext.saveViolation(v);
   }
 
   /**
@@ -344,7 +278,7 @@ public final class Utilities {
 
   public static boolean buildUnitMatchesAnalyzedProject(String buName, Project project) {
     final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
-    final String[] elements = project.getKey().split(":");
+    final String[] elements = project.getKey().split(GROUP_ARTIFACT_SEPARATOR);
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
 
     boolean result = false;

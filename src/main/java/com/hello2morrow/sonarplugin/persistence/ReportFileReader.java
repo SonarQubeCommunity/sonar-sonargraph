@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin.foundation;
+package com.hello2morrow.sonarplugin.persistence;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +33,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
@@ -103,7 +105,7 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  protected String determineReportFileName(Project project, Settings settings) {
+  private String determineReportFileName(Project project, Settings settings) {
     String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
 
     ProjectFileSystem fileSystem = project.getFileSystem();

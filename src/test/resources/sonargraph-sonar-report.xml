@@ -157,6 +157,7 @@
                 <attribute standardName="NumberOfViolatingTypes" name="Number of violating types" value="3"/>
             </attributeCategory>
             <attributeCategory name="Code Analysis Metrics">
+                <attribute standardName="AverageAssertionUsage" name="Average assertion usage" value="&lt; 0.01" />
                 <attribute standardName="StructuralDebtIndex" name="Structural debt (index)" value="106"/>
                 <attribute standardName="StructuralErosionReferenceLevel" name="Structural erosion (reference level)" value="3"/>
                 <attribute standardName="StructuralErosionTypeLevel" name="Structural erosion (type level)" value="2"/>

@@ -25,6 +25,7 @@ import org.sonar.api.rules.ActiveRule;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdArchitectureViolation;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -48,7 +49,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
 
     ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
-      LOG.info("Sonargraph architecture rule not found");
+      LOG.info("Sonargraph architecture rule not active in current profile");
       return;
     }
     XsdViolations violations = report.getViolations();
@@ -56,8 +57,8 @@ public class ArchitectureViolationProcessor implements IProcessor {
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
       for (XsdTypeRelation rel : violation.getTypeRelation()) {
-        String toType = Utilities.getAttribute(rel.getAttribute(), "To");
-        String bu = Utilities.getAttribute(rel.getAttribute(), "From build unit");
+        String toType = PersistenceUtilities.getAttribute(rel.getAttribute(), "To");
+        String bu = PersistenceUtilities.getAttribute(rel.getAttribute(), "From build unit");
 
         String dimension = violation.getDimension();
         String message = "";
@@ -67,7 +68,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
           message = "Architecture violation: ";
         }
         message = message + uses + toType;
-        String explanation = "\nExplanation: " + Utilities.getAttribute(rel.getAttribute(), "Explanation");
+        String explanation = "\nExplanation: " + PersistenceUtilities.getAttribute(rel.getAttribute(), "Explanation");
 
         bu = Utilities.getBuildUnitName(bu);
         if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {

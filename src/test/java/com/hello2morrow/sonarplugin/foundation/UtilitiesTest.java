@@ -34,6 +34,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
@@ -46,12 +47,12 @@ public class UtilitiesTest {
     XsdAttributeRoot attributeRoot = new XsdAttributeRoot();
     
     List<XsdAttribute> list = attributeRoot.getAttribute();
-    Utilities.addAttributeToList(list, "Path", "c:/users/test");
-    Utilities.addAttributeToList(list, "Sonargraph Product", "Sonargraph 7.1.3");
-    Utilities.addAttributeToList(list, "Sonargraph User", "Mr. Hubert Hudson");
+    PersistenceUtilities.addAttributeToList(list, "Path", "c:/users/test");
+    PersistenceUtilities.addAttributeToList(list, "Sonargraph Product", "Sonargraph 7.1.3");
+    PersistenceUtilities.addAttributeToList(list, "Sonargraph User", "Mr. Hubert Hudson");
     
-    assertEquals("c:/users/test", Utilities.getAttribute(list, "Path"));
-    assertNull(Utilities.getAttribute(list, "Not existent"));
+    assertEquals("c:/users/test", PersistenceUtilities.getAttribute(list, "Path"));
+    assertNull(PersistenceUtilities.getAttribute(list, "Not existent"));
   }
 
 
@@ -84,15 +85,15 @@ public class UtilitiesTest {
   @Test
   public void testCreateDuplicateCodeBlock() {
     XsdWarning warning = new XsdWarning();
-    Utilities.addAttributeToList(warning.getAttribute(), "Project", "AlarmClock");
-    Utilities.addAttributeToList(warning.getAttribute(), "Build unit", "AlarmClock::AlarmClock");
-    Utilities.addAttributeToList(warning.getAttribute(), "Element type", "Source file");
-    Utilities.addAttributeToList(warning.getAttribute(), "Element", "com/h2m/alarm/presentation/AlarmToConsole.java");
-    Utilities.addAttributeToList(warning.getAttribute(), "Attribute value", "37 lines");
-    Utilities.addAttributeToList(warning.getAttribute(), "Start line", "11");
-    Utilities.addAttributeToList(warning.getAttribute(), "Block id", "0");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Project", "AlarmClock");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Build unit", "AlarmClock::AlarmClock");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Element type", "Source file");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Element", "com/h2m/alarm/presentation/AlarmToConsole.java");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Attribute value", "37 lines");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Start line", "11");
+    PersistenceUtilities.addAttributeToList(warning.getAttribute(), "Block id", "0");
 
-    DuplicateCodeBlock block = Utilities.createDuplicateCodeBlock(warning);
+    DuplicateCodeBlock block = PersistenceUtilities.createDuplicateCodeBlock(warning);
 
     assertEquals(block.getProjectName(), "AlarmClock");
     assertEquals(block.getBuildUnitName(), "AlarmClock::AlarmClock");
@@ -163,12 +164,12 @@ public class UtilitiesTest {
     when(group.getParent()).thenReturn(Utilities.DEFAULT_BUILD_UNIT);
     String projectName = "Alarm-Clock";
     when(group.getElementScope()).thenReturn(projectName);
-    assertEquals(projectName, Utilities.getBuildUnitName(group));
+    assertEquals(projectName, PersistenceUtilities.getBuildUnitName(group));
     
     XsdCycleGroup group2 = mock(XsdCycleGroup.class);
     String buildUnitName = "Alarm-Clock";
     when(group2.getParent()).thenReturn(buildUnitName);
-    assertEquals(buildUnitName, Utilities.getBuildUnitName(group));
+    assertEquals(buildUnitName, PersistenceUtilities.getBuildUnitName(group));
   }
 
   @Test
@@ -195,6 +196,13 @@ public class UtilitiesTest {
     
     projectKey = "sonargraph.core";
     assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
+    
+    projectKey = "Sonargraph::com.hello2morrow:sonargraph.core";
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
+    
+    buildUnitName = Utilities.getBuildUnitName("some.project::some.group.id:some.module.id");
+    assertEquals("some.module.id", buildUnitName);
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project("some.group.id:some.module.id")));
   }
   
   

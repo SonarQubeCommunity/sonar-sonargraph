@@ -33,10 +33,10 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.foundation.IReportReader;
-import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
+import com.hello2morrow.sonarplugin.persistence.IReportReader;
+import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 
 public class ReadTest extends TestCase {

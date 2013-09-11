@@ -32,8 +32,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
 import com.hello2morrow.sonarplugin.decorator.AlertDecorator;
-import com.hello2morrow.sonarplugin.foundation.IReportReader;
-import com.hello2morrow.sonarplugin.foundation.ReportFileReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.SonargraphStandaloneMetricNames;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -41,6 +39,9 @@ import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
+import com.hello2morrow.sonarplugin.persistence.IReportReader;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
+import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 import com.hello2morrow.sonarplugin.processor.ArchitectureViolationProcessor;
 import com.hello2morrow.sonarplugin.processor.CycleGroupProcessor;
 import com.hello2morrow.sonarplugin.processor.IProcessor;
@@ -54,15 +55,15 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
  * cannot be calculated as the sum of the child project metrics have to be temporarily saved to internal metrics and be examined in a
  * decorator.
  * 
- * @author Ingmar
- * 
  */
 public final class SonargraphSensor implements Sensor {
 
   private static final int SONARGRAPH_METRICS_COUNT = 70;
   private static final double HUNDRET_PERCENT = 100.0;
   private static final int NO_DECIMAL = 0;
-  private static final String VERSION = "3.0.7";
+  
+  //FIXME: Read this info from a properties file that is generated during the maven build 
+  private static final String VERSION = "3.1.1";
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private Map<String, Number> buildUnitmetrics;
@@ -104,7 +105,7 @@ public final class SonargraphSensor implements Sensor {
     }
 
     LOG.info("----------------------------------------------------------------");
-    LOG.info("Execute sonar-sonargraph-plugin for " + project.getName());
+    LOG.info("Execute sonar-sonargraph-plugin for " + project.getName() + " [" + project.getKey() + "]");
     LOG.info("----------------------------------------------------------------");
 
     this.sensorContext = sensorContext;
@@ -122,10 +123,10 @@ public final class SonargraphSensor implements Sensor {
 
     LOG.debug("Analysing buildUnit: " + buildUnit.getName());
 
-    Utilities.readAttributesToMap(buildUnit, buildUnitmetrics);
+    PersistenceUtilities.readAttributesToMap(buildUnit, buildUnitmetrics);
 
     XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
-    Utilities.readAttributesToMap(attributesPart, systemMetrics);
+    PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
 
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {

@@ -31,6 +31,7 @@ import org.sonar.api.rules.Violation;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
@@ -56,7 +57,7 @@ public class CycleGroupProcessor implements IProcessor {
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
       if ("Physical package".equals(group.getNamedElementGroup())
-          && Utilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+          && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
         cyclicity += groupSize * groupSize;

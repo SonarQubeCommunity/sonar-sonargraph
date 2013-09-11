@@ -52,7 +52,8 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
       return;
     }
 
-    if ( !getMeasuresFromChildContexts(context)) {
+    boolean foundMeasures = getMeasuresFromChildContexts(context);
+    if ( !foundMeasures) {
       LOG.error("Failed to retrieve the warning metrics for the Sonargraph Architecture dashboard.");
     } else {
       AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));

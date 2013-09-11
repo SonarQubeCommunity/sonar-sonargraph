@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin.foundation;
+package com.hello2morrow.sonarplugin.persistence;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;

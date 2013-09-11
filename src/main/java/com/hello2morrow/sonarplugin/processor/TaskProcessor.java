@@ -33,6 +33,7 @@ import org.sonar.api.rules.RulePriority;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdPosition;
@@ -71,7 +72,7 @@ public class TaskProcessor implements IProcessor {
     int count = 0;
 
     if (rule == null) {
-      LOG.error("Sonargraph task rule not found");
+      LOG.info("Sonargraph task rule not active in current profile");
       return;
     }
 
@@ -80,7 +81,7 @@ public class TaskProcessor implements IProcessor {
     priorityMap.put("High", RulePriority.MAJOR);
 
     for (XsdTask task : tasks.getTask()) {
-      String bu = Utilities.getAttribute(task.getAttribute(), "Build unit");
+      String bu = PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit");
 
       bu = Utilities.getBuildUnitName(bu);
       if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
@@ -91,9 +92,9 @@ public class TaskProcessor implements IProcessor {
   }
 
   private int handleTask(Map<String, RulePriority> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
-    String priority = Utilities.getAttribute(task.getAttribute(), "Priority");
-    String description = Utilities.getAttribute(task.getAttribute(), "Description");
-    String assignedTo = Utilities.getAttribute(task.getAttribute(), "Assigned to");
+    String priority = PersistenceUtilities.getAttribute(task.getAttribute(), "Priority");
+    String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
+    String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
 
     // This should not be needed, but the current description sucks
     description = handleDescription(description);

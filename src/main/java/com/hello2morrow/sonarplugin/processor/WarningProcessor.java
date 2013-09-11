@@ -35,6 +35,7 @@ import org.sonar.api.rules.ActiveRule;
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdPosition;
@@ -70,7 +71,7 @@ public class WarningProcessor implements IProcessor {
       }
       ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
       if (rule == null) {
-        LOG.info("Sonargraph threshold rule not found");
+        LOG.info("Sonargraph threshold not active in current profile");
         continue;
       }
       if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
@@ -81,8 +82,8 @@ public class WarningProcessor implements IProcessor {
         String attrName = warningByAttribute.getAttributeName();
 
         for (XsdWarning warning : warningByAttribute.getWarning()) {
-          String msg = attrName + "=" + Utilities.getAttribute(warning.getAttribute(), "Attribute value");
-          String bu = Utilities.getAttribute(warning.getAttribute(), "Build unit");
+          String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
+          String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
 
           bu = Utilities.getBuildUnitName(bu);
           if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
@@ -104,11 +105,11 @@ public class WarningProcessor implements IProcessor {
         }
       }
     } else {
-      String elemType = Utilities.getAttribute(warning.getAttribute(), "Element type");
+      String elemType = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element type");
 
       if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
         // Attach a violation at line 1
-        String fileName = Utilities.getAttribute(warning.getAttribute(), "Element");
+        String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
         String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
 
         Utilities.saveViolation(sensorContext, rule, null, fqName, 1, msg);
@@ -124,7 +125,7 @@ public class WarningProcessor implements IProcessor {
 
     for (XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
       for (XsdWarning warning : warnings.getWarning()) {
-        DuplicateCodeBlock block = Utilities.createDuplicateCodeBlock(warning);
+        DuplicateCodeBlock block = PersistenceUtilities.createDuplicateCodeBlock(warning);
         if (null == block) {
           continue;
         }

@@ -27,6 +27,9 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
+import com.hello2morrow.sonarplugin.persistence.IReportReader;
+import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
+
 /**
  * @author Ingmar
  *
