@@ -69,12 +69,6 @@ public final class Utilities {
 
     String buName = fqName.substring(projectSeparatorPos + 2);
     
-    int groupSeparatorPos = buName.indexOf(GROUP_ARTIFACT_SEPARATOR);
-    if (groupSeparatorPos > -1)
-    {
-      buName = buName.substring(groupSeparatorPos + 1);
-    }
-    
     if (DEFAULT_BUILD_UNIT.equals(buName)) {
       // Compatibility with old SonarJ versions
       buName = fqName.substring(0, projectSeparatorPos);

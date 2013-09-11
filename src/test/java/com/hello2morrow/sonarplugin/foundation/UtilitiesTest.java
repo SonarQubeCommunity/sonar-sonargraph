@@ -201,8 +201,9 @@ public class UtilitiesTest {
     assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project(projectKey)));
     
     buildUnitName = Utilities.getBuildUnitName("some.project::some.group.id:some.module.id");
-    assertEquals("some.module.id", buildUnitName);
-    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project("some.group.id:some.module.id")));
+    assertEquals("some.group.id:some.module.id", buildUnitName);
+    Project project = new Project("some.group.id:some.module.id");
+    assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, project));
   }
   
   
