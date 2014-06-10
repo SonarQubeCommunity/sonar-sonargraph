@@ -12,11 +12,11 @@
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <version>3.1.1-SNAPSHOT</version>
-  
+
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
   <url>http://docs.codehaus.org/display/SONAR/Sonargraph+Plugin</url>
-  
+
   <inceptionYear>2009, 2010, 2011</inceptionYear>
   <organization>
     <name>hello2morrow</name>
@@ -28,7 +28,7 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
-  
+
   <developers>
     <developer>
       <id>hello2morrow</id>
@@ -43,7 +43,7 @@
       <name>Ingmar Kellner</name>
     </developer>
   </developers>
-  
+
   <issueManagement>
   	<system>JIRA</system>
   	<url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14211</url>
@@ -51,7 +51,7 @@
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>3.0</sonar.version>
+    <sonar.version>3.7.4</sonar.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
@@ -70,6 +70,11 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar-plugins.java</groupId>
+      <artifactId>sonar-java-plugin</artifactId>
+      <version>1.1</version>
+	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -138,7 +143,7 @@
           </execution>
         </executions>
         <configuration>
-          <packageName>com.hello2morrow.sonarplugin.xsd</packageName> 
+          <packageName>com.hello2morrow.sonarplugin.xsd</packageName>
         </configuration>
       </plugin>
     </plugins>

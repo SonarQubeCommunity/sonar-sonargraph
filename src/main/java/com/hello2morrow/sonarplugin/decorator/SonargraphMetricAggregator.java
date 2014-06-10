@@ -18,29 +18,30 @@
 
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * These metrics are safe to be simply summed up for the parent project.
- * 
+ *
  * @author Ingmar
- * 
+ *
  */
 public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
-  public SonargraphMetricAggregator(RulesProfile profile) {
-    super(profile);
+  public SonargraphMetricAggregator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
+    super(profile, moduleFileSystem);
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return Utilities.isAggregatingProject(project) && super.shouldExecuteOnProject(project);
   }
@@ -50,23 +51,23 @@ public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
   public List<Metric> generatesMetrics() {
 
     return Arrays.asList(SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES,
-        SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
+      SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
 
-        /* structural debt metrics */
-        SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST,
-        SonargraphSimpleMetrics.TASK_REFS,
+      /* structural debt metrics */
+      SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST,
+      SonargraphSimpleMetrics.TASK_REFS,
 
-        /* structure metrics */
-        SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES,
-        SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
-        SonargraphSimpleMetrics.INSTRUCTIONS,
+      /* structure metrics */
+      SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES,
+      SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
+      SonargraphSimpleMetrics.INSTRUCTIONS,
 
-        /* architecture metrics */
-        SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, SonargraphSimpleMetrics.VIOLATING_TYPES,
-        SonargraphSimpleMetrics.VIOLATING_REFERENCES, SonargraphSimpleMetrics.IGNORED_VIOLATONS,
-        SonargraphSimpleMetrics.UNASSIGNED_TYPES,
+      /* architecture metrics */
+      SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, SonargraphSimpleMetrics.VIOLATING_TYPES,
+      SonargraphSimpleMetrics.VIOLATING_REFERENCES, SonargraphSimpleMetrics.IGNORED_VIOLATONS,
+      SonargraphSimpleMetrics.UNASSIGNED_TYPES,
 
-        /* warnings */
-        SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+      /* warnings */
+      SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
   }
 }

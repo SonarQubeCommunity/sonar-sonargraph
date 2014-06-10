@@ -17,12 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
@@ -32,18 +26,27 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdPosition;
 import com.hello2morrow.sonarplugin.xsd.XsdTypeRelation;
 import com.hello2morrow.sonarplugin.xsd.XsdViolations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
 
 public class ArchitectureViolationProcessor implements IProcessor {
 
-  private RulesProfile rulesProfile;
-  private SensorContext context;
+  private final RulesProfile rulesProfile;
+  private final SensorContext context;
+  private final ResourcePerspectives resourcePerspective;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-  public ArchitectureViolationProcessor(final RulesProfile rulesProfile, final SensorContext context) {
+  public ArchitectureViolationProcessor(final RulesProfile rulesProfile, final SensorContext context, ResourcePerspectives perspective) {
     this.rulesProfile = rulesProfile;
     this.context = context;
+    this.resourcePerspective = perspective;
   }
 
+  @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing architecture violation of buildUnit: " + buildUnit.getName());
 
@@ -86,14 +89,14 @@ public class ArchitectureViolationProcessor implements IProcessor {
         line = Integer.parseInt(pos.getLine());
       } catch (NumberFormatException ex) {
         LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine()
-            + ". Exception: " + ex.getMessage());
+          + ". Exception: " + ex.getMessage());
         continue;
       }
       if (relFileName != null && (pos.getType() != null) && (line > 0)) {
         String fqName = Utilities.relativeFileNameToFqName(relFileName);
         String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        Utilities.saveViolation(context, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
+        Utilities.saveViolation(context, this.resourcePerspective, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
       }
     }
   }

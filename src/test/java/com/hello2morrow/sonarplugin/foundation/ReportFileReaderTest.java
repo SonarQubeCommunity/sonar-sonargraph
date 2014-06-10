@@ -16,19 +16,18 @@
  * limitations under the License.
  */
 /**
- * 
+ *
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import com.hello2morrow.sonarplugin.persistence.IReportReader;
+import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
-import com.hello2morrow.sonarplugin.persistence.IReportReader;
-import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ingmar
@@ -37,31 +36,30 @@ import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 public class ReportFileReaderTest {
 
   private static final String reportFileName = "src/test/resources/sonargraph-sonar-report.xml";
-  
-  
+
   @Test
   public void testReadSonargraphReport() {
     Project project = new Project("test");
     IReportReader reader = new ReportFileReader();
     Settings settings = TestHelper.initSettings();
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, reportFileName);
-    reader.readSonargraphReport(project, settings);
+    reader.readSonargraphReport(project, null, settings);
     assertNotNull(reader.getReport());
-    
+
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "fakeDir/ReporFileName.xml");
-    reader.readSonargraphReport(project, settings);
+    reader.readSonargraphReport(project, null, settings);
     assertNull(reader.getReport());
-    
+
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/report_error.xml");
-    reader.readSonargraphReport(project, settings);
+    reader.readSonargraphReport(project, null, settings);
     assertNull(reader.getReport());
-    
+
     Project module = new Project("module");
     module.setParent(project);
-    
+
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "fakeDir/ReporFileName.xml");
-    reader.readSonargraphReport(project, settings);
+    reader.readSonargraphReport(project, null, settings);
     assertNull(reader.getReport());
   }
-  
+
 }

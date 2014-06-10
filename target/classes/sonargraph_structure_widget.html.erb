@@ -1,0 +1,115 @@
+<%
+if measure('sonargraph_acd')
+%>
+<%# This part is executed if there is only one build unit %>
+<div class="dashbox">
+  <table>
+    <tr>
+        <td width="280px"><h3>Relative Package Cyclicity</h3></td>
+        <td width="220px"><h3>ACD (John Lakos)</h3></td>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#structure" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+        <td>
+            <span class="big">
+              <%= format_measure('sonargraph_relative_cyclicity') -%> <%= tendency_icon(measure('sonargraph_relative_cyclicity')) %> 
+            </span>
+        </td>
+        <td>
+            <span class="big">
+              <%= format_measure('sonargraph_acd') -%> <%= tendency_icon(measure('sonargraph_acd')) %> 
+            </span>
+        </td>
+    </tr>
+   	<tr>
+        <td>
+              <%= format_measure('sonargraph_biggest_cycle_group', :suffix => ' biggest cycle group size') -%> <%= tendency_icon(measure('sonargraph_biggest_cycle_group')) %>
+        </td>
+        <td>
+              <%= format_measure('sonargraph_nccd') -%> NCCD (John Lakos) <%= tendency_icon(measure('sonargraph_nccd')) %>
+        </td>
+    </tr>
+    <tr>
+        <td>
+              <%= format_measure('sonargraph_cyclic_packages', :suffix => ' cyclic packages') -%> <%= format_measure('sonargraph_cyclic_packages_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_cyclic_packages')) %>
+        </td>
+        <td>
+              <!-- <%= format_measure('sonargraph_relative_acd') -%> rACD (John Lakos) <%= tendency_icon(measure('sonargraph_relative_acd')) %> -->
+        </td>
+    </tr>
+    <tr>
+    	<td>
+    		  <%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
+    	</td>
+    	<td>
+    	</td>
+    </tr>
+    <tr>
+    	<td>
+    	<%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
+    	</td>
+    	<td>
+              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+<% 
+elsif measure('sonargraph_biggest_cycle_group')
+%>
+<%# This part is executed if there are several build units %>  
+<div class="dashbox">
+  <table>
+    <tr>
+        <td width="280px"><h3>Relative Package Cyclicity</h3></td>
+        <td width="220px"><h3>Highest ACD</h3></td>
+       <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#structure" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+        <td>
+            <span class="big">
+              <%= format_measure('sonargraph_relative_cyclicity') -%> <%= tendency_icon(measure('sonargraph_relative_cyclicity')) %> 
+            </span>
+        </td>
+        <td>
+            <span class="big">
+              <%= format_measure('sonargraph_highest_acd') -%> <%= tendency_icon(measure('sonargraph_highest_acd')) %> 
+            </span>
+        </td>
+    </tr>
+   	<tr>
+        <td>
+              <%= format_measure('sonargraph_biggest_cycle_group', :suffix => ' biggest cycle group size') -%> <%= tendency_icon(measure('sonargraph_biggest_cycle_group')) %>
+        </td>
+        <td>
+              <%= format_measure('sonargraph_highest_nccd') -%> Highest NCCD <%= tendency_icon(measure('sonargraph_highest_nccd')) %>
+        </td>
+    </tr>
+    <tr>
+        <td>
+              <%= format_measure('sonargraph_cyclic_packages', :suffix => ' cyclic packages') -%> <%= format_measure('sonargraph_cyclic_packages_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_cyclic_packages')) %>
+        </td>
+        <td>
+         <!--     <%= format_measure('sonargraph_highest_relative_acd') -%> Highest rACD (John Lakos) <%= tendency_icon(measure('sonargraph_highest_relative_acd')) %> -->
+        </td>
+    </tr>
+    <tr>
+    	<td>
+    	<%= format_measure('sonargraph_erosion_types', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_types')) %>
+    	</td>
+    	<td>
+    	</td>
+    </tr>
+    <tr>
+    	<td>
+    	      <%= format_measure('sonargraph_erosion_ref', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sonargraph_erosion_ref')) %>
+    	</td>
+    	<td>
+              <%= format_measure('sonargraph_instructions', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sonargraph_instructions')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+<% 
+end
+%>  

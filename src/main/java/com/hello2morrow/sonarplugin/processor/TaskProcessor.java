@@ -16,19 +16,9 @@
  * limitations under the License.
  */
 /**
- * 
+ *
  */
 package com.hello2morrow.sonarplugin.processor;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.RulePriority;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -39,21 +29,33 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdPosition;
 import com.hello2morrow.sonarplugin.xsd.XsdTask;
 import com.hello2morrow.sonarplugin.xsd.XsdTasks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.RulePriority;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ingmar
- * 
+ *
  */
 public class TaskProcessor implements IProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
   private static final String PACKAGE = " package";
-  private SensorContext sensorContext;
-  private RulesProfile rulesProfile;
+  private final SensorContext sensorContext;
+  private final RulesProfile rulesProfile;
+  private final ResourcePerspectives resourcePerspectives;
 
-  public TaskProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
+  public TaskProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
     this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
+    this.resourcePerspectives = perspectives;
   }
 
   /*
@@ -62,6 +64,7 @@ public class TaskProcessor implements IProcessor {
    * @see com.hello2morrow.sonarplugin.handler.IProcessor#process(com.hello2morrow.sonarplugin.xsd.ReportContext,
    * com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot)
    */
+  @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
@@ -123,7 +126,7 @@ public class TaskProcessor implements IProcessor {
           if (line == 0) {
             line = 1;
           }
-          Utilities.saveViolation(sensorContext, rule, priorityMap.get(priority), fqName, line, description);
+          Utilities.saveViolation(sensorContext, resourcePerspectives, rule, priorityMap.get(priority), fqName, line, description);
         }
         counter++;
       }

@@ -17,33 +17,33 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.junit.Test;
-import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 
+import com.hello2morrow.sonarplugin.foundation.JavaLanguage;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-
 
 public class SonargraphRulesRepositoryTest {
 
-  @Test
-  public void testCreateRules() {
-    RuleRepository repository = new SonargraphRulesRepository();
-    assertEquals(SonargraphPluginBase.PLUGIN_KEY, repository.getKey());
-    assertEquals(Java.KEY, repository.getLanguage());
-    List<Rule> rules = repository.createRules();
-    assertTrue(rules.contains(SonargraphRulesRepository.ARCH));
-    assertTrue(rules.contains(SonargraphRulesRepository.THRESHOLD));
-    assertTrue(rules.contains(SonargraphRulesRepository.TASK));
-    assertTrue(rules.contains(SonargraphRulesRepository.CYCLE_GROUPS));
-    assertTrue(rules.contains(SonargraphRulesRepository.WORKSPACE));
-    assertTrue(rules.contains(SonargraphRulesRepository.DUPLICATES));
-    
-    assertEquals(6, rules.size());
-  }
+	@Test
+	public void testCreateRules() {
+		RuleRepository repository = new SonargraphRulesRepository();
+		assertEquals(SonargraphPluginBase.PLUGIN_KEY, repository.getKey());
+		assertEquals(JavaLanguage.INSTANCE.getKey(), repository.getLanguage());
+		List<Rule> rules = repository.createRules();
+		assertTrue(rules.contains(SonargraphRulesRepository.ARCH));
+		assertTrue(rules.contains(SonargraphRulesRepository.THRESHOLD));
+		assertTrue(rules.contains(SonargraphRulesRepository.TASK));
+		assertTrue(rules.contains(SonargraphRulesRepository.CYCLE_GROUPS));
+		assertTrue(rules.contains(SonargraphRulesRepository.WORKSPACE));
+		assertTrue(rules.contains(SonargraphRulesRepository.DUPLICATES));
+
+		assertEquals(6, rules.size());
+	}
 }

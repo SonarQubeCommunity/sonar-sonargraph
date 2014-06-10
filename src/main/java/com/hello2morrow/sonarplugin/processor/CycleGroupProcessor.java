@@ -17,18 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Violation;
-
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
@@ -37,27 +25,43 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issuable.IssueBuilder;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.ActiveRule;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CycleGroupProcessor implements IProcessor {
 
-  private SensorContext sensorContext;
-  private RulesProfile rulesProfile;
+  private final SensorContext sensorContext;
+  private final RulesProfile rulesProfile;
   private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
+  private final ResourcePerspectives perspectives;
 
-  public CycleGroupProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
+  public CycleGroupProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, final ResourcePerspectives perspectives) {
     this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
+    this.perspectives = perspectives;
   }
 
+  @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
       if ("Physical package".equals(group.getNamedElementGroup())
-          && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+        && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
         cyclicity += groupSize * groupSize;
@@ -81,10 +85,10 @@ public class CycleGroupProcessor implements IProcessor {
     return cyclicPackages;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked"})
   private void handlePackageCycleGroup(XsdCycleGroup group) {
     ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY,
-        SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+      SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
     if (rule == null) {
       return;
     }
@@ -102,7 +106,11 @@ public class CycleGroupProcessor implements IProcessor {
     }
 
     for (Resource<JavaPackage> jPackage : packages) {
-      Violation v = Violation.create(rule, jPackage);
+
+      Issuable issuable = perspectives.as(Issuable.class, jPackage);
+      IssueBuilder issueBuilder = issuable.newIssueBuilder();
+      issueBuilder.severity(rule.getSeverity().toString()).ruleKey(rule.getRule().ruleKey());
+
       List<Resource<JavaPackage>> tempPackages = new ArrayList<Resource<JavaPackage>>(packages);
       tempPackages.remove(jPackage);
       StringBuffer buffer = new StringBuffer();
@@ -117,10 +125,8 @@ public class CycleGroupProcessor implements IProcessor {
           buffer.append(", ").append(tPackage.getName());
         }
       }
-
-      v.setMessage(buffer.toString());
-      v.setLineId(null);
-      sensorContext.saveViolation(v);
+      issueBuilder.message(buffer.toString());
+      issuable.addIssue(issueBuilder.build());
     }
   }
 }

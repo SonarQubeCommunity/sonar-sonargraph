@@ -18,41 +18,42 @@
 
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This decorator is applicable for aggregating modules that are not root projects. The warning metrics are simply added from the child
  * modules.
- * 
+ *
  * @author Ingmar
- * 
+ *
  */
 public final class SonargraphAggregatingModuleMetricAggregator extends AbstractMetricAggregator {
 
-  public SonargraphAggregatingModuleMetricAggregator(RulesProfile profile) {
-    super(profile);
+  public SonargraphAggregatingModuleMetricAggregator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
+    super(profile, moduleFileSystem);
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project)
-        && super.shouldExecuteOnProject(project);
+      && super.shouldExecuteOnProject(project);
   }
 
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
     return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
-        SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
-        SonargraphSimpleMetrics.IGNORED_WARNINGS);
+      SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
+      SonargraphSimpleMetrics.IGNORED_WARNINGS);
   }
 }

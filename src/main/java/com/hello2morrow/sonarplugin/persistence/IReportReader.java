@@ -17,15 +17,15 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
-
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 public interface IReportReader {
-  
-  void readSonargraphReport(Project project, Settings settings);
+
+  void readSonargraphReport(Project project, ModuleFileSystem moduleFileSystem, Settings settings);
 
   ReportContext getReport();
 

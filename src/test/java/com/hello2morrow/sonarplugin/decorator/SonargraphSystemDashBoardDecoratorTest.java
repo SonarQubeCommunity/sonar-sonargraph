@@ -17,37 +17,35 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
+import com.hello2morrow.sonarplugin.foundation.JavaLanguage;
+import com.hello2morrow.sonarplugin.foundation.TestHelper;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
+import org.junit.Test;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.Project;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-
-import com.hello2morrow.sonarplugin.foundation.TestHelper;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
-import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
-
 public class SonargraphSystemDashBoardDecoratorTest {
 
   @Test
   public void testShouldExecuteOnProject() {
     Project project = new Project("project");
-    project.setLanguage(Java.INSTANCE);
+    project.setLanguage(JavaLanguage.INSTANCE);
     Project module = new Project("module");
-    module.setLanguage(Java.INSTANCE);
     module.setParent(project);
 
-    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
     assertTrue(decorator.shouldExecuteOnProject(project));
     assertFalse(decorator.shouldExecuteOnProject(module));
   }
@@ -73,24 +71,24 @@ public class SonargraphSystemDashBoardDecoratorTest {
     double ignoredWarnings = 5.0;
 
     when(child1.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE)).thenReturn(
-        new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, 1.0));
+      new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, 1.0));
     when(child1.getProject()).thenReturn(module1);
 
     when(child2.getProject()).thenReturn(module2);
     when(child2.getMeasure(SonargraphSimpleMetrics.INSTRUCTIONS)).thenReturn(
-        new Measure(SonargraphSimpleMetrics.INSTRUCTIONS, 23.0));
+      new Measure(SonargraphSimpleMetrics.INSTRUCTIONS, 23.0));
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS)).thenReturn(
-        new Measure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, allWarnings));
+      new Measure(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, allWarnings));
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS)).thenReturn(
-        new Measure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, cycleWarnings));
+      new Measure(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, cycleWarnings));
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS)).thenReturn(
-        new Measure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, thresholdWarnings));
+      new Measure(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, thresholdWarnings));
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS)).thenReturn(
-        new Measure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS, workspaceWarnings));
+      new Measure(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS, workspaceWarnings));
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS)).thenReturn(
-        new Measure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, ignoredWarnings));
+      new Measure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, ignoredWarnings));
 
-    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
     decorator.decorate(project, context);
 
     assertEquals(allWarnings, context.getMeasure(SonargraphSimpleMetrics.ALL_WARNINGS).getValue());

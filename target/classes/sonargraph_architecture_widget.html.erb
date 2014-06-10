@@ -1,0 +1,81 @@
+<%
+if measure('sonargraph_architecture_violations')
+%>
+<div class="dashbox">
+  <table>
+    <tr>
+        <td width="280px"><h3>Architecture</h3></td>
+        <td width="220px"><h3>Warnings</h3></td>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#architecture" target="_blank"> <img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'Sonargraph', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+        <td>
+            <p><span class="big">
+              <%= format_measure('sonargraph_violating_dependencies', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.architecture") -%> </span> 
+              violating type dependencies <%= tendency_icon(measure('sonargraph_violating_dependencies')) %>
+            </p>
+        </td>
+        <td>
+            <p><span class="big">
+              <%= format_measure('sonargraph_all_warnings') -%>  
+               </span> total warnings <%= tendency_icon(measure('sonargraph_all_warnings')) %>
+            </p>
+        </td>
+    </tr>
+   	<tr>
+        <td>
+              <%= format_measure('sonargraph_violating_types', :suffix => ' violating types', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.architecture") -%> <%= format_measure('sonargraph_violating_types_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_violating_types')) %>
+        </td>
+        <td>
+              <%= format_measure('sonargraph_cycle_warnings', :suffix => ' cycle groups') -%>  <%= tendency_icon(measure('sonargraph_cycle_warnings')) %>
+        </td>
+    </tr>
+    <tr>
+    	<td>
+              <%= format_measure('sonargraph_architecture_violations', :suffix => ' violating references', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.architecture") -%> <%= tendency_icon(measure('sonargraph_architecture_violations')) %> 
+        </td>
+        <td>
+              <%= format_measure('sonargraph_duplicate_warnings', :suffix => ' duplicate code blocks', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.duplicate") -%> <%= tendency_icon(measure('sonargraph_duplicate_warnings')) %>
+        </td>
+    </tr>
+    <tr>
+    	<td>
+              <%= format_measure('sonargraph_ignored_violations', :suffix => ' ignored violations') -%> <%= tendency_icon(measure('sonargraph_ignored_violations')) %>
+        </td>
+        <%
+		if measure('sonargraph_duplicate_warnings')
+		%>
+        <td>
+              <%= format_measure('sonargraph_threshold_warnings', :suffix => ' threshold warnings', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.threshold") -%> <%= tendency_icon(measure('sonargraph_threshold_warnings')) %>
+        </td>
+        <%
+		end
+		%>  
+    </tr>
+    <tr>
+        <td>
+        </td>
+        <%
+		if measure('sonargraph_threshold_warnings')
+		%>
+        <td>
+              <%= format_measure('sonargraph_workspace_warnings', :suffix => ' workspace warnings', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.workspace") -%> <%= tendency_icon(measure('sonargraph_workspace_warnings')) %>
+        </td>
+        <%
+		end
+		%> 
+    </tr>
+    <tr>
+    	<td>
+              <%= format_measure('sonargraph_unassigned_types', :suffix => ' unassigned types') -%> <%= format_measure('sonargraph_unassigned_types_percent', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sonargraph_unassigned_types')) %>
+        </td>
+        <td>
+              <%= format_measure('sonargraph_ignored_warnings', :suffix => ' ignored warnings') -%> <%= tendency_icon(measure('sonargraph_ignored_warnings')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+
+<%
+end
+%>  

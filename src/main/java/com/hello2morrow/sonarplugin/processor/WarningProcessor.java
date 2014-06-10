@@ -16,21 +16,9 @@
  * limitations under the License.
  */
 /**
- * 
+ *
  */
 package com.hello2morrow.sonarplugin.processor;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
 
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
@@ -43,22 +31,37 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarning;
 import com.hello2morrow.sonarplugin.xsd.XsdWarnings;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttributeGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Ingmar
- * 
+ *
  */
 public class WarningProcessor implements IProcessor {
 
-  private SensorContext sensorContext;
-  private RulesProfile rulesProfile;
+  private final SensorContext sensorContext;
+  private final RulesProfile rulesProfile;
+  private final ResourcePerspectives resourcePerspectives;
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
 
-  public WarningProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
+  public WarningProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
     this.sensorContext = sensorContext;
     this.rulesProfile = rulesProfile;
+    this.resourcePerspectives = perspectives;
   }
 
+  @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing warnings of buildUnit: " + buildUnit.getName());
 
@@ -101,7 +104,7 @@ public class WarningProcessor implements IProcessor {
 
         if (relFileName != null) {
           String fqName = Utilities.relativeFileNameToFqName(relFileName);
-          Utilities.saveViolation(sensorContext, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
+          Utilities.saveViolation(sensorContext, resourcePerspectives, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
         }
       }
     } else {
@@ -112,13 +115,13 @@ public class WarningProcessor implements IProcessor {
         String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
         String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
 
-        Utilities.saveViolation(sensorContext, rule, null, fqName, 1, msg);
+        Utilities.saveViolation(sensorContext, resourcePerspectives, rule, null, fqName, 1, msg);
       }
     }
   }
 
   private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule,
-      XsdAttributeRoot buildUnit) {
+    XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing duplicate code blocks");
 
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
@@ -129,7 +132,7 @@ public class WarningProcessor implements IProcessor {
         if (null == block) {
           continue;
         }
-        if ( !duplicateCodeBlocks.containsKey(block.getBlockId())) {
+        if (!duplicateCodeBlocks.containsKey(block.getBlockId())) {
           duplicateCodeBlocks.put(block.getBlockId(), new ArrayList<DuplicateCodeBlock>());
         }
         duplicateCodeBlocks.get(block.getBlockId()).add(block);
@@ -141,8 +144,8 @@ public class WarningProcessor implements IProcessor {
         String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
         String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
         if (Utilities.getBuildUnitName(buildUnit.getName())
-            .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
-          Utilities.saveViolation(sensorContext, rule, null, fqName, block.getStartLine(), message);
+          .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
+          Utilities.saveViolation(sensorContext, this.resourcePerspectives, rule, null, fqName, block.getStartLine(), message);
         }
       }
     }
