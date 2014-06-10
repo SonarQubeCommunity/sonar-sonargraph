@@ -33,9 +33,10 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttributeGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 
 import java.util.ArrayList;
@@ -50,13 +51,15 @@ import java.util.Map.Entry;
  */
 public class WarningProcessor implements IProcessor {
 
-  private final SensorContext sensorContext;
+  private final FileSystem fileSystem;
   private final RulesProfile rulesProfile;
   private final ResourcePerspectives resourcePerspectives;
+  private final Project project;
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
 
-  public WarningProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
-    this.sensorContext = sensorContext;
+  public WarningProcessor(final Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, ResourcePerspectives perspectives) {
+    this.project = project;
+    this.fileSystem = fileSystem;
     this.rulesProfile = rulesProfile;
     this.resourcePerspectives = perspectives;
   }
@@ -104,7 +107,7 @@ public class WarningProcessor implements IProcessor {
 
         if (relFileName != null) {
           String fqName = Utilities.relativeFileNameToFqName(relFileName);
-          Utilities.saveViolation(sensorContext, resourcePerspectives, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
+          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, fqName, Integer.valueOf(pos.getLine()), msg);
         }
       }
     } else {
@@ -115,7 +118,7 @@ public class WarningProcessor implements IProcessor {
         String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
         String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
 
-        Utilities.saveViolation(sensorContext, resourcePerspectives, rule, null, fqName, 1, msg);
+        Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, fqName, 1, msg);
       }
     }
   }
@@ -145,7 +148,7 @@ public class WarningProcessor implements IProcessor {
         String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
         if (Utilities.getBuildUnitName(buildUnit.getName())
           .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
-          Utilities.saveViolation(sensorContext, this.resourcePerspectives, rule, null, fqName, block.getStartLine(), message);
+          Utilities.saveViolation(project, fileSystem, this.resourcePerspectives, rule, fqName, block.getStartLine(), message);
         }
       }
     }

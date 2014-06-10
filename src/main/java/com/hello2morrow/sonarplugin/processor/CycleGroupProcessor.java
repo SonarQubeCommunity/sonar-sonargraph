@@ -27,31 +27,37 @@ import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class CycleGroupProcessor implements IProcessor {
 
-  private final SensorContext sensorContext;
+  private final FileSystem fileSystem;
   private final RulesProfile rulesProfile;
   private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
   private final ResourcePerspectives perspectives;
+  private final Project project;
 
-  public CycleGroupProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, final ResourcePerspectives perspectives) {
+  public CycleGroupProcessor(Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, final ResourcePerspectives perspectives) {
+    this.project = project;
     this.rulesProfile = rulesProfile;
-    this.sensorContext = sensorContext;
+    this.fileSystem = fileSystem;
     this.perspectives = perspectives;
   }
 
@@ -85,7 +91,6 @@ public class CycleGroupProcessor implements IProcessor {
     return cyclicPackages;
   }
 
-  @SuppressWarnings({"unchecked"})
   private void handlePackageCycleGroup(XsdCycleGroup group) {
     ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY,
       SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
@@ -93,10 +98,10 @@ public class CycleGroupProcessor implements IProcessor {
       return;
     }
 
-    List<Resource<JavaPackage>> packages = new ArrayList<Resource<JavaPackage>>();
+    List<Resource> packages = new ArrayList<Resource>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
       String fqName = pathElement.getParent();
-      Resource<JavaPackage> javaPackage = sensorContext.getResource(new JavaPackage(fqName));
+      Resource javaPackage = getPackage(fqName);
 
       if (javaPackage == null) {
         LOG.error("Cannot obtain resource " + fqName);
@@ -105,19 +110,19 @@ public class CycleGroupProcessor implements IProcessor {
       }
     }
 
-    for (Resource<JavaPackage> jPackage : packages) {
+    for (Resource jPackage : packages) {
 
       Issuable issuable = perspectives.as(Issuable.class, jPackage);
       IssueBuilder issueBuilder = issuable.newIssueBuilder();
       issueBuilder.severity(rule.getSeverity().toString()).ruleKey(rule.getRule().ruleKey());
 
-      List<Resource<JavaPackage>> tempPackages = new ArrayList<Resource<JavaPackage>>(packages);
+      List<Resource> tempPackages = new ArrayList<Resource>(packages);
       tempPackages.remove(jPackage);
       StringBuffer buffer = new StringBuffer();
       buffer.append("Package participates in a cycle group");
 
       boolean first = true;
-      for (Resource<JavaPackage> tPackage : tempPackages) {
+      for (Resource tPackage : tempPackages) {
         if (first) {
           buffer.append(" with package(s): ").append(tPackage.getName());
           first = false;
@@ -128,5 +133,28 @@ public class CycleGroupProcessor implements IProcessor {
       issueBuilder.message(buffer.toString());
       issuable.addIssue(issueBuilder.build());
     }
+  }
+
+  private Resource getPackage(final String fqName) {
+    Iterator<File> files = fileSystem.files(new FilePredicate()
+    {
+      @Override
+      public boolean apply(InputFile file) {
+        // FIXME: Needs to be smarter!!
+        return file.relativePath().equals(fqName);
+      }
+    }).iterator();
+
+    if (!files.hasNext())
+    {
+      LOG.error("Cannot obtain resource " + fqName);
+      return null;
+    }
+
+    Resource javaPackage = org.sonar.api.resources.Directory.fromIOFile(files.next(), project);
+    if (javaPackage == null) {
+      LOG.error("Cannot obtain resource " + fqName);
+    }
+    return javaPackage;
   }
 }

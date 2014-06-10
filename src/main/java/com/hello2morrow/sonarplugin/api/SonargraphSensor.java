@@ -40,13 +40,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,13 +75,13 @@ public final class SonargraphSensor implements Sensor {
 
   private final IReportReader reportReader;
   private final Settings settings;
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem fileSystem;
   private final ResourcePerspectives perspectives;
 
-  public SonargraphSensor(RulesProfile profile, Settings settings, ModuleFileSystem moduleFileSystem, ResourcePerspectives perspectives) {
+  public SonargraphSensor(RulesProfile profile, Settings settings, FileSystem moduleFileSystem, ResourcePerspectives perspectives) {
     this.profile = profile;
     this.settings = settings;
-    this.moduleFileSystem = moduleFileSystem;
+    this.fileSystem = moduleFileSystem;
     this.perspectives = perspectives;
     reportReader = new ReportFileReader();
     buildUnitmetrics = new HashMap<String, Number>();
@@ -91,7 +91,7 @@ public final class SonargraphSensor implements Sensor {
   /**
    * Used by JUnit tests
    */
-  SonargraphSensor(final RulesProfile profile, Settings settings, SensorContext sensorContext, ModuleFileSystem moduleFileSystem, ResourcePerspectives perspectives) {
+  SonargraphSensor(final RulesProfile profile, Settings settings, SensorContext sensorContext, FileSystem moduleFileSystem, ResourcePerspectives perspectives) {
     this(profile, settings, moduleFileSystem, perspectives);
     this.sensorContext = sensorContext;
   }
@@ -100,7 +100,7 @@ public final class SonargraphSensor implements Sensor {
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return !Utilities.isAggregatingProject(project)
-      && Utilities.isSonargraphProject(project, this.moduleFileSystem, this.profile, SonargraphMetrics.getAll());
+      && Utilities.isSonargraphProject(project, this.fileSystem, this.profile, SonargraphMetrics.getAll());
   }
 
   @Override
@@ -116,7 +116,7 @@ public final class SonargraphSensor implements Sensor {
     LOG.info("----------------------------------------------------------------");
 
     this.sensorContext = sensorContext;
-    reportReader.readSonargraphReport(project, moduleFileSystem, settings);
+    reportReader.readSonargraphReport(project, fileSystem, settings);
 
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
 
@@ -145,7 +145,7 @@ public final class SonargraphSensor implements Sensor {
 
     this.analyseBuildUnit(reportReader.getReport(), buildUnit);
     this.analyseMetricsForStructuralDebtDashbox(sensorContext, buildUnit, project);
-    this.analyseMetricsForStructureDashbox(buildUnit);
+    this.analyseMetricsForStructureDashbox(buildUnit, project);
     this.analyseMetricsForArchitectureDashbox(buildUnit, project);
 
     AlertDecorator.setAlertLevels(new SensorProjectContext(sensorContext));
@@ -194,7 +194,7 @@ public final class SonargraphSensor implements Sensor {
       Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS,
         SonargraphSimpleMetrics.TASKS, NO_DECIMAL);
     }
-    IProcessor taskProcessor = new TaskProcessor(profile, sensorContext, perspectives);
+    IProcessor taskProcessor = new TaskProcessor(project, fileSystem, profile, sensorContext, perspectives);
     taskProcessor.process(reportReader.getReport(), buildUnit);
   }
 
@@ -212,10 +212,10 @@ public final class SonargraphSensor implements Sensor {
     return indexCost;
   }
 
-  private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit) {
+  private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit, Project project) {
 
     LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
-    CycleGroupProcessor processor = new CycleGroupProcessor(profile, sensorContext, perspectives);
+    CycleGroupProcessor processor = new CycleGroupProcessor(project, profile, fileSystem, perspectives);
     processor.process(reportReader.getReport(), buildUnit);
 
     double cyclicity = processor.getCyclicity();
@@ -260,9 +260,9 @@ public final class SonargraphSensor implements Sensor {
     this.analyseArchitectureMeasures(buildUnit);
     this.analyseWarnings(project);
     if (profile != null) {
-      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(profile, sensorContext, perspectives);
+      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(project, profile, fileSystem, perspectives);
       architectureViolationHandler.process(reportReader.getReport(), buildUnit);
-      IProcessor warningProcessor = new WarningProcessor(profile, sensorContext, this.perspectives);
+      IProcessor warningProcessor = new WarningProcessor(project, profile, fileSystem, this.perspectives);
       warningProcessor.process(reportReader.getReport(), buildUnit);
     } else {
       LOG.error("RuleFinder must be set in constructor!");

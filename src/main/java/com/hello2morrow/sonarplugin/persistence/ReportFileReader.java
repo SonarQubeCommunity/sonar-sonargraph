@@ -24,9 +24,9 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -55,7 +55,7 @@ public class ReportFileReader implements IReportReader {
   }
 
   @Override
-  public void readSonargraphReport(final Project project, ModuleFileSystem moduleFileSystem, Settings settings) {
+  public void readSonargraphReport(final Project project, FileSystem moduleFileSystem, Settings settings) {
     if (project == null) {
       LOG.error("No project provided for reading sonargraph report");
       return;
@@ -106,7 +106,7 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  private String determineReportFileName(Project project, ModuleFileSystem moduleFileSystem, Settings settings) {
+  private String determineReportFileName(Project project, FileSystem moduleFileSystem, Settings settings) {
     String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
 
     if (moduleFileSystem == null)
@@ -115,7 +115,7 @@ public class ReportFileReader implements IReportReader {
     }
 
     if (configuredReportPath == null || configuredReportPath.length() == 0) {
-      return moduleFileSystem.buildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+      return moduleFileSystem.workDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
     }
 
     return configuredReportPath;

@@ -32,10 +32,12 @@ import com.hello2morrow.sonarplugin.xsd.XsdTasks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.RulePriority;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,8 +53,12 @@ public class TaskProcessor implements IProcessor {
   private final SensorContext sensorContext;
   private final RulesProfile rulesProfile;
   private final ResourcePerspectives resourcePerspectives;
+  private final Project project;
+  private final FileSystem fileSystem;
 
-  public TaskProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
+  public TaskProcessor(Project project, FileSystem fileSystem, final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
+    this.project = project;
+    this.fileSystem = fileSystem;
     this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
     this.resourcePerspectives = perspectives;
@@ -69,7 +75,7 @@ public class TaskProcessor implements IProcessor {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
     XsdTasks tasks = report.getTasks();
-    Map<String, RulePriority> priorityMap = new HashMap<String, RulePriority>();
+    Map<String, String> priorityMap = new HashMap<String, String>();
 
     ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
     int count = 0;
@@ -79,9 +85,9 @@ public class TaskProcessor implements IProcessor {
       return;
     }
 
-    priorityMap.put("Low", RulePriority.INFO);
-    priorityMap.put("Medium", RulePriority.MINOR);
-    priorityMap.put("High", RulePriority.MAJOR);
+    priorityMap.put("Low", Severity.INFO);
+    priorityMap.put("Medium", Severity.MINOR);
+    priorityMap.put("High", Severity.MAJOR);
 
     for (XsdTask task : tasks.getTask()) {
       String bu = PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit");
@@ -94,7 +100,7 @@ public class TaskProcessor implements IProcessor {
     Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.TASK_REFS, count, 0);
   }
 
-  private int handleTask(Map<String, RulePriority> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
+  private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
     String priority = PersistenceUtilities.getAttribute(task.getAttribute(), "Priority");
     String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
@@ -126,7 +132,7 @@ public class TaskProcessor implements IProcessor {
           if (line == 0) {
             line = 1;
           }
-          Utilities.saveViolation(sensorContext, resourcePerspectives, rule, priorityMap.get(priority), fqName, line, description);
+          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, priorityMap.get(priority), fqName, line, description);
         }
         counter++;
       }

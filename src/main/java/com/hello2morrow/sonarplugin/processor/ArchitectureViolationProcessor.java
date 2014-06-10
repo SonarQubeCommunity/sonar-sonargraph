@@ -28,21 +28,24 @@ import com.hello2morrow.sonarplugin.xsd.XsdTypeRelation;
 import com.hello2morrow.sonarplugin.xsd.XsdViolations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 
 public class ArchitectureViolationProcessor implements IProcessor {
 
   private final RulesProfile rulesProfile;
-  private final SensorContext context;
+  private final FileSystem fileSystem;
   private final ResourcePerspectives resourcePerspective;
+  private final Project project;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-  public ArchitectureViolationProcessor(final RulesProfile rulesProfile, final SensorContext context, ResourcePerspectives perspective) {
+  public ArchitectureViolationProcessor(final Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, ResourcePerspectives perspective) {
+    this.project = project;
     this.rulesProfile = rulesProfile;
-    this.context = context;
+    this.fileSystem = fileSystem;
     this.resourcePerspective = perspective;
   }
 
@@ -96,7 +99,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
         String fqName = Utilities.relativeFileNameToFqName(relFileName);
         String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        Utilities.saveViolation(context, this.resourcePerspective, rule, null, fqName, Integer.valueOf(pos.getLine()), msg);
+        Utilities.saveViolation(project, fileSystem, this.resourcePerspective, rule, fqName, Integer.valueOf(pos.getLine()), msg);
       }
     }
   }

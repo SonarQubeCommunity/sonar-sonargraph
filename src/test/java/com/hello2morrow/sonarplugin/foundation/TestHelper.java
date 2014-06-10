@@ -21,6 +21,8 @@ import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
@@ -28,8 +30,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -85,10 +85,10 @@ public class TestHelper {
     return sensorContext;
   }
 
-  public static ModuleFileSystem initModuleFileSystem() {
-    ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
+  public static FileSystem initModuleFileSystem() {
+    FileSystem fileSystem = mock(FileSystem.class);
 
-    when(fileSystem.files(any(FileQuery.class))).thenAnswer(new Answer<List<File>>() {
+    when(fileSystem.files(any(FilePredicate.class))).thenAnswer(new Answer<Iterable<File>>() {
 
       @Override
       public List<File> answer(InvocationOnMock invocation) throws Throwable {

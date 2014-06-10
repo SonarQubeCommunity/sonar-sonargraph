@@ -21,11 +21,11 @@ package com.hello2morrow.sonarplugin.decorator;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +39,8 @@ import java.util.List;
  */
 public final class SonargraphAggregatingModuleMetricAggregator extends AbstractMetricAggregator {
 
-  public SonargraphAggregatingModuleMetricAggregator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
-    super(profile, moduleFileSystem);
+  public SonargraphAggregatingModuleMetricAggregator(RulesProfile profile, FileSystem fileSystem) {
+    super(profile, fileSystem);
   }
 
   @Override

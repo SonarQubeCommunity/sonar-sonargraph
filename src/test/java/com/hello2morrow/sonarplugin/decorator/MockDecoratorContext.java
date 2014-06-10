@@ -17,14 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.design.Dependency;
@@ -36,45 +29,56 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MockDecoratorContext implements DecoratorContext {
 
-  private Map<String, Measure> measures = new HashMap<String, Measure>();
-  private List<DecoratorContext> children;
-  private Project project;
-  
+  private final Map<String, Measure> measures = new HashMap<String, Measure>();
+  private final List<DecoratorContext> children;
+  private final Project project;
+
   public MockDecoratorContext(Project project, List<DecoratorContext> children) {
     this.project = project;
     this.children = children;
   }
-  
+
+  @Override
   public Project getProject() {
     return this.project;
   }
 
-  @SuppressWarnings("rawtypes")
+  @Override
   public Resource getResource() {
     return null;
   }
 
+  @Override
   public List<DecoratorContext> getChildren() {
     return children;
   }
 
+  @Override
   public Measure getMeasure(Metric metric) {
     return measures.get(metric.getKey());
   }
 
+  @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     return null;
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(@SuppressWarnings("rawtypes") MeasuresFilter filter) {
     return null;
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(Metric metric) {
     if (metric.equals(SonargraphSimpleMetrics.INSTRUCTIONS))
     {
@@ -85,56 +89,69 @@ public class MockDecoratorContext implements DecoratorContext {
     return null;
   }
 
+  @Override
   public DecoratorContext saveMeasure(Measure measure) {
     measures.put(measure.getMetricKey(), measure);
     return this;
   }
 
+  @Override
   public DecoratorContext saveMeasure(Metric metric, Double value) {
     measures.put(metric.getKey(), new Measure(metric, value));
     return this;
   }
 
+  @Override
   public Dependency saveDependency(Dependency dependency) {
     return null;
   }
 
+  @Override
   public Set<Dependency> getDependencies() {
     return null;
   }
 
+  @Override
   public Collection<Dependency> getIncomingDependencies() {
     return null;
   }
 
+  @Override
   public Collection<Dependency> getOutgoingDependencies() {
     return null;
   }
 
+  @Override
   public List<Violation> getViolations(ViolationQuery violationQuery) {
     return null;
   }
 
+  @Override
   public List<Violation> getViolations() {
     return null;
   }
 
+  @Override
   public DecoratorContext saveViolation(Violation violation, boolean force) {
     return null;
   }
 
+  @Override
   public DecoratorContext saveViolation(Violation violation) {
     return null;
   }
 
+  @Override
   public List<Event> getEvents() {
     return null;
   }
 
+  @Override
   public Event createEvent(String name, String description, String category, Date date) {
     return null;
   }
 
+  @Override
   public void deleteEvent(Event event) {
   }
 

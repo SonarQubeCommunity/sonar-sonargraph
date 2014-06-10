@@ -17,7 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import com.hello2morrow.sonarplugin.foundation.JavaLanguage;
+import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
@@ -41,7 +41,7 @@ public class SonargraphSystemDashBoardDecoratorTest {
   @Test
   public void testShouldExecuteOnProject() {
     Project project = new Project("project");
-    project.setLanguage(JavaLanguage.INSTANCE);
+    project.setLanguage(new Java());
     Project module = new Project("module");
     module.setParent(project);
 

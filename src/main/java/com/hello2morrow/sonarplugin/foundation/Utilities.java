@@ -21,23 +21,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.Violation;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -176,11 +175,24 @@ public final class Utilities {
     return message.toString();
   }
 
-  public static void saveViolation(SensorContext sensorContext, ResourcePerspectives perspectives, ActiveRule rule, RulePriority priority, String fqName,
-    int line, String msg) {
+  public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, String priority, final String fqName, int line,
+    String msg) {
+    Iterator<File> files = fileSystem.files(new FilePredicate()
+    {
+      @Override
+      public boolean apply(InputFile file) {
+        // FIXME: Needs to be smarter
+        return file.relativePath().equals(fqName);
+      }
+    }).iterator();
 
-    Resource<JavaPackage> javaFile = sensorContext.getResource(new JavaFile(fqName));
+    if (!files.hasNext())
+    {
+      LOG.error("Cannot obtain resource " + fqName);
+      return;
+    }
 
+    Resource javaFile = org.sonar.api.resources.File.fromIOFile(files.next(), project);
     if (javaFile == null) {
       LOG.error("Cannot obtain resource " + fqName);
       return;
@@ -191,9 +203,13 @@ public final class Utilities {
     if (line > 0) {
       issueBuilder.line(line);
     }
-    if (priority != null)
+    if (priority != null && priority.trim().length() > 0)
     {
-      issueBuilder.severity(priority.toString());
+      issueBuilder.severity(priority);
+    }
+    else if (rule.getSeverity() != null)
+    {
+      issueBuilder.severity(rule.getSeverity().toString());
     }
 
     Issue issue = issueBuilder
@@ -201,31 +217,37 @@ public final class Utilities {
       .message(msg)
       .build();
     issuable.addIssue(issue);
+
   }
 
-  @Deprecated
-  public static void saveViolation(SensorContext sensorContext, ActiveRule rule, RulePriority priority, String fqName,
+  public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, final String fqName,
     int line, String msg) {
-    Resource<JavaPackage> javaFile = sensorContext.getResource(new JavaFile(fqName));
-
-    if (javaFile == null) {
-      LOG.error("Cannot obtain resource " + fqName);
-      return;
-    }
-
-    Violation v = Violation.create(rule, javaFile);
-
-    v.setMessage(msg);
-    if (line == 0) {
-      v.setLineId(null);
-    } else {
-      v.setLineId(line);
-    }
-    if (priority != null) {
-      v.setSeverity(priority);
-    }
-    sensorContext.saveViolation(v);
+    saveViolation(project, fileSystem, perspectives, rule, null, fqName, line, msg);
   }
+
+  // @Deprecated
+  // public static void saveViolation(SensorContext sensorContext, ActiveRule rule, RulePriority priority, String fqName,
+  // int line, String msg) {
+  // Resource javaFile = sensorContext.getResource(new JavaFile(fqName));
+  //
+  // if (javaFile == null) {
+  // LOG.error("Cannot obtain resource " + fqName);
+  // return;
+  // }
+  //
+  // Violation v = Violation.create(rule, javaFile);
+  //
+  // v.setMessage(msg);
+  // if (line == 0) {
+  // v.setLineId(null);
+  // } else {
+  // v.setLineId(line);
+  // }
+  // if (priority != null) {
+  // v.setSeverity(priority);
+  // }
+  // sensorContext.saveViolation(v);
+  // }
 
   /**
    * Retrieves the metric from the build unit and saves it as a measure to the sensor context.
@@ -339,17 +361,9 @@ public final class Utilities {
     return result;
   }
 
-  public static boolean isSonargraphProject(Project project, ModuleFileSystem moduleFileSystem, RulesProfile profile, List<Metric> sonargraphMetrics) {
-    List<Alert> alerts = profile.getAlerts();
-    boolean sonargraphAlertFound = false;
-    for (Alert alert : alerts) {
-      if (sonargraphMetrics.contains(alert.getMetric())) {
-        sonargraphAlertFound = true;
-        break;
-      }
-    }
-
-    return Java.isEnabled(moduleFileSystem) && (areSonargraphRulesActive(profile) || sonargraphAlertFound);
+  public static boolean isSonargraphProject(Project project, FileSystem moduleFileSystem, RulesProfile profile, List<Metric> sonargraphMetrics) {
+    // Removed check for alert on sonargraph rule, since that API changed drastically
+    return Java.isEnabled(moduleFileSystem) && (areSonargraphRulesActive(profile));
   }
 
   public static boolean areSonargraphRulesActive(RulesProfile profile) {

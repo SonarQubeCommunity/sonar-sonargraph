@@ -23,11 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.util.Arrays;
 
@@ -35,9 +35,9 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetricAggregator.class);
   private final RulesProfile profile;
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem moduleFileSystem;
 
-  public AbstractMetricAggregator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
+  public AbstractMetricAggregator(RulesProfile profile, FileSystem moduleFileSystem) {
     super();
     this.profile = profile;
     this.moduleFileSystem = moduleFileSystem;
@@ -54,7 +54,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
   }
 
   @Override
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
+  public void decorate(Resource resource, DecoratorContext context) {
     if (!shouldDecorateResource(resource)) {
       return;
     }
@@ -64,7 +64,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
   }
 
   @Override
-  public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
+  public boolean shouldDecorateResource(Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
       resource.getQualifier());

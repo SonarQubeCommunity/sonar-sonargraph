@@ -17,33 +17,35 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.hello2morrow.sonarplugin.foundation.Java;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import org.junit.Test;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.server.rule.RuleDefinitions;
 
 import java.util.List;
 
-import org.junit.Test;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleRepository;
-
-import com.hello2morrow.sonarplugin.foundation.JavaLanguage;
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class SonargraphRulesRepositoryTest {
 
-	@Test
-	public void testCreateRules() {
-		RuleRepository repository = new SonargraphRulesRepository();
-		assertEquals(SonargraphPluginBase.PLUGIN_KEY, repository.getKey());
-		assertEquals(JavaLanguage.INSTANCE.getKey(), repository.getLanguage());
-		List<Rule> rules = repository.createRules();
-		assertTrue(rules.contains(SonargraphRulesRepository.ARCH));
-		assertTrue(rules.contains(SonargraphRulesRepository.THRESHOLD));
-		assertTrue(rules.contains(SonargraphRulesRepository.TASK));
-		assertTrue(rules.contains(SonargraphRulesRepository.CYCLE_GROUPS));
-		assertTrue(rules.contains(SonargraphRulesRepository.WORKSPACE));
-		assertTrue(rules.contains(SonargraphRulesRepository.DUPLICATES));
+  @Test
+  public void testCreateRules() {
+    RuleDefinitions repository = new SonargraphRulesRepository();
+    RuleDefinitions.Context context = mock(RuleDefinitions.Context.class);
+    repository.define(context);
+    assertEquals(SonargraphPluginBase.PLUGIN_KEY, repository.getKey());
+    assertEquals(new Java().getKey(), repository.getLanguage());
+    List<Rule> rules = repository.createRules();
+    assertTrue(rules.contains(SonargraphRulesRepository.ARCH));
+    assertTrue(rules.contains(SonargraphRulesRepository.THRESHOLD));
+    assertTrue(rules.contains(SonargraphRulesRepository.TASK));
+    assertTrue(rules.contains(SonargraphRulesRepository.CYCLE_GROUPS));
+    assertTrue(rules.contains(SonargraphRulesRepository.WORKSPACE));
+    assertTrue(rules.contains(SonargraphRulesRepository.DUPLICATES));
 
-		assertEquals(6, rules.size());
-	}
+    assertEquals(6, rules.size());
+  }
 }

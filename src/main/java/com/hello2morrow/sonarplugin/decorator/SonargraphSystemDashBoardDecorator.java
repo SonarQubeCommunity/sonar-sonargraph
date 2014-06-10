@@ -25,21 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 public class SonargraphSystemDashBoardDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSystemDashBoardDecorator.class);
   private final RulesProfile profile;
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem moduleFileSystem;
 
-  public SonargraphSystemDashBoardDecorator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
+  public SonargraphSystemDashBoardDecorator(RulesProfile profile, FileSystem moduleFileSystem) {
     this.profile = profile;
     this.moduleFileSystem = moduleFileSystem;
   }
@@ -51,7 +51,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
   }
 
   @Override
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
+  public void decorate(Resource resource, DecoratorContext context) {
     if (!Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }

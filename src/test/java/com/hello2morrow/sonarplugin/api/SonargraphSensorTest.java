@@ -17,7 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.JavaLanguage;
+import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
@@ -26,11 +26,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.util.Arrays;
 
@@ -49,7 +49,7 @@ public class SonargraphSensorTest {
 
   private static RulesProfile rulesProfile;
   private static SensorContext sensorContext;
-  private static ModuleFileSystem moduleFileSystem;
+  private static FileSystem moduleFileSystem;
   private SonargraphSensor sensor;
   private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
 
@@ -90,12 +90,12 @@ public class SonargraphSensorTest {
   @Test
   public void testShouldExecuteOnProject() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(JavaLanguage.INSTANCE);
+    project.setLanguage(new Java());
     assertTrue(sensor.shouldExecuteOnProject(project));
 
     Project module = new Project("hello2morrow:Foundation", "", "Foundation");
     module.setParent(project);
-    module.setLanguage(JavaLanguage.INSTANCE);
+    module.setLanguage(new Java());
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
   }
@@ -106,7 +106,7 @@ public class SonargraphSensorTest {
     rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
     initSensor();
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(JavaLanguage.INSTANCE);
+    project.setLanguage(new Java());
     assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));
 
     rulesProfile.setAlerts(Arrays.asList(new Alert(rulesProfile, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, Alert.OPERATOR_GREATER, "3", "1")));

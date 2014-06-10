@@ -26,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +43,9 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
   private final RulesProfile profile;
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem moduleFileSystem;
 
-  public SonargraphDerivedMetricsDecorator(RulesProfile profile, ModuleFileSystem moduleFileSystem) {
+  public SonargraphDerivedMetricsDecorator(RulesProfile profile, FileSystem moduleFileSystem) {
     this.profile = profile;
     this.moduleFileSystem = moduleFileSystem;
   }
@@ -57,7 +57,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   }
 
   @Override
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
+  public void decorate(Resource resource, DecoratorContext context) {
     if (!Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }
@@ -164,7 +164,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     }
   }
 
-  public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
+  public boolean shouldDecorateResource(Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return RESOURCES_TO_DECORATE.contains(resource.getQualifier());
   }
