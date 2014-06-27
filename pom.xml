@@ -35,12 +35,12 @@
       <name>Alexander von Zitzewitz</name>
     </developer>
     <developer>
-      <id>nwe_h2m</id>
-      <name>Norman Wenzel</name>
-    </developer>
-    <developer>
       <id>ingmarkellner</id>
       <name>Ingmar Kellner</name>
+    </developer>
+    <developer>
+      <id>nwe_h2m</id>
+      <name>Norman Wenzel</name>
     </developer>
   </developers>
 
@@ -125,6 +125,12 @@
   </scm>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>

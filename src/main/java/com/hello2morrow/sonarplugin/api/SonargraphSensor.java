@@ -19,6 +19,7 @@
 package com.hello2morrow.sonarplugin.api;
 
 import com.hello2morrow.sonarplugin.decorator.AlertDecorator;
+import com.hello2morrow.sonarplugin.foundation.PluginVersionReader;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.SonargraphStandaloneMetricNames;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -63,8 +64,6 @@ public final class SonargraphSensor implements Sensor {
   private static final double HUNDRET_PERCENT = 100.0;
   private static final int NO_DECIMAL = 0;
 
-  // FIXME: Read this info from a properties file that is generated during the maven build
-  private static final String VERSION = "3.2";
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private final Map<String, Number> buildUnitmetrics;
@@ -107,7 +106,7 @@ public final class SonargraphSensor implements Sensor {
     boolean sonargraphProject = Utilities.isSonargraphProject(project, this.fileSystem, this.profile, SonargraphMetrics.getAll());
     if (!sonargraphProject) {
       LOG.warn("----------------------------------------------------------------");
-      LOG.warn("Sonar-Sonargraph-Plugin: Project" + project.getName() + " [" + project.getKey()
+      LOG.warn("Sonargraph: Project" + project.getName() + " [" + project.getKey()
         + "] is not processed, since no Sonargraph rules are activated in current SonarQube quality profile.");
       LOG.warn("----------------------------------------------------------------");
     }
@@ -124,9 +123,7 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    LOG.info("----------------------------------------------------------------");
-    LOG.info("Sonar-Sonargraph-Plugin: Execute for " + project.getName() + " [" + project.getKey() + "]");
-    LOG.info("----------------------------------------------------------------");
+    LOG.info("Sonargraph: Execute for module " + project.getName() + " [" + project.getKey() + "]");
 
     this.sensorContext = sensorContext;
     reportReader.readSonargraphReport(project, fileSystem, settings);
@@ -166,7 +163,7 @@ public final class SonargraphSensor implements Sensor {
 
   @Override
   public String toString() {
-    return SonargraphSensor.class.getSimpleName() + ", version: " + SonargraphSensor.VERSION;
+    return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
   }
 
   /**
