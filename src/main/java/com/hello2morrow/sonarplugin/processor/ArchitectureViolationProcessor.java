@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
 public class ArchitectureViolationProcessor implements IProcessor {
@@ -91,14 +92,16 @@ public class ArchitectureViolationProcessor implements IProcessor {
       try {
         line = Integer.parseInt(pos.getLine());
       } catch (NumberFormatException ex) {
-        LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine()
-          + ". Exception: " + ex.getMessage());
+        LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine() + ". Exception: " + ex.getMessage());
         continue;
       }
       if (relFileName != null && (pos.getType() != null) && (line > 0)) {
         String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        Utilities.saveViolation(project, fileSystem, this.resourcePerspective, rule, relFileName, Integer.valueOf(pos.getLine()), msg);
+        Resource resource = Utilities.getResource(project, fileSystem, relFileName);
+        if (resource != null) {
+          Utilities.saveViolation(resource, resourcePerspective, rule, null, Integer.valueOf(pos.getLine()), msg);
+        }
       }
     }
   }

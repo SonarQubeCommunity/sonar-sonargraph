@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -37,22 +36,18 @@ import java.util.List;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
 
-  private static final List<String> RESOURCES_TO_DECORATE = Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE,
-    Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final List<String> RESOURCES_TO_DECORATE = Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
   private final RulesProfile profile;
-  private final FileSystem moduleFileSystem;
 
-  public SonargraphDerivedMetricsDecorator(RulesProfile profile, FileSystem moduleFileSystem) {
+  public SonargraphDerivedMetricsDecorator(RulesProfile profile) {
     this.profile = profile;
-    this.moduleFileSystem = moduleFileSystem;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project))
-      && Utilities.areSonargraphRulesActive(profile);
+    return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project)) && Utilities.areSonargraphRulesActive(profile);
   }
 
   @Override
@@ -70,8 +65,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
       Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
-        LOG.warn("Skipping module [" + childContext.getResource().getName()
-          + "] because it is not part of the Sonargraph workspace or does not contain any code.");
+        LOG.warn("Skipping module [" + childContext.getResource().getName() + "] because it is not part of the Sonargraph workspace or does not contain any code.");
         continue;
       }
 
@@ -130,12 +124,10 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT,
-          HUNDRET_PERCENT * violatingTypes.getValue() / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, HUNDRET_PERCENT * violatingTypes.getValue() / internalTypes.getValue());
       }
       if (unassignedTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
-          HUNDRET_PERCENT * unassignedTypes.getValue() / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, HUNDRET_PERCENT * unassignedTypes.getValue() / internalTypes.getValue());
       }
     }
   }
@@ -146,8 +138,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     Measure cyclicPackages = context.getMeasure(SonargraphSimpleMetrics.CYCLIC_PACKAGES);
 
     if (cyclicity == null || packages == null || cyclicPackages == null) {
-      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
-        + context.getProject().getKey());
+      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: " + context.getProject().getKey());
     } else {
       double relCyclicity = 0.0;
       double relCyclicPackages = 0.0;

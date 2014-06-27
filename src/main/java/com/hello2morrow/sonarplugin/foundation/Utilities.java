@@ -54,7 +54,7 @@ public final class Utilities {
   public static final String BLOCK_ID = "Block id";
   private static final String SPACE_ENTITY = "&nbsp;";
   private static final String UNKNOWN = "<UNKNOWN>";
-  public static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
   private Utilities() {
   }
@@ -78,22 +78,15 @@ public final class Utilities {
     return buName;
   }
 
-  @Deprecated
-  public static String relativeFileNameToFqName(String fileName) {
-    int lastDot = fileName.lastIndexOf('.');
-
-    return fileName.substring(0, lastDot).replace('/', '.');
-  }
-
   public static boolean isAggregationProject(DecoratorContext context, final Metric indicator) {
-    return context.getChildrenMeasures(indicator).size() > 0;
+    return !context.getChildrenMeasures(indicator).isEmpty();
   }
 
   public static boolean isAggregatingProject(final Project project) {
     if (project == null) {
       return false;
     }
-    return project.getModules().size() > 0;
+    return !project.getModules().isEmpty();
   }
 
   public static boolean isRootParentProject(final Project project) {
@@ -120,19 +113,19 @@ public final class Utilities {
   }
 
   public static String generateSpaceEntity(int numberOfSpaces) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder builder = new StringBuilder();
     for (int i = 0; i < numberOfSpaces; i++) {
-      buffer.append(SPACE_ENTITY);
+      builder.append(SPACE_ENTITY);
     }
-    return buffer.toString();
+    return builder.toString();
   }
 
   public static String generateSpaces(int numberOfSpaces) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder builder = new StringBuilder();
     for (int i = 0; i < numberOfSpaces; i++) {
-      buffer.append(SPACE);
+      builder.append(SPACE);
     }
-    return buffer.toString();
+    return builder.toString();
   }
 
   public static String generateDuplicateCodeBlockMessage(DuplicateCodeBlock block, List<DuplicateCodeBlock> blocks) {
@@ -168,21 +161,13 @@ public final class Utilities {
       }
       isFirst = false;
       final int endLineDuplicate = duplicate.getBlockLength() + duplicate.getStartLine() - 1;
-      message.append("line " + duplicate.getStartLine() + " to " + endLineDuplicate + " of "
-        + duplicate.getElementName());
+      message.append("line " + duplicate.getStartLine() + " to " + endLineDuplicate + " of " + duplicate.getElementName());
     }
     message.append(".");
     return message.toString();
   }
 
-  public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, String priority, final String fqName, int line,
-    String msg) {
-
-    Resource resource = getResource(project, fileSystem, fqName);
-    if (resource == null) {
-      return;
-    }
-
+  public static void saveViolation(Resource resource, ResourcePerspectives perspectives, ActiveRule rule, String priority, int line, String msg) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     IssueBuilder issueBuilder = issuable.newIssueBuilder();
     if (line > 0) {
@@ -190,35 +175,27 @@ public final class Utilities {
     }
     if (priority != null && priority.trim().length() > 0) {
       issueBuilder.severity(priority);
-    }
-    else if (rule.getSeverity() != null)
-    {
+    } else if (rule.getSeverity() != null) {
       issueBuilder.severity(rule.getSeverity().toString());
     }
 
-    Issue issue = issueBuilder
-      .ruleKey(rule.getRule().ruleKey())
-      .message(msg)
-      .build();
+    Issue issue = issueBuilder.ruleKey(rule.getRule().ruleKey()).message(msg).build();
     issuable.addIssue(issue);
   }
 
   public static Resource getResource(Project project, FileSystem fileSystem, final String fqName) {
     final boolean isSourceFile = fqName.endsWith(".java");
 
-    if (isSourceFile)
-    {
-      InputFile file = fileSystem.inputFile(new FilePredicate()
-      {
+    if (isSourceFile) {
+      InputFile file = fileSystem.inputFile(new FilePredicate() {
         @Override
         public boolean apply(InputFile file) {
-          LOG.error("Checking file: " + file.relativePath());
           return file.relativePath().endsWith(fqName);
         }
       });
 
       if (file == null) {
-        LOG.error("Cannot obtain resource " + fqName);
+        LOG.error("Cannot obtain source file " + fqName);
         return null;
       }
 
@@ -231,12 +208,10 @@ public final class Utilities {
 
     File dir = new File(fileSystem.baseDir(), fqName);
     Resource resource = org.sonar.api.resources.Directory.fromIOFile(dir, project);
+    if (resource == null) {
+      LOG.error("Cannot obtain directory " + fqName);
+    }
     return resource;
-  }
-
-  public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, final String fqName,
-    int line, String msg) {
-    saveViolation(project, fileSystem, perspectives, rule, null, fqName, line, msg);
   }
 
   /**
@@ -249,8 +224,7 @@ public final class Utilities {
    * @param precision
    * @return the saved measure
    */
-  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics,
-    String key, Metric metric, int precision) {
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, int precision) {
     return saveExistingMeasureToContext(sensorContext, metrics, key, metric, precision, false);
   }
 
@@ -264,8 +238,7 @@ public final class Utilities {
    * @param precision
    * @return the saved measure
    */
-  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics,
-    String key, Metric metric, int precision, boolean flagMissingMetric) {
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, int precision, boolean flagMissingMetric) {
     double value = Utilities.getBuildUnitMetricValue(metrics, key, flagMissingMetric);
 
     return Utilities.saveMeasureToContext(sensorContext, metric, value, precision);
@@ -303,8 +276,7 @@ public final class Utilities {
     if (flagMissingMetric && num == null) {
       LOG.error("Cannot find metric <" + key + "> in generated report");
       LOG.error("Make sure you set the prepareForSonar option to true (see documentation).");
-      LOG.error("If you used Sonargraph Quality for report generation: "
-        + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
+      LOG.error("If you used Sonargraph Quality for report generation: " + "Check that your quality model used during snapshot generation contains the required Sonar metrics!");
     }
 
     if (num == null) {
@@ -357,7 +329,7 @@ public final class Utilities {
   }
 
   public static boolean areSonargraphRulesActive(RulesProfile profile) {
-    return profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).size() > 0;
+    return !profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
   }
 
 }

@@ -37,6 +37,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
 import java.util.ArrayList;
@@ -72,28 +73,23 @@ public class WarningProcessor implements IProcessor {
     for (XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
 
       String key = SonargraphPluginBase.getRuleKey(warningGroup.getAttributeGroup());
-      if (key == null) {
-        continue;
-      }
-      ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
-      if (rule == null) {
-        LOG.info("Sonargraph threshold not active in current profile");
-        continue;
-      }
-      if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
-        handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
-        continue;
-      }
-      for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
-        String attrName = warningByAttribute.getAttributeName();
-
-        for (XsdWarning warning : warningByAttribute.getWarning()) {
-          String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
-          String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
-
-          bu = Utilities.getBuildUnitName(bu);
-          if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-            processPosition(rule, warning, msg);
+      if (key != null) {
+        ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
+        if (rule == null) {
+          LOG.info("Sonargraph threshold not active in current profile");
+        } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
+          handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
+        } else {
+          for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
+            String attrName = warningByAttribute.getAttributeName();
+            for (XsdWarning warning : warningByAttribute.getWarning()) {
+              String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
+              String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
+              bu = Utilities.getBuildUnitName(bu);
+              if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+                processPosition(rule, warning, msg);
+              }
+            }
           }
         }
       }
@@ -101,12 +97,15 @@ public class WarningProcessor implements IProcessor {
   }
 
   private void processPosition(ActiveRule rule, XsdWarning warning, String msg) {
-    if (warning.getPosition().size() > 0) {
+    if (!warning.getPosition().isEmpty()) {
       for (XsdPosition pos : warning.getPosition()) {
         String relFileName = pos.getFile();
 
         if (relFileName != null) {
-          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, relFileName, Integer.valueOf(pos.getLine()), msg);
+          Resource resource = Utilities.getResource(project, fileSystem, relFileName);
+          if (resource != null) {
+            Utilities.saveViolation(resource, resourcePerspectives, rule, null, Integer.valueOf(pos.getLine()), msg);
+          }
         }
       }
     } else {
@@ -116,14 +115,15 @@ public class WarningProcessor implements IProcessor {
         // Attach a violation at line 1
         String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
         String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
-
-        Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, fqName, 1, msg);
+        Resource resource = Utilities.getResource(project, fileSystem, fqName);
+        if (resource != null) {
+          Utilities.saveViolation(resource, resourcePerspectives, rule, null, 1, msg);
+        }
       }
     }
   }
 
-  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule,
-    XsdAttributeRoot buildUnit) {
+  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing duplicate code blocks");
 
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
@@ -145,12 +145,13 @@ public class WarningProcessor implements IProcessor {
       for (DuplicateCodeBlock block : entry.getValue()) {
         String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
         String fqName = block.getElementName();
-        if (Utilities.getBuildUnitName(buildUnit.getName())
-          .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
-          Utilities.saveViolation(project, fileSystem, this.resourcePerspectives, rule, fqName, block.getStartLine(), message);
+        if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
+          Resource resource = Utilities.getResource(project, fileSystem, fqName);
+          if (resource != null) {
+            Utilities.saveViolation(resource, resourcePerspectives, rule, null, block.getStartLine(), message);
+          }
         }
       }
     }
   }
-
 }

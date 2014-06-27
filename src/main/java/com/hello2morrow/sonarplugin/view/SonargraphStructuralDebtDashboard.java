@@ -23,20 +23,20 @@ import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
 @Description("Reports metrics on the structural debt of the project.")
-public final class SonargraphStructuralDebtDashboard extends AbstractRubyTemplate implements RubyRailsWidget
-{
-  public String getId()
-  {
+public final class SonargraphStructuralDebtDashboard extends AbstractRubyTemplate implements RubyRailsWidget {
+
+  @Override
+  public String getId() {
     return "sonargraph.structural_debt";
   }
 
-  public String getTitle()
-  {
+  @Override
+  public String getTitle() {
     return "Sonargraph Structural Debt Dashbox";
   }
 
-  protected String getTemplatePath()
-  {
+  @Override
+  protected String getTemplatePath() {
     return "/sonargraph_debt_widget.html.erb";
   }
 }

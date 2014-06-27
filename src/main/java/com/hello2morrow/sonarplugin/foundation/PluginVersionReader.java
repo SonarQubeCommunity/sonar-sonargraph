@@ -25,27 +25,27 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PluginVersionReader {
-  public static PluginVersionReader INSTANCE = new PluginVersionReader();
+  public static final PluginVersionReader INSTANCE = new PluginVersionReader();
 
-  private static final Logger LOG = LoggerFactory.getLogger(PluginVersionReader.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PluginVersionReader.class);
 
-  private String m_version = "unknown";
+  private String version = "unknown";
 
   private PluginVersionReader() {
     InputStream is = getClass().getResourceAsStream("/com/hello2morrow/sonarplugin/sonargraph/version.properties");
     Properties props = new Properties();
     try {
       props.load(is);
-      Object version = props.get("version");
-      if (version != null) {
-        m_version = (String) version;
+      Object versionProperty = props.get("version");
+      if (versionProperty != null) {
+        version = versionProperty.toString();
       }
     } catch (IOException ex) {
-      LOG.error("Failed to determine version of plugin: " + ex.getMessage());
+      LOGGER.error("Failed to determine version of plugin", ex);
     }
   }
 
   public String getVersion() {
-    return m_version;
+    return version;
   }
 }

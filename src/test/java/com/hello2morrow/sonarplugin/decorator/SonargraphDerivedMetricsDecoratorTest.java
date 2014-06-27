@@ -37,7 +37,7 @@ public class SonargraphDerivedMetricsDecoratorTest {
 
   @Test
   public void testGetBiggerValueDoubleMeasureMeasure() {
-    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
     Measure measure = new Measure();
     measure.setValue(10.0);
     assertEquals(12.0, decorator.getBiggerValue(12.0, measure));
@@ -47,7 +47,7 @@ public class SonargraphDerivedMetricsDecoratorTest {
 
   @Test
   public void testGetBiggerValueDoubleMeasure() {
-    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
     Measure measure1 = new Measure();
     measure1.setValue(10.0);
     Measure measure2 = new Measure();
@@ -62,14 +62,14 @@ public class SonargraphDerivedMetricsDecoratorTest {
 
   @Test
   public void testShouldDecorateResource() {
-    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
     Project project = new Project("test");
     assertTrue(decorator.shouldDecorateResource(project));
   }
 
   @Test
   public void testDecorate() {
-    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
     Project project = new Project("test");
 
     DecoratorContext child1 = mock(DecoratorContext.class);
@@ -90,25 +90,18 @@ public class SonargraphDerivedMetricsDecoratorTest {
     context.saveMeasure(new Measure(SonargraphSimpleMetrics.UNASSIGNED_TYPES, 6.0));
 
     double biggestCycleGroup = 12.0;
-    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
-      new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
     when(child1.getMeasure(SonargraphSimpleMetrics.ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.ACD, 10.0));
     double highestRACD = 0.70;
-    when(child1.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(
-      new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, highestRACD));
+    when(child1.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, highestRACD));
     double highestNccd = 5.3;
-    when(child1.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(
-      new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
+    when(child1.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
 
-    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
-      new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, 10.0));
+    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, 10.0));
     double highestAcd = 11.0;
-    when(child2.getMeasure(SonargraphSimpleMetrics.ACD)).thenReturn(
-      new Measure(SonargraphSimpleMetrics.ACD, highestAcd));
-    when(child2.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(
-      new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, 0.60));
-    when(child2.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(
-      new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
+    when(child2.getMeasure(SonargraphSimpleMetrics.ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.ACD, highestAcd));
+    when(child2.getMeasure(SonargraphSimpleMetrics.RELATIVE_ACD)).thenReturn(new Measure(SonargraphSimpleMetrics.RELATIVE_ACD, 0.60));
+    when(child2.getMeasure(SonargraphSimpleMetrics.NCCD)).thenReturn(new Measure(SonargraphSimpleMetrics.NCCD, highestNccd));
 
     decorator.decorate(project, context);
 
@@ -127,7 +120,7 @@ public class SonargraphDerivedMetricsDecoratorTest {
 
   @Test
   public void testDecorateNoPackages() {
-    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    SonargraphDerivedMetricsDecorator decorator = new SonargraphDerivedMetricsDecorator(TestHelper.initRulesProfile());
     Project project = new Project("test");
 
     DecoratorContext child1 = mock(DecoratorContext.class);
@@ -142,11 +135,9 @@ public class SonargraphDerivedMetricsDecoratorTest {
     context.saveMeasure(new Measure(SonargraphSimpleMetrics.CYCLIC_PACKAGES, 0.0));
 
     double biggestCycleGroup = 0.0;
-    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
-      new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+    when(child1.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
 
-    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(
-      new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
+    when(child2.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP)).thenReturn(new Measure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroup));
 
     decorator.decorate(project, context);
 

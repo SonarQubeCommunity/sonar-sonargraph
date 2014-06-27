@@ -24,14 +24,23 @@ import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Qualifiers;
 
+import java.io.File;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,27 +79,27 @@ public class SonargraphSensorTest {
     assertNull(context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES));
   }
 
-  // @Test
-  // public void testAnalyse() {
-  // Project project = mock(Project.class); // ("hello2morrow:AlarmClock", "", "AlarmClock");
-  // doReturn("hello2morrow:AlarmClock").when(project).key();
-  // doReturn("AlarmClock").when(project).name();
-  // doReturn(Qualifiers.MODULE).when(project).getQualifier();
-  //
-  // ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
-  //
-  // File baseDir = new File("src/test/resources");
-  // java.io.File sourceFile = new java.io.File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
-  // when(moduleFileSystem.baseDir()).thenReturn(baseDir);
-  // when(projectFileSystem.getBasedir()).thenReturn(baseDir);
-  // when(project.getFileSystem()).thenReturn(projectFileSystem);
-  //
-  // when(moduleFileSystem.files(any(FilePredicate.class))).thenReturn(Arrays.asList(sourceFile));
-  //
-  // sensor.analyse(project, sensorContext);
-  // double value = sensorContext.getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
-  // assertEquals(0.0, value, 0.01);
-  // }
+  @Test
+  public void testAnalyse() {
+    Project project = mock(Project.class); // ("hello2morrow:AlarmClock", "", "AlarmClock");
+    doReturn("hello2morrow:AlarmClock").when(project).key();
+    doReturn("AlarmClock").when(project).name();
+    doReturn(Qualifiers.MODULE).when(project).getQualifier();
+
+    ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+
+    File baseDir = new File("src/test/resources");
+    File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
+    when(moduleFileSystem.baseDir()).thenReturn(baseDir);
+    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
+
+    when(moduleFileSystem.files(any(FilePredicate.class))).thenReturn(Arrays.asList(sourceFile));
+
+    sensor.analyse(project, sensorContext);
+    double value = sensorContext.getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
+    assertEquals(0.0, value, 0.01);
+  }
 
   @Test
   public void testShouldExecuteOnProject() {
@@ -106,8 +115,7 @@ public class SonargraphSensorTest {
   }
 
   @Test
-  public void testShouldNotExecuteOnProject()
-  {
+  public void testShouldNotExecuteOnProject() {
     rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
     this.sensor = new SonargraphSensor(rulesProfile, settings, sensorContext, moduleFileSystem, TestHelper.initPerspectives());
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");

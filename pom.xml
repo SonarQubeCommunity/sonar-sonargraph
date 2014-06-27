@@ -73,8 +73,9 @@
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
+      <version>2.1</version>
       <type>sonar-plugin</type>
-      <version>1.5</version>
+      <scope>provided</scope>
     </dependency>
 	  <dependency>
       <groupId>org.apache.maven</groupId>
@@ -135,7 +136,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>1.5</version>
+        <version>1.7</version>
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>

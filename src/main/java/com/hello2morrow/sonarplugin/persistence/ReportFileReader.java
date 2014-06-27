@@ -52,6 +52,7 @@ public class ReportFileReader implements IReportReader {
   private ReportContext report;
 
   public ReportFileReader() {
+    super();
   }
 
   @Override
@@ -69,7 +70,6 @@ public class ReportFileReader implements IReportReader {
 
     try {
       input = new FileInputStream(reportFileName);
-
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
       JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       Unmarshaller u = context.createUnmarshaller();
@@ -84,6 +84,9 @@ public class ReportFileReader implements IReportReader {
         LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
           + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
       }
+
+      LOG.debug("No Soargraph report found", e);
+
     } finally {
       Thread.currentThread().setContextClassLoader(defaultClassLoader);
       if (input != null) {
@@ -109,8 +112,7 @@ public class ReportFileReader implements IReportReader {
   private String determineReportFileName(Project project, FileSystem moduleFileSystem, Settings settings) {
     String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
 
-    if (moduleFileSystem == null)
-    {
+    if (moduleFileSystem == null) {
       return configuredReportPath;
     }
 

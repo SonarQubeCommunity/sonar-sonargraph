@@ -45,7 +45,7 @@ public class SonargraphSystemDashBoardDecoratorTest {
     Project module = new Project("module");
     module.setParent(project);
 
-    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
     assertTrue(decorator.shouldExecuteOnProject(project));
     assertFalse(decorator.shouldExecuteOnProject(module));
   }
@@ -88,7 +88,7 @@ public class SonargraphSystemDashBoardDecoratorTest {
     when(child2.getMeasure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS)).thenReturn(
       new Measure(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, ignoredWarnings));
 
-    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile(), TestHelper.initModuleFileSystem());
+    Decorator decorator = new SonargraphSystemDashBoardDecorator(TestHelper.initRulesProfile());
     decorator.decorate(project, context);
 
     assertEquals(allWarnings, context.getMeasure(SonargraphSimpleMetrics.ALL_WARNINGS).getValue());

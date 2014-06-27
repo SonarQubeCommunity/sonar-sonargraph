@@ -23,20 +23,20 @@ import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
 @Description("Reports metrics on the structural quality of the project.")
-public final class SonargraphCyclicityDashboard extends AbstractRubyTemplate implements RubyRailsWidget
-{
-  public String getId()
-  {
+public final class SonargraphCyclicityDashboard extends AbstractRubyTemplate implements RubyRailsWidget {
+
+  @Override
+  public String getId() {
     return "sonargraph.structure";
   }
 
-  public String getTitle()
-  {
+  @Override
+  public String getTitle() {
     return "Sonargraph Structure Dashbox";
   }
 
-  protected String getTemplatePath()
-  {
+  @Override
+  protected String getTemplatePath() {
     return "/sonargraph_structure_widget.html.erb";
   }
 }

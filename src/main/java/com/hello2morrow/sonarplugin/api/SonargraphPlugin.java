@@ -18,58 +18,55 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.sonar.api.Extension;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
-
 import com.hello2morrow.sonarplugin.decorator.SonargraphAggregatingModuleMetricAggregator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecorator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
 import com.hello2morrow.sonarplugin.decorator.SonargraphSystemDashBoardDecorator;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import com.hello2morrow.sonarplugin.view.SonargraphArchitectureDashboard;
 import com.hello2morrow.sonarplugin.view.SonargraphCyclicityDashboard;
 import com.hello2morrow.sonarplugin.view.SonargraphStructuralDebtDashboard;
+import org.sonar.api.Extension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is the container for all others extensions
  */
 @Properties({
-    @Property(key = SonargraphPluginBase.CURRENCY, defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT,
-        name = "Currency", project = false, module = false, global = true),
+  @Property(key = SonargraphPluginBase.CURRENCY, defaultValue = SonargraphPluginBase.CURRENCY_DEFAULT, name = "Currency", project = false, module = false, global = true),
 
-    @Property(key = SonargraphPluginBase.COST_PER_INDEX_POINT, defaultValue = ""
-        + SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT,
-        name = "Cost per metric point of 'Structural debt index' (0 means not displayed)", project = false,
-        module = false, global = true),
+  @Property(key = SonargraphPluginBase.COST_PER_INDEX_POINT, defaultValue = "" + SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT,
+    name = "Cost per metric point of 'Structural debt index' (0 means not displayed)", project = false, module = false, global = true),
 
-    @Property(key = SonargraphPluginBase.REPORT_PATH, defaultValue = "",
-        name = "Path of the Sonargraph report (empty means default value)", project = true,
-        module = false, global = false) })
+  @Property(key = SonargraphPluginBase.REPORT_PATH, defaultValue = "", name = "Path of the Sonargraph report (empty means default value)", project = true, module = false,
+    global = false)})
 public final class SonargraphPlugin extends SonarPlugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
+  @SuppressWarnings("rawtypes")
+  @Override
+  public List getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
 
+    list.add(SonargraphRulesRepository.class);
     list.add(SonargraphSimpleMetrics.class);
     list.add(SonargraphDerivedMetrics.class);
     list.add(SonargraphInternalMetrics.class);
     list.add(SonargraphSensor.class);
-    list.add(SonargraphRulesRepository.class);
-    list.add(SonargraphStructuralDebtDashboard.class);
-    list.add(SonargraphCyclicityDashboard.class);
-    list.add(SonargraphArchitectureDashboard.class);
     list.add(SonargraphMetricAggregator.class);
     list.add(SonargraphDerivedMetricsDecorator.class);
     list.add(SonargraphSystemDashBoardDecorator.class);
     list.add(SonargraphAggregatingModuleMetricAggregator.class);
+    list.add(SonargraphStructuralDebtDashboard.class);
+    list.add(SonargraphCyclicityDashboard.class);
+    list.add(SonargraphArchitectureDashboard.class);
     return list;
   }
 

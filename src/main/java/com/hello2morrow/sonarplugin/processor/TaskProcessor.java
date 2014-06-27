@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 
@@ -130,7 +131,8 @@ public class TaskProcessor implements IProcessor {
           if (line == 0) {
             line = 1;
           }
-          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, priorityMap.get(priority), relFileName, line, description);
+          Resource resource = Utilities.getResource(project, fileSystem, relFileName);
+          Utilities.saveViolation(resource, resourcePerspectives, rule, priorityMap.get(priority), line, description);
         }
         counter++;
       }

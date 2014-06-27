@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-
 public class DuplicateCodeBlock {
   private String projectName;
   private String buildUnitName;
@@ -26,59 +25,59 @@ public class DuplicateCodeBlock {
   private int blockLength = 0;
   private int startLine = 0;
   private int blockId;
-  
+
   public String getProjectName() {
     return projectName;
   }
-  
+
   public void setProjectName(String projectName) {
     this.projectName = projectName;
   }
-  
+
   public String getBuildUnitName() {
     return buildUnitName;
   }
-  
+
   public void setBuildUnitName(String buildUnitName) {
     this.buildUnitName = buildUnitName;
   }
-  
+
   public String getElementType() {
     return elementType;
   }
-  
+
   public void setElementType(String elmentType) {
     this.elementType = elmentType;
   }
-  
+
   public String getElementName() {
     return elementName;
   }
-  
+
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }
-  
+
   public int getBlockLength() {
     return blockLength;
   }
-  
+
   public void setBlockLength(int blockLength) {
     this.blockLength = blockLength;
   }
-  
+
   public int getStartLine() {
     return startLine;
   }
-  
+
   public void setStartLine(int startLine) {
     this.startLine = startLine;
   }
-  
+
   public int getBlockId() {
     return blockId;
   }
-  
+
   public void setBlockId(int blockId) {
     this.blockId = blockId;
   }

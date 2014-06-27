@@ -17,24 +17,23 @@
  */
 package com.hello2morrow.sonarplugin.metric;
 
+import org.sonar.api.measures.Metric;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sonar.api.measures.Metric;
-
 public final class SonargraphMetrics {
 
   private static final SonargraphMetrics INSTANCE = new SonargraphMetrics();
-  private List<Metric> allMetrics;
+  private final List<Metric> allMetrics;
 
   private SonargraphMetrics() {
     allMetrics = new ArrayList<Metric>(new SonargraphDerivedMetrics().getMetrics());
     allMetrics.addAll(new SonargraphSimpleMetrics().getMetrics());
   }
-  
-  public static List<Metric> getAll()
-  {
+
+  public static List<Metric> getAll() {
     return Collections.unmodifiableList(INSTANCE.allMetrics);
   }
 }

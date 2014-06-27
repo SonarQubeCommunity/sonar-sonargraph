@@ -21,8 +21,7 @@ package com.hello2morrow.sonarplugin.foundation;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
-public final class SonargraphPluginBase
-{
+public final class SonargraphPluginBase {
   public static final String COST_PER_INDEX_POINT = "sonargraph.index_point_cost";
   public static final double COST_PER_INDEX_POINT_DEFAULT = 11.0;
   public static final String CURRENCY = "sonargraph.currency";
@@ -41,8 +40,7 @@ public final class SonargraphPluginBase
   public static final DecimalFormat FLOAT_FORMAT = new DecimalFormat("###,##0.00");
   public static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("###,##0");
 
-  static
-  {
+  static {
     DecimalFormatSymbols symbols = new DecimalFormatSymbols();
     symbols.setGroupingSeparator(',');
     symbols.setDecimalSeparator('.');
@@ -52,8 +50,7 @@ public final class SonargraphPluginBase
     INTEGER_FORMAT.setParseIntegerOnly(true);
   }
 
-  private SonargraphPluginBase()
-  {
+  private SonargraphPluginBase() {
     // Don't instantiate
   }
 

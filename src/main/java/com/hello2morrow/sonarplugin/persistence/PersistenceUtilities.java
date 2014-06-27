@@ -17,10 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
@@ -29,9 +25,19 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdWarning;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
 
 public class PersistenceUtilities {
+
+  private static final Logger LOG = LoggerFactory.getLogger(PersistenceUtilities.class);
+
+  private PersistenceUtilities() {
+  }
 
   public static void addAttributeToList(List<XsdAttribute> attributeList, String name, String value) {
     XsdAttribute attribute = new XsdAttribute();
@@ -44,18 +50,18 @@ public class PersistenceUtilities {
     DuplicateCodeBlock block = new DuplicateCodeBlock();
     String attribute = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BLOCK_ID);
     if (null == attribute) {
-      Utilities.LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
+      LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
       return null;
     }
     block.setBlockId(Integer.parseInt(attribute));
     block.setProjectName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.PROJECT));
     block.setBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BUILD_UNIT));
     block.setElementType(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT_TYPE));
-  
+
     String blockLength = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ATTRIBUTE_VALUE);
     int pos = blockLength.indexOf(" lines");
     block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
-  
+
     block.setElementName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT));
     block.setStartLine(Integer.parseInt(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.START_LINE)));
     return block;
@@ -70,18 +76,17 @@ public class PersistenceUtilities {
 
   public static void readAttributesToMap(XsdAttributeRoot root, final Map<String, Number> attributeMap) {
     attributeMap.clear();
-  
+
     for (XsdAttributeCategory cat : root.getAttributeCategory()) {
       for (XsdAttribute attr : cat.getAttribute()) {
         String attrName = attr.getStandardName();
         String value = attr.getValue();
-  
+
         try {
-          if (value.startsWith("< 0.01"))
-          {
+          if (value.startsWith("< 0.01")) {
             value = "0.0";
           }
-          
+
           if (value.contains(".")) {
             attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(value));
           } else {
@@ -89,7 +94,7 @@ public class PersistenceUtilities {
           }
         } catch (ParseException e) {
           // Ignore this value
-          Utilities.LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
+          LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
         }
       }
     }
@@ -97,7 +102,7 @@ public class PersistenceUtilities {
 
   public static String getAttribute(List<XsdAttribute> list, String name) {
     String value = null;
-  
+
     for (XsdAttribute attr : list) {
       if (attr.getName().equals(name)) {
         value = attr.getValue();

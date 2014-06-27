@@ -62,8 +62,7 @@ public class CycleGroupProcessor implements IProcessor {
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if ("Physical package".equals(group.getNamedElementGroup())
-        && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+      if ("Physical package".equals(group.getNamedElementGroup()) && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
         cyclicity += groupSize * groupSize;
@@ -88,8 +87,7 @@ public class CycleGroupProcessor implements IProcessor {
   }
 
   private void handlePackageCycleGroup(XsdCycleGroup group) {
-    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY,
-      SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
     if (rule == null) {
       return;
     }
@@ -109,24 +107,29 @@ public class CycleGroupProcessor implements IProcessor {
     for (Resource jPackage : packages) {
 
       Issuable issuable = perspectives.as(Issuable.class, jPackage);
+      if (issuable == null) {
+        // FIXME: Why can no issuable be created for packages?
+        LOG.error("Failed to create issuable for " + jPackage.getPath());
+        continue;
+      }
       IssueBuilder issueBuilder = issuable.newIssueBuilder();
       issueBuilder.severity(rule.getSeverity().toString()).ruleKey(rule.getRule().ruleKey());
 
       List<Resource> tempPackages = new ArrayList<Resource>(packages);
       tempPackages.remove(jPackage);
-      StringBuffer buffer = new StringBuffer();
-      buffer.append("Package participates in a cycle group");
+      StringBuilder builder = new StringBuilder();
+      builder.append("Package participates in a cycle group");
 
       boolean first = true;
       for (Resource tPackage : tempPackages) {
         if (first) {
-          buffer.append(" with package(s): ").append(tPackage.getName());
+          builder.append(" with package(s): ").append(tPackage.getName());
           first = false;
         } else {
-          buffer.append(", ").append(tPackage.getName());
+          builder.append(", ").append(tPackage.getName());
         }
       }
-      issueBuilder.message(buffer.toString());
+      issueBuilder.message(builder.toString());
       issuable.addIssue(issueBuilder.build());
     }
   }
