@@ -18,12 +18,10 @@
 package com.hello2morrow.sonarplugin.decorator;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
@@ -35,17 +33,15 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetricAggregator.class);
   private final RulesProfile profile;
-  private final FileSystem moduleFileSystem;
 
-  public AbstractMetricAggregator(RulesProfile profile, FileSystem moduleFileSystem) {
+  public AbstractMetricAggregator(RulesProfile profile) {
     super();
     this.profile = profile;
-    this.moduleFileSystem = moduleFileSystem;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return Utilities.isSonargraphProject(project, moduleFileSystem, profile, SonargraphMetrics.getAll());
+    return Utilities.areSonargraphRulesActive(profile);
   }
 
   @Override

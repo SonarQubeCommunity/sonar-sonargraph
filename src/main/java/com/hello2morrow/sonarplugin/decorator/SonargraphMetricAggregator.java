@@ -38,7 +38,7 @@ import java.util.List;
 public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
   public SonargraphMetricAggregator(RulesProfile profile, FileSystem moduleFileSystem) {
-    super(profile, moduleFileSystem);
+    super(profile);
   }
 
   @Override

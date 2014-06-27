@@ -18,14 +18,12 @@
 package com.hello2morrow.sonarplugin.decorator;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
@@ -37,17 +35,15 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSystemDashBoardDecorator.class);
   private final RulesProfile profile;
-  private final FileSystem moduleFileSystem;
 
-  public SonargraphSystemDashBoardDecorator(RulesProfile profile, FileSystem moduleFileSystem) {
+  public SonargraphSystemDashBoardDecorator(RulesProfile profile) {
     this.profile = profile;
-    this.moduleFileSystem = moduleFileSystem;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return Qualifiers.PROJECT.equals(project.getQualifier())
-      && Utilities.isSonargraphProject(project, moduleFileSystem, this.profile, SonargraphMetrics.getAll());
+      && Utilities.areSonargraphRulesActive(profile);
   }
 
   @Override

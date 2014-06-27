@@ -18,12 +18,11 @@
 
 package com.hello2morrow.sonarplugin.decorator;
 
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 
 public final class AlertDecorator {
 
@@ -76,7 +75,7 @@ public final class AlertDecorator {
     new AlertThreshold(SonargraphSimpleMetrics.CYCLE_WARNINGS, 1, 10),
     new AlertThreshold(SonargraphSimpleMetrics.DUPLICATE_WARNINGS, 1, 20),
     new AlertThreshold(SonargraphSimpleMetrics.THRESHOLD_WARNINGS, 1.0, 25.0),
-    new AlertThreshold(SonargraphSimpleMetrics.WORKSPACE_WARNINGS, 1.0, 10.0) };
+    new AlertThreshold(SonargraphSimpleMetrics.WORKSPACE_WARNINGS, 1.0, 10.0)};
 
   private static void copyAlertLevel(IProjectContext context, Metric from, Metric to) {
     Measure fromMeasure = context.getMeasure(from);

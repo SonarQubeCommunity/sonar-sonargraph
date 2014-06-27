@@ -19,7 +19,6 @@ package com.hello2morrow.sonarplugin.decorator;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project))
-      && Utilities.isSonargraphProject(project, moduleFileSystem, profile, SonargraphMetrics.getAll());
+      && Utilities.areSonargraphRulesActive(profile);
   }
 
   @Override

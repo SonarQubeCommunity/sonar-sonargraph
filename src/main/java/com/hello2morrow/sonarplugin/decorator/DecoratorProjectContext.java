@@ -18,34 +18,31 @@
 
 package com.hello2morrow.sonarplugin.decorator;
 
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
-
 /**
  * Facade to the @link {@link org.sonar.api.batch.DecoratorContext} that only offers the methods needed to save and get measures.
- * 
+ *
  * @author Ingmar
  *
  */
-public class DecoratorProjectContext implements IProjectContext
-{
+public class DecoratorProjectContext implements IProjectContext {
   private final DecoratorContext context;
 
-  public DecoratorProjectContext(DecoratorContext context)
-  {
+  public DecoratorProjectContext(DecoratorContext context) {
     this.context = context;
   }
 
-  public Measure getMeasure(Metric metric)
-  {
+  @Override
+  public Measure getMeasure(Metric metric) {
     return context.getMeasure(metric);
   }
 
-  public void saveMeasure(Measure measure)
-  {
+  @Override
+  public void saveMeasure(Measure measure) {
     context.saveMeasure(measure);
   }
 }
