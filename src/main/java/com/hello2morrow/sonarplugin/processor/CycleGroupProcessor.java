@@ -27,9 +27,7 @@ import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
@@ -38,9 +36,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class CycleGroupProcessor implements IProcessor {
@@ -101,10 +97,10 @@ public class CycleGroupProcessor implements IProcessor {
     List<Resource> packages = new ArrayList<Resource>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
       String fqName = pathElement.getParent();
-      Resource javaPackage = getPackage(fqName);
+      Resource javaPackage = Utilities.getResource(project, fileSystem, fqName.replace('.', '/'));
 
       if (javaPackage == null) {
-        LOG.error("Cannot obtain resource " + fqName);
+        LOG.error("Cannot obtain package " + fqName);
       } else {
         packages.add(javaPackage);
       }
@@ -135,26 +131,4 @@ public class CycleGroupProcessor implements IProcessor {
     }
   }
 
-  private Resource getPackage(final String fqName) {
-    Iterator<File> files = fileSystem.files(new FilePredicate()
-    {
-      @Override
-      public boolean apply(InputFile file) {
-        // FIXME: Needs to be smarter!!
-        return file.relativePath().equals(fqName);
-      }
-    }).iterator();
-
-    if (!files.hasNext())
-    {
-      LOG.error("Cannot obtain resource " + fqName);
-      return null;
-    }
-
-    Resource javaPackage = org.sonar.api.resources.Directory.fromIOFile(files.next(), project);
-    if (javaPackage == null) {
-      LOG.error("Cannot obtain resource " + fqName);
-    }
-    return javaPackage;
-  }
 }

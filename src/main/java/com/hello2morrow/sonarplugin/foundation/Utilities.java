@@ -36,7 +36,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +78,7 @@ public final class Utilities {
     return buName;
   }
 
+  @Deprecated
   public static String relativeFileNameToFqName(String fileName) {
     int lastDot = fileName.lastIndexOf('.');
 
@@ -177,34 +177,18 @@ public final class Utilities {
 
   public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, String priority, final String fqName, int line,
     String msg) {
-    Iterator<File> files = fileSystem.files(new FilePredicate()
-    {
-      @Override
-      public boolean apply(InputFile file) {
-        // FIXME: Needs to be smarter
-        return file.relativePath().equals(fqName);
-      }
-    }).iterator();
 
-    if (!files.hasNext())
-    {
-      LOG.error("Cannot obtain resource " + fqName);
+    Resource resource = getResource(project, fileSystem, fqName);
+    if (resource == null) {
       return;
     }
 
-    Resource javaFile = org.sonar.api.resources.File.fromIOFile(files.next(), project);
-    if (javaFile == null) {
-      LOG.error("Cannot obtain resource " + fqName);
-      return;
-    }
-
-    Issuable issuable = perspectives.as(Issuable.class, javaFile);
+    Issuable issuable = perspectives.as(Issuable.class, resource);
     IssueBuilder issueBuilder = issuable.newIssueBuilder();
     if (line > 0) {
       issueBuilder.line(line);
     }
-    if (priority != null && priority.trim().length() > 0)
-    {
+    if (priority != null && priority.trim().length() > 0) {
       issueBuilder.severity(priority);
     }
     else if (rule.getSeverity() != null)
@@ -217,37 +201,43 @@ public final class Utilities {
       .message(msg)
       .build();
     issuable.addIssue(issue);
+  }
 
+  public static Resource getResource(Project project, FileSystem fileSystem, final String fqName) {
+    final boolean isSourceFile = fqName.endsWith(".java");
+
+    if (isSourceFile)
+    {
+      InputFile file = fileSystem.inputFile(new FilePredicate()
+      {
+        @Override
+        public boolean apply(InputFile file) {
+          LOG.error("Checking file: " + file.relativePath());
+          return file.relativePath().endsWith(fqName);
+        }
+      });
+
+      if (file == null) {
+        LOG.error("Cannot obtain resource " + fqName);
+        return null;
+      }
+
+      Resource resource = org.sonar.api.resources.File.fromIOFile(file.file(), project);
+      if (resource == null) {
+        LOG.error("Cannot obtain source file " + fqName);
+      }
+      return resource;
+    }
+
+    File dir = new File(fileSystem.baseDir(), fqName);
+    Resource resource = org.sonar.api.resources.Directory.fromIOFile(dir, project);
+    return resource;
   }
 
   public static void saveViolation(Project project, FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRule rule, final String fqName,
     int line, String msg) {
     saveViolation(project, fileSystem, perspectives, rule, null, fqName, line, msg);
   }
-
-  // @Deprecated
-  // public static void saveViolation(SensorContext sensorContext, ActiveRule rule, RulePriority priority, String fqName,
-  // int line, String msg) {
-  // Resource javaFile = sensorContext.getResource(new JavaFile(fqName));
-  //
-  // if (javaFile == null) {
-  // LOG.error("Cannot obtain resource " + fqName);
-  // return;
-  // }
-  //
-  // Violation v = Violation.create(rule, javaFile);
-  //
-  // v.setMessage(msg);
-  // if (line == 0) {
-  // v.setLineId(null);
-  // } else {
-  // v.setLineId(line);
-  // }
-  // if (priority != null) {
-  // v.setSeverity(priority);
-  // }
-  // sensorContext.saveViolation(v);
-  // }
 
   /**
    * Retrieves the metric from the build unit and saves it as a measure to the sensor context.
@@ -326,7 +316,7 @@ public final class Utilities {
 
   public static boolean buildUnitMatchesAnalyzedProject(String buName, Project project) {
     final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
-    final String[] elements = project.getKey().split(GROUP_ARTIFACT_SEPARATOR);
+    final String[] elements = project.key().split(GROUP_ARTIFACT_SEPARATOR);
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
 
     boolean result = false;

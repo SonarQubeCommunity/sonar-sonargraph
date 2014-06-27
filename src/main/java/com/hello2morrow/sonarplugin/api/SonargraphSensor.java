@@ -64,7 +64,7 @@ public final class SonargraphSensor implements Sensor {
   private static final int NO_DECIMAL = 0;
 
   // FIXME: Read this info from a properties file that is generated during the maven build
-  private static final String VERSION = "3.1.1";
+  private static final String VERSION = "3.2";
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private final Map<String, Number> buildUnitmetrics;
@@ -99,8 +99,21 @@ public final class SonargraphSensor implements Sensor {
   /* called from maven */
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !Utilities.isAggregatingProject(project)
-      && Utilities.isSonargraphProject(project, this.fileSystem, this.profile, SonargraphMetrics.getAll());
+    boolean aggregating = !Utilities.isAggregatingProject(project);
+    if (!aggregating) {
+      return false;
+    }
+
+    boolean sonargraphProject = Utilities.isSonargraphProject(project, this.fileSystem, this.profile, SonargraphMetrics.getAll());
+    if (!sonargraphProject) {
+      LOG.warn("----------------------------------------------------------------");
+      LOG.warn("Sonar-Sonargraph-Plugin: Project" + project.getName() + " [" + project.getKey()
+        + "] is not processed, since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.warn("----------------------------------------------------------------");
+    }
+
+    return aggregating
+      && sonargraphProject;
   }
 
   @Override
@@ -112,7 +125,7 @@ public final class SonargraphSensor implements Sensor {
     }
 
     LOG.info("----------------------------------------------------------------");
-    LOG.info("Execute sonar-sonargraph-plugin for " + project.getName() + " [" + project.getKey() + "]");
+    LOG.info("Sonar-Sonargraph-Plugin: Execute for " + project.getName() + " [" + project.getKey() + "]");
     LOG.info("----------------------------------------------------------------");
 
     this.sensorContext = sensorContext;

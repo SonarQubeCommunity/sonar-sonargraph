@@ -126,13 +126,11 @@ public class TaskProcessor implements IProcessor {
         String relFileName = pos.getFile();
 
         if (relFileName != null) {
-          String fqName = Utilities.relativeFileNameToFqName(relFileName);
           int line = Integer.valueOf(pos.getLine());
-
           if (line == 0) {
             line = 1;
           }
-          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, priorityMap.get(priority), fqName, line, description);
+          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, priorityMap.get(priority), relFileName, line, description);
         }
         counter++;
       }

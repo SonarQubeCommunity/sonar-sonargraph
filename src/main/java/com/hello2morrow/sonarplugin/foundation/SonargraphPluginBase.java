@@ -56,7 +56,7 @@ public final class SonargraphPluginBase
   {
     // Don't instantiate
   }
-  
+
   public static String getRuleKey(String attributeGroup) {
     if ("Duplicate code".equals(attributeGroup)) {
       return SonargraphPluginBase.DUPLICATE_RULE_KEY;

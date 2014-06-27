@@ -96,10 +96,9 @@ public class ArchitectureViolationProcessor implements IProcessor {
         continue;
       }
       if (relFileName != null && (pos.getType() != null) && (line > 0)) {
-        String fqName = Utilities.relativeFileNameToFqName(relFileName);
         String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        Utilities.saveViolation(project, fileSystem, this.resourcePerspective, rule, fqName, Integer.valueOf(pos.getLine()), msg);
+        Utilities.saveViolation(project, fileSystem, this.resourcePerspective, rule, relFileName, Integer.valueOf(pos.getLine()), msg);
       }
     }
   }

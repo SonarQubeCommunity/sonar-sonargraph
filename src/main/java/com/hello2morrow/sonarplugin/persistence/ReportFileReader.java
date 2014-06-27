@@ -115,7 +115,7 @@ public class ReportFileReader implements IReportReader {
     }
 
     if (configuredReportPath == null || configuredReportPath.length() == 0) {
-      return moduleFileSystem.workDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+      return moduleFileSystem.workDir().getParentFile().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
     }
 
     return configuredReportPath;

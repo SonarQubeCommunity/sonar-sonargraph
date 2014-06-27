@@ -106,8 +106,7 @@ public class WarningProcessor implements IProcessor {
         String relFileName = pos.getFile();
 
         if (relFileName != null) {
-          String fqName = Utilities.relativeFileNameToFqName(relFileName);
-          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, fqName, Integer.valueOf(pos.getLine()), msg);
+          Utilities.saveViolation(project, fileSystem, resourcePerspectives, rule, relFileName, Integer.valueOf(pos.getLine()), msg);
         }
       }
     } else {
@@ -145,7 +144,7 @@ public class WarningProcessor implements IProcessor {
     for (Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
       for (DuplicateCodeBlock block : entry.getValue()) {
         String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
-        String fqName = Utilities.relativeFileNameToFqName(block.getElementName());
+        String fqName = block.getElementName();
         if (Utilities.getBuildUnitName(buildUnit.getName())
           .equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
           Utilities.saveViolation(project, fileSystem, this.resourcePerspectives, rule, fqName, block.getStartLine(), message);
