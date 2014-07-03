@@ -25,13 +25,12 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
@@ -42,34 +41,40 @@ import java.util.List;
 public class CycleGroupProcessor implements IProcessor {
 
   private final FileSystem fileSystem;
-  private final RulesProfile rulesProfile;
-  private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
   private final ResourcePerspectives perspectives;
   private final Project project;
+  private final ActiveRule rule;
 
   public CycleGroupProcessor(Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, final ResourcePerspectives perspectives) {
     this.project = project;
-    this.rulesProfile = rulesProfile;
     this.fileSystem = fileSystem;
     this.perspectives = perspectives;
+    this.rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
   }
 
   @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
+    if (rule == null) {
+      return;
+    }
+
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if ("Physical package".equals(group.getNamedElementGroup()) && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-        int groupSize = group.getCyclePath().size();
-        cyclicPackages += groupSize;
-        cyclicity += groupSize * groupSize;
-        if (groupSize > biggestCycleGroupSize) {
-          biggestCycleGroupSize = groupSize;
+      if (PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+        if ("Physical package".equals(group.getNamedElementGroup())) {
+          int groupSize = group.getCyclePath().size();
+          cyclicPackages += groupSize;
+          cyclicity += groupSize * groupSize;
+          if (groupSize > biggestCycleGroupSize) {
+            biggestCycleGroupSize = groupSize;
+          }
+        } else if ("Directory".equals(group.getNamedElementGroup())) {
+          handlePackageCycleGroup(group);
         }
-        handlePackageCycleGroup(group);
       }
     }
   }
@@ -87,29 +92,21 @@ public class CycleGroupProcessor implements IProcessor {
   }
 
   private void handlePackageCycleGroup(XsdCycleGroup group) {
-    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
-    if (rule == null) {
-      return;
-    }
-
     List<Resource> packages = new ArrayList<Resource>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
-      String fqName = pathElement.getParent();
-      Resource javaPackage = Utilities.getResource(project, fileSystem, fqName.replace('.', '/'));
-
-      if (javaPackage == null) {
-        LOG.error("Cannot obtain package " + fqName);
-      } else {
-        packages.add(javaPackage);
+      String projectPath = project.path() + Directory.SEPARATOR;
+      if (pathElement.getParent().startsWith(projectPath)) {
+        String fqName = pathElement.getParent().substring(projectPath.length());
+        Resource javaPackage = Utilities.getResource(project, fileSystem, fqName);
+        if (javaPackage != null) {
+          packages.add(javaPackage);
+        }
       }
     }
 
     for (Resource jPackage : packages) {
-
       Issuable issuable = perspectives.as(Issuable.class, jPackage);
       if (issuable == null) {
-        // FIXME: Why can no issuable be created for packages?
-        LOG.error("Failed to create issuable for " + jPackage.getPath());
         continue;
       }
       IssueBuilder issueBuilder = issuable.newIssueBuilder();

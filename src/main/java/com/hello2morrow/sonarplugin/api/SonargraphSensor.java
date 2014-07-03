@@ -60,6 +60,8 @@ import java.util.Map;
  */
 public final class SonargraphSensor implements Sensor {
 
+  private static final String NOT_PROCESSED_MESSAGE = "Module will not be processed by Sonargraph!";
+  private static final String SEPARATOR = "----------------------------------------------------------------";
   private static final int SONARGRAPH_METRICS_COUNT = 70;
   private static final double HUNDRET_PERCENT = 100.0;
   private static final int NO_DECIMAL = 0;
@@ -105,10 +107,10 @@ public final class SonargraphSensor implements Sensor {
 
     boolean sonargraphProject = Utilities.isSonargraphProject(project, this.fileSystem, this.profile, SonargraphMetrics.getAll());
     if (!sonargraphProject) {
-      LOG.warn("----------------------------------------------------------------");
+      LOG.warn(SEPARATOR);
       LOG.warn("Sonargraph: Project" + project.getName() + " [" + project.getKey()
         + "] is not processed, since no Sonargraph rules are activated in current SonarQube quality profile.");
-      LOG.warn("----------------------------------------------------------------");
+      LOG.warn(SEPARATOR);
     }
 
     return aggregating && sonargraphProject;
@@ -129,7 +131,7 @@ public final class SonargraphSensor implements Sensor {
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
 
     if (buildUnit == null) {
-      LOG.warn("No Sonargraph build units found in report for [" + project.getName() + "]. Module will not be processed by Sonargraph!");
+      LOG.warn("No Sonargraph build units found in report for [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
       Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
       return;
@@ -144,7 +146,7 @@ public final class SonargraphSensor implements Sensor {
 
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
-      LOG.warn("No code to be analysed in [" + project.getName() + "]. Module will not be processed by Sonargraph!");
+      LOG.warn("No code to be analysed in [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
       Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
       return;

@@ -41,6 +41,7 @@ import java.util.Map;
 
 public final class Utilities {
 
+  private static final String SOURCE_FILE_NOT_FOUND_MESSAGE = "Cannot obtain source file ";
   public static final String DEFAULT_BUILD_UNIT = "(Default Build Unit)";
   private static final String PROJECT_BUILDUNIT_SEPARATOR = "::";
   private static final String GROUP_ARTIFACT_SEPARATOR = ":";
@@ -195,23 +196,23 @@ public final class Utilities {
       });
 
       if (file == null) {
-        LOG.error("Cannot obtain source file " + fqName);
+        LOG.error(SOURCE_FILE_NOT_FOUND_MESSAGE + fqName);
         return null;
       }
 
       Resource resource = org.sonar.api.resources.File.fromIOFile(file.file(), project);
       if (resource == null) {
-        LOG.error("Cannot obtain source file " + fqName);
+        LOG.error(SOURCE_FILE_NOT_FOUND_MESSAGE + fqName);
       }
       return resource;
     }
 
     File dir = new File(fileSystem.baseDir(), fqName);
-    Resource resource = org.sonar.api.resources.Directory.fromIOFile(dir, project);
-    if (resource == null) {
-      LOG.error("Cannot obtain directory " + fqName);
+    if (!dir.exists()) {
+      return null;
     }
-    return resource;
+
+    return org.sonar.api.resources.Directory.fromIOFile(dir, project);
   }
 
   /**

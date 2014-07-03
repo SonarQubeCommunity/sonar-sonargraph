@@ -1,8 +1,0 @@
-#
-#Tue Jun 10 12:46:29 CEST 2014
-sonar.inactive.directories=
-sonar.buildunit.name=sonar-sonargraph-plugin
-sonar.active.directories=src/main/java|src/main/resources|src/test/java|src/test/resources|target/classes|target/generated-sources/jaxb|target/test-classes
-sonar.project.name=sonar-sonargraph-plugin
-sonar.context.file=sonar-sonargraph-plugin.sonargraph
-sonar.violation.marker=Error

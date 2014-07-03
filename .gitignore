@@ -11,6 +11,7 @@ target/
 .classpath
 .project
 .settings
+.sonar4clipse
 
 # ---- Mac OS X
 .DS_Store

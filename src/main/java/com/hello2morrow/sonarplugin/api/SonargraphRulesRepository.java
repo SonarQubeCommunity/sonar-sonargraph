@@ -25,6 +25,9 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 public final class SonargraphRulesRepository implements RulesDefinition {
 
+  private static final String SONARGRAPH_TASK = "Sonargraph Task";
+  private static final String SONARGRAPH_WORKSPACE_WARNING = "Sonargraph Workspace Warning";
+
   public SonargraphRulesRepository() {
     super();
   }
@@ -48,13 +51,13 @@ public final class SonargraphRulesRepository implements RulesDefinition {
     cycleGroups.setSeverity(Severity.MAJOR);
 
     NewRule workspace = repository.createRule(SonargraphPluginBase.WORKSPACE_RULE_KEY);
-    workspace.setName("Sonargraph Workspace Warning");
-    workspace.setHtmlDescription("Sonargraph Workspace Warning");
+    workspace.setName(SONARGRAPH_WORKSPACE_WARNING);
+    workspace.setHtmlDescription(SONARGRAPH_WORKSPACE_WARNING);
     workspace.setSeverity(Severity.MAJOR);
 
     NewRule task = repository.createRule(SonargraphPluginBase.TASK_RULE_KEY);
-    task.setName("Sonargraph Task");
-    task.setHtmlDescription("Sonargraph Task");
+    task.setName(SONARGRAPH_TASK);
+    task.setHtmlDescription(SONARGRAPH_TASK);
     task.setSeverity(Severity.MAJOR);
 
     NewRule thresholdRule = repository.createRule(SonargraphPluginBase.THRESHOLD_RULE_KEY);
