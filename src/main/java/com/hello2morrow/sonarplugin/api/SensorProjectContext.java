@@ -18,34 +18,31 @@
 
 package com.hello2morrow.sonarplugin.api;
 
+import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
-
 /**
- * Facade for the {@link org.sonar.api.batch.SensorContext} that only allows to save and retrieve measures. 
- * 
+ * Facade for the {@link org.sonar.api.batch.SensorContext} that only allows to save and retrieve measures.
+ *
  * @author Ingmar
  *
  */
-public final class SensorProjectContext implements IProjectContext
-{
+public final class SensorProjectContext implements IProjectContext {
   private final SensorContext context;
 
-  public SensorProjectContext(SensorContext context)
-  {
+  public SensorProjectContext(SensorContext context) {
     this.context = context;
   }
 
-  public Measure getMeasure(Metric metric)
-  {
+  @Override
+  public Measure getMeasure(Metric metric) {
     return context.getMeasure(metric);
   }
 
-  public void saveMeasure(Measure measure)
-  {
+  @Override
+  public void saveMeasure(Measure measure) {
     context.saveMeasure(measure);
   }
 }

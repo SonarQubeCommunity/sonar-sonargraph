@@ -21,24 +21,24 @@ package com.hello2morrow.sonarplugin.view;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
 
+@WidgetCategory("Sonargraph")
 @Description("Reports metrics on the architectural quality of the project.")
-public class SonargraphArchitectureDashboard extends AbstractRubyTemplate implements RubyRailsWidget
-{
+public class SonargraphArchitectureDashboard extends AbstractRubyTemplate implements RubyRailsWidget {
 
   @Override
-  protected String getTemplatePath()
-  {
+  protected String getTemplatePath() {
     return "/sonargraph_architecture_widget.html.erb";
   }
 
-  public String getId()
-  {
+  @Override
+  public String getId() {
     return "sonargraph.architecture";
   }
 
-  public String getTitle()
-  {
+  @Override
+  public String getTitle() {
     return "Sonargraph Architecture Dashbox";
   }
 

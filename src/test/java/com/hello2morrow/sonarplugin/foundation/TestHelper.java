@@ -17,33 +17,52 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.api.server.rule.RulesDefinition.Rule;
 
-import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestHelper {
 
   public static RulesProfile initRulesProfile() {
+    RulesDefinition rulesDefinition = new SonargraphRulesRepository();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+
+    Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
     RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
-    profile.activateRule(SonargraphRulesRepository.TASK, RulePriority.MAJOR);
-    profile.activateRule(SonargraphRulesRepository.CYCLE_GROUPS, RulePriority.MAJOR);
-    profile.activateRule(SonargraphRulesRepository.DUPLICATES, RulePriority.MAJOR);
-    profile.activateRule(SonargraphRulesRepository.ARCH, RulePriority.MAJOR);
-    profile.activateRule(SonargraphRulesRepository.THRESHOLD, RulePriority.MAJOR);
-    profile.activateRule(SonargraphRulesRepository.WORKSPACE, RulePriority.MAJOR);
+
+    activateRule(repository, profile, SonargraphPluginBase.TASK_RULE_KEY);
+    activateRule(repository, profile, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+    activateRule(repository, profile, SonargraphPluginBase.DUPLICATE_RULE_KEY);
+    activateRule(repository, profile, SonargraphPluginBase.ARCH_RULE_KEY);
+    activateRule(repository, profile, SonargraphPluginBase.THRESHOLD_RULE_KEY);
+    activateRule(repository, profile, SonargraphPluginBase.WORKSPACE_RULE_KEY);
     return profile;
+  }
+
+  private static void activateRule(Repository repository, RulesProfile profile, String ruleKey) {
+    Rule rule = repository.rule(ruleKey);
+    profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
   }
 
   public static Settings initSettings()
@@ -52,13 +71,14 @@ public class TestHelper {
     settings.setProperty(SonargraphPluginBase.COST_PER_INDEX_POINT, 7.0);
     return settings;
   }
-  
+
   @SuppressWarnings("rawtypes")
   public static SensorContext initSensorContext() {
     SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
 
+      @Override
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
         return args[0];
@@ -66,6 +86,7 @@ public class TestHelper {
     });
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
 
+      @Override
       public Object answer(InvocationOnMock invocation) {
         Object arg = invocation.getArguments()[0];
         Measure result = new Measure((Metric) arg);
@@ -75,5 +96,32 @@ public class TestHelper {
     });
 
     return sensorContext;
+  }
+
+  public static FileSystem initModuleFileSystem() {
+    FileSystem fileSystem = mock(FileSystem.class);
+
+    when(fileSystem.hasFiles(any(FilePredicate.class))).thenAnswer(new Answer<Boolean>() {
+      @Override
+      public Boolean answer(InvocationOnMock invocation) throws Throwable {
+        return true;
+      }
+    });
+
+    when(fileSystem.files(any(FilePredicate.class))).thenAnswer(new Answer<Iterable<File>>() {
+      @Override
+      public List<File> answer(InvocationOnMock invocation) throws Throwable {
+        List<File> fileList = new ArrayList<File>();
+        fileList.add(new File("test.java"));
+        return fileList;
+      }
+    });
+    return fileSystem;
+  }
+
+  public static ResourcePerspectives initPerspectives() {
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    // when(perspectives.as(perspectiveClass, resource))
+    return perspectives;
   }
 }

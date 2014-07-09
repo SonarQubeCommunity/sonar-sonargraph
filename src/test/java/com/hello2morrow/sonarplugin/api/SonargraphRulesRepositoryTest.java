@@ -17,33 +17,36 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import static org.junit.Assert.*;
+import com.hello2morrow.sonarplugin.foundation.Java;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import org.junit.Test;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
 
 import java.util.List;
 
-import org.junit.Test;
-import org.sonar.api.resources.Java;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleRepository;
-
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SonargraphRulesRepositoryTest {
 
   @Test
   public void testCreateRules() {
-    RuleRepository repository = new SonargraphRulesRepository();
-    assertEquals(SonargraphPluginBase.PLUGIN_KEY, repository.getKey());
-    assertEquals(Java.KEY, repository.getLanguage());
-    List<Rule> rules = repository.createRules();
-    assertTrue(rules.contains(SonargraphRulesRepository.ARCH));
-    assertTrue(rules.contains(SonargraphRulesRepository.THRESHOLD));
-    assertTrue(rules.contains(SonargraphRulesRepository.TASK));
-    assertTrue(rules.contains(SonargraphRulesRepository.CYCLE_GROUPS));
-    assertTrue(rules.contains(SonargraphRulesRepository.WORKSPACE));
-    assertTrue(rules.contains(SonargraphRulesRepository.DUPLICATES));
-    
+    RulesDefinition rulesDefinition = new SonargraphRulesRepository();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+
+    Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
+    assertNotNull(SonargraphPluginBase.PLUGIN_KEY, repository);
+    assertEquals(new Java().getKey(), repository.language());
+    List<RulesDefinition.Rule> rules = repository.rules();
     assertEquals(6, rules.size());
+
+    assertNotNull(repository.rule(SonargraphPluginBase.ARCH_RULE_KEY));
+    assertNotNull(repository.rule(SonargraphPluginBase.THRESHOLD_RULE_KEY));
+    assertNotNull(repository.rule(SonargraphPluginBase.TASK_RULE_KEY));
+    assertNotNull(repository.rule(SonargraphPluginBase.CYCLE_GROUP_RULE_KEY));
+    assertNotNull(repository.rule(SonargraphPluginBase.WORKSPACE_RULE_KEY));
+    assertNotNull(repository.rule(SonargraphPluginBase.DUPLICATE_RULE_KEY));
   }
 }

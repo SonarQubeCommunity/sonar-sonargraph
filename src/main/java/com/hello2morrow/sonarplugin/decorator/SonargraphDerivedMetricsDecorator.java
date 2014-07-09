@@ -17,9 +17,10 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
+import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
@@ -30,31 +31,28 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
-import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
-import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
+import java.util.Arrays;
+import java.util.List;
 
 public class SonargraphDerivedMetricsDecorator implements Decorator {
 
-  private static final List<String> RESOURCES_TO_DECORATE = Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE,
-      Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final List<String> RESOURCES_TO_DECORATE = Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private static final double HUNDRET_PERCENT = 100.0;
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphDerivedMetricsDecorator.class);
-  private RulesProfile profile;
+  private final RulesProfile profile;
 
   public SonargraphDerivedMetricsDecorator(RulesProfile profile) {
     this.profile = profile;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project))
-        && Utilities.isSonargraphProject(project, profile, SonargraphMetrics.getAll());
+    return (project.getQualifier().equals(Qualifiers.PROJECT) || Utilities.isAggregatingProject(project)) && Utilities.areSonargraphRulesActive(profile);
   }
 
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
+  @Override
+  public void decorate(Resource resource, DecoratorContext context) {
+    if (!Utilities.isAggregationProject(context, SonargraphSimpleMetrics.INSTRUCTIONS)) {
       return;
     }
 
@@ -67,8 +65,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
       Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
-        LOG.warn("Skipping module [" + childContext.getResource().getName()
-            + "] because it is not part of the Sonargraph workspace or does not contain any code.");
+        LOG.warn("Skipping module [" + childContext.getResource().getName() + "] because it is not part of the Sonargraph workspace or does not contain any code.");
         continue;
       }
 
@@ -127,12 +124,10 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     if (internalTypes != null && internalTypes.getValue() > 0) {
       if (violatingTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT,
-            HUNDRET_PERCENT * violatingTypes.getValue() / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, HUNDRET_PERCENT * violatingTypes.getValue() / internalTypes.getValue());
       }
       if (unassignedTypes != null) {
-        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
-            HUNDRET_PERCENT * unassignedTypes.getValue() / internalTypes.getValue());
+        context.saveMeasure(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, HUNDRET_PERCENT * unassignedTypes.getValue() / internalTypes.getValue());
       }
     }
   }
@@ -143,8 +138,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     Measure cyclicPackages = context.getMeasure(SonargraphSimpleMetrics.CYCLIC_PACKAGES);
 
     if (cyclicity == null || packages == null || cyclicPackages == null) {
-      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: "
-          + context.getProject().getKey());
+      LOG.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: " + context.getProject().getKey());
     } else {
       double relCyclicity = 0.0;
       double relCyclicPackages = 0.0;
@@ -160,7 +154,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     }
   }
 
-  public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
+  public boolean shouldDecorateResource(Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return RESOURCES_TO_DECORATE.contains(resource.getQualifier());
   }

@@ -17,13 +17,14 @@
  */
 package com.hello2morrow.sonarplugin.metric.internal;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SonargraphInternalMetricsTest {
 
@@ -38,7 +39,7 @@ public class SonargraphInternalMetricsTest {
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_ALL_TASKS));
-    
+
     assertEquals(8, metrics.size());
   }
 }

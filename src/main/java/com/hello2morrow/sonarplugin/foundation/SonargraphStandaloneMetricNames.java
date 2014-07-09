@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-
 public final class SonargraphStandaloneMetricNames {
 
   public static final String ACD = "AverageComponentDependency";
@@ -44,6 +43,6 @@ public final class SonargraphStandaloneMetricNames {
   public static final String INTERNAL_TYPES = "NumberOfInternalTypes";
   public static final String STUCTURAL_DEBT_INDEX = "StructuralDebtIndex";
 
-  private SonargraphStandaloneMetricNames()
-  {}
+  private SonargraphStandaloneMetricNames() {
+  }
 }

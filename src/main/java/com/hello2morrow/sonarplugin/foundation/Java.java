@@ -15,25 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonarplugin.metric;
 
-import org.sonar.api.measures.Metric;
+package com.hello2morrow.sonarplugin.foundation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.resources.AbstractLanguage;
 
-public final class SonargraphMetrics {
+public class Java extends AbstractLanguage {
 
-  private static final SonargraphMetrics INSTANCE = new SonargraphMetrics();
-  private final List<Metric> allMetrics;
+  public static final String KEY = "java";
 
-  private SonargraphMetrics() {
-    allMetrics = new ArrayList<Metric>(new SonargraphDerivedMetrics().getMetrics());
-    allMetrics.addAll(new SonargraphSimpleMetrics().getMetrics());
+  public Java() {
+    super(KEY, "Java");
   }
 
-  public static List<Metric> getAll() {
-    return Collections.unmodifiableList(INSTANCE.allMetrics);
+  @Override
+  public String[] getFileSuffixes() {
+    return new String[] {"java"};
   }
+
+  public static boolean isEnabled(FileSystem fileSystem) {
+    return fileSystem.hasFiles(new FilePredicate() {
+      @Override
+      public boolean apply(InputFile file) {
+        return file.language().equalsIgnoreCase(KEY);
+      }
+    });
+  }
+
 }

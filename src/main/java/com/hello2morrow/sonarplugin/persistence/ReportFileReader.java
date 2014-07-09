@@ -17,33 +17,32 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.xsd.ReportContext;
+import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Project;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.xsd.ReportContext;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
-import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
-
 /**
  * Utility class for reading in the Sonargraph Report.
- * 
+ *
  * @author Ingmar
- * 
+ *
  */
 public class ReportFileReader implements IReportReader {
 
@@ -53,15 +52,17 @@ public class ReportFileReader implements IReportReader {
   private ReportContext report;
 
   public ReportFileReader() {
+    super();
   }
 
-  public void readSonargraphReport(final Project project, Settings settings) {
+  @Override
+  public void readSonargraphReport(final Project project, FileSystem moduleFileSystem, Settings settings) {
     if (project == null) {
       LOG.error("No project provided for reading sonargraph report");
       return;
     }
 
-    String reportFileName = determineReportFileName(project, settings);
+    String reportFileName = determineReportFileName(project, moduleFileSystem, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
     InputStream input = null;
@@ -69,7 +70,6 @@ public class ReportFileReader implements IReportReader {
 
     try {
       input = new FileInputStream(reportFileName);
-
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
       JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       Unmarshaller u = context.createUnmarshaller();
@@ -80,10 +80,13 @@ public class ReportFileReader implements IReportReader {
       if (project.isRoot()) {
         LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
         LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
-            + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
+          + "or with the commandline option -Dsonargraph.prepareForSonar=true?");
         LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
-            + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
+          + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
       }
+
+      LOG.debug("No Soargraph report found", e);
+
     } finally {
       Thread.currentThread().setContextClassLoader(defaultClassLoader);
       if (input != null) {
@@ -101,21 +104,20 @@ public class ReportFileReader implements IReportReader {
    * 
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#getReport()
    */
+  @Override
   public ReportContext getReport() {
     return report;
   }
 
-  private String determineReportFileName(Project project, Settings settings) {
+  private String determineReportFileName(Project project, FileSystem moduleFileSystem, Settings settings) {
     String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
 
-    ProjectFileSystem fileSystem = project.getFileSystem();
-    if (fileSystem == null)
-    {
+    if (moduleFileSystem == null) {
       return configuredReportPath;
     }
 
     if (configuredReportPath == null || configuredReportPath.length() == 0) {
-      return fileSystem.getBuildDir().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+      return moduleFileSystem.workDir().getParentFile().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
     }
 
     return configuredReportPath;
@@ -126,6 +128,7 @@ public class ReportFileReader implements IReportReader {
    * 
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#retrieveBuildUnit(java.lang.String)
    */
+  @Override
   public XsdAttributeRoot retrieveBuildUnit(Project project) {
     if (null == report) {
       return null;
@@ -145,7 +148,7 @@ public class ReportFileReader implements IReportReader {
       }
 
       LOG.warn("Project  with key [" + project.getKey() + "] could not be mapped to a build unit. "
-          + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
+        + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
     }
     return null;
   }

@@ -20,12 +20,11 @@
  */
 package com.hello2morrow.sonarplugin.metric;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.sonar.api.measures.Metrics;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ingmar

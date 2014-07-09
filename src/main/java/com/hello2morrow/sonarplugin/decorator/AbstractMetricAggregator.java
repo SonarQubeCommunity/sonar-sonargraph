@@ -17,8 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.decorator;
 
-import java.util.Arrays;
-
+import com.hello2morrow.sonarplugin.foundation.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
@@ -28,13 +27,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphMetrics;
+import java.util.Arrays;
 
 public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMetricAggregator.class);
-  private RulesProfile profile;
+  private final RulesProfile profile;
 
   public AbstractMetricAggregator(RulesProfile profile) {
     super();
@@ -43,7 +41,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return Utilities.isSonargraphProject(project, profile, SonargraphMetrics.getAll());
+    return Utilities.areSonargraphRulesActive(profile);
   }
 
   @Override
@@ -52,8 +50,8 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
   }
 
   @Override
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if ( !shouldDecorateResource(resource)) {
+  public void decorate(Resource resource, DecoratorContext context) {
+    if (!shouldDecorateResource(resource)) {
       return;
     }
     super.decorate(resource, context);
@@ -62,10 +60,10 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
   }
 
   @Override
-  public boolean shouldDecorateResource(@SuppressWarnings("rawtypes") Resource resource) {
+  public boolean shouldDecorateResource(Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
-        resource.getQualifier());
+      resource.getQualifier());
   }
 
 }

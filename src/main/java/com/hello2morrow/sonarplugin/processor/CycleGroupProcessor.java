@@ -17,18 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Violation;
-
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
@@ -37,34 +25,56 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issuable.IssueBuilder;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.ActiveRule;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CycleGroupProcessor implements IProcessor {
 
-  private SensorContext sensorContext;
-  private RulesProfile rulesProfile;
-  private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
+  private final FileSystem fileSystem;
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
+  private final ResourcePerspectives perspectives;
+  private final Project project;
+  private final ActiveRule rule;
 
-  public CycleGroupProcessor(final RulesProfile rulesProfile, final SensorContext sensorContext) {
-    this.rulesProfile = rulesProfile;
-    this.sensorContext = sensorContext;
+  public CycleGroupProcessor(Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, final ResourcePerspectives perspectives) {
+    this.project = project;
+    this.fileSystem = fileSystem;
+    this.perspectives = perspectives;
+    this.rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
   }
 
+  @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
+    if (rule == null) {
+      return;
+    }
+
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if ("Physical package".equals(group.getNamedElementGroup())
-          && PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-        int groupSize = group.getCyclePath().size();
-        cyclicPackages += groupSize;
-        cyclicity += groupSize * groupSize;
-        if (groupSize > biggestCycleGroupSize) {
-          biggestCycleGroupSize = groupSize;
+      if (PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+        if ("Physical package".equals(group.getNamedElementGroup())) {
+          int groupSize = group.getCyclePath().size();
+          cyclicPackages += groupSize;
+          cyclicity += groupSize * groupSize;
+          if (groupSize > biggestCycleGroupSize) {
+            biggestCycleGroupSize = groupSize;
+          }
+        } else if ("Directory".equals(group.getNamedElementGroup())) {
+          handlePackageCycleGroup(group);
         }
-        handlePackageCycleGroup(group);
       }
     }
   }
@@ -81,46 +91,44 @@ public class CycleGroupProcessor implements IProcessor {
     return cyclicPackages;
   }
 
-  @SuppressWarnings("unchecked")
   private void handlePackageCycleGroup(XsdCycleGroup group) {
-    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY,
-        SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
-    if (rule == null) {
-      return;
-    }
-
-    List<Resource<JavaPackage>> packages = new ArrayList<Resource<JavaPackage>>();
+    List<Resource> packages = new ArrayList<Resource>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
-      String fqName = pathElement.getParent();
-      Resource<JavaPackage> javaPackage = sensorContext.getResource(new JavaPackage(fqName));
-
-      if (javaPackage == null) {
-        LOG.error("Cannot obtain resource " + fqName);
-      } else {
-        packages.add(javaPackage);
-      }
-    }
-
-    for (Resource<JavaPackage> jPackage : packages) {
-      Violation v = Violation.create(rule, jPackage);
-      List<Resource<JavaPackage>> tempPackages = new ArrayList<Resource<JavaPackage>>(packages);
-      tempPackages.remove(jPackage);
-      StringBuffer buffer = new StringBuffer();
-      buffer.append("Package participates in a cycle group");
-
-      boolean first = true;
-      for (Resource<JavaPackage> tPackage : tempPackages) {
-        if (first) {
-          buffer.append(" with package(s): ").append(tPackage.getName());
-          first = false;
-        } else {
-          buffer.append(", ").append(tPackage.getName());
+      String projectPath = project.path() + Directory.SEPARATOR;
+      if (pathElement.getParent().startsWith(projectPath)) {
+        String fqName = pathElement.getParent().substring(projectPath.length());
+        Resource javaPackage = Utilities.getResource(project, fileSystem, fqName);
+        if (javaPackage != null) {
+          packages.add(javaPackage);
         }
       }
+    }
 
-      v.setMessage(buffer.toString());
-      v.setLineId(null);
-      sensorContext.saveViolation(v);
+    for (Resource jPackage : packages) {
+      Issuable issuable = perspectives.as(Issuable.class, jPackage);
+      if (issuable == null) {
+        continue;
+      }
+      IssueBuilder issueBuilder = issuable.newIssueBuilder();
+      issueBuilder.severity(rule.getSeverity().toString()).ruleKey(rule.getRule().ruleKey());
+
+      List<Resource> tempPackages = new ArrayList<Resource>(packages);
+      tempPackages.remove(jPackage);
+      StringBuilder builder = new StringBuilder();
+      builder.append("Package participates in a cycle group");
+
+      boolean first = true;
+      for (Resource tPackage : tempPackages) {
+        if (first) {
+          builder.append(" with package(s): ").append(tPackage.getName());
+          first = false;
+        } else {
+          builder.append(", ").append(tPackage.getName());
+        }
+      }
+      issueBuilder.message(builder.toString());
+      issuable.addIssue(issueBuilder.build());
     }
   }
+
 }

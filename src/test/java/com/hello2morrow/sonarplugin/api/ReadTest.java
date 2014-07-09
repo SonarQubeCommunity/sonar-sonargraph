@@ -18,11 +18,12 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.foundation.TestHelper;
+import com.hello2morrow.sonarplugin.persistence.IReportReader;
+import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
+import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import junit.framework.TestCase;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
@@ -33,11 +34,9 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.TestHelper;
-import com.hello2morrow.sonarplugin.persistence.IReportReader;
-import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
-import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ReadTest extends TestCase {
 
@@ -47,7 +46,7 @@ public class ReadTest extends TestCase {
     Settings settings = TestHelper.initSettings();
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/infoglue21-report.xml");
     IReportReader reader = new ReportFileReader();
-    reader.readSonargraphReport(project1, settings);
+    reader.readSonargraphReport(project1, null, settings);
 
     assertNotNull(reader.getReport());
 
@@ -56,6 +55,7 @@ public class ReadTest extends TestCase {
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
 
+      @Override
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
         return args[0];
@@ -63,6 +63,7 @@ public class ReadTest extends TestCase {
     });
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
 
+      @Override
       public Object answer(InvocationOnMock invocation) {
         Object arg = invocation.getArguments()[0];
         Measure result = new Measure((Metric) arg);
@@ -71,7 +72,7 @@ public class ReadTest extends TestCase {
       }
     });
 
-    SonargraphSensor sensor = new SonargraphSensor(profile, TestHelper.initSettings(), sensorContext);
+    SonargraphSensor sensor = new SonargraphSensor(profile, TestHelper.initSettings(), sensorContext, TestHelper.initModuleFileSystem(), TestHelper.initPerspectives());
 
     Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
     XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
