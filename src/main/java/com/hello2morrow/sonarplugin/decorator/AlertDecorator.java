@@ -79,7 +79,6 @@ public final class AlertDecorator {
       if (toMeasure != null) {
         toMeasure.setAlertStatus(fromMeasure.getAlertStatus());
         toMeasure.setAlertText(fromMeasure.getMetricKey());
-        context.saveMeasure(toMeasure);
       }
     }
   }
@@ -91,7 +90,6 @@ public final class AlertDecorator {
       if (m != null) {
         m.setAlertStatus(threshold.getLevel(m.getValue()));
         m.setAlertText(threshold.getMetric().getKey());
-        context.saveMeasure(m);
       }
     }
     copyAlertLevel(context, SonargraphSimpleMetrics.NCCD, SonargraphSimpleMetrics.ACD);
