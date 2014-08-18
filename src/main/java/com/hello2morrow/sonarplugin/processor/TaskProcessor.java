@@ -15,13 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
 package com.hello2morrow.sonarplugin.processor;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
@@ -34,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -98,7 +98,14 @@ public class TaskProcessor implements IProcessor {
         count = handleTask(priorityMap, rule, count, task);
       }
     }
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.TASK_REFS, count, 0);
+    Metric connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
+    Measure measureToCopyThreshold = sensorContext.getMeasure(connectedMetric);
+
+    Measure measureToSave = new Measure(SonargraphSimpleMetrics.TASK_REFS, new Double(count), 0);
+    measureToSave.setAlertStatus(measureToCopyThreshold.getAlertStatus());
+    measureToSave.setAlertText(SonargraphSimpleMetrics.TASK_REFS.getKey());
+
+    sensorContext.saveMeasure(measureToSave);
   }
 
   private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {

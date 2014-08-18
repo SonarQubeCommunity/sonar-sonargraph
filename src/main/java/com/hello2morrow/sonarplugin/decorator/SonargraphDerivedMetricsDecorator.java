@@ -18,6 +18,7 @@
 package com.hello2morrow.sonarplugin.decorator;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
@@ -84,15 +86,19 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       highestNCCD = getBiggerValue(highestNCCD, nccd, localHighestNCCD);
     }
 
-    context.saveMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
-    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_ACD, highestACD);
-    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD, highestRelativeACD);
-    context.saveMeasure(SonargraphDerivedMetrics.HIGHEST_NCCD, highestNCCD);
+    context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize, 0));
+    context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.HIGHEST_NCCD, highestNCCD, 1));
+    context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.HIGHEST_ACD, highestACD, 1));
+    context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD, highestRelativeACD, 1));
 
     saveCyclicityMeasures(context);
     saveTypeMeasures(context);
+  }
 
-    AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
+  private Measure createMeasure(DecoratorContext context, Metric metric, double value, int precision) {
+    Measure measureToSave = new Measure(metric, value, precision);
+    SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measureToSave, value);
+    return measureToSave;
   }
 
   double getBiggerValue(double currentHighestValue, Measure measure, Measure localHighestMeasure) {
@@ -149,8 +155,12 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
         relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getValue() / numberOfPackages;
       }
 
-      context.saveMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
-      context.saveMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
+      context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity, 1));
+      context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages, 1));
+
+      Measure measure = context.getMeasure(SonargraphSimpleMetrics.CYCLICITY);
+      SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measure, measure.getValue());
+      context.saveMeasure(measure);
     }
   }
 
@@ -158,5 +168,4 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
     return RESOURCES_TO_DECORATE.contains(resource.getQualifier());
   }
-
 }

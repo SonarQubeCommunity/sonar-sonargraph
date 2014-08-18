@@ -22,6 +22,7 @@ import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Resource;
 
 /**
  * Facade for the {@link org.sonar.api.batch.SensorContext} that only allows to save and retrieve measures.
@@ -42,7 +43,7 @@ public final class SensorProjectContext implements IProjectContext {
   }
 
   @Override
-  public void saveMeasure(Measure measure) {
-    context.saveMeasure(measure);
+  public void saveMeasure(Measure measure, Resource resource) {
+    context.saveMeasure(resource, measure);
   }
 }

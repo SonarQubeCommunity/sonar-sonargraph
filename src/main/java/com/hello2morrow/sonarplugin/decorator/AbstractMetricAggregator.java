@@ -18,16 +18,20 @@
 package com.hello2morrow.sonarplugin.decorator;
 
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecorator {
 
@@ -55,15 +59,18 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
       return;
     }
     super.decorate(resource, context);
-
-    AlertDecorator.setAlertLevels(new DecoratorProjectContext(context));
+    for (Metric metric : addThresholdForMetrics()) {
+      Measure measure = context.getMeasure(metric);
+      SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measure, measure.getValue());
+      context.saveMeasure(measure);
+    }
   }
+
+  abstract List<Metric> addThresholdForMetrics();
 
   @Override
   public boolean shouldDecorateResource(Resource resource) {
     LOG.debug("Checking for resource type: " + resource.getQualifier());
-    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(
-      resource.getQualifier());
+    return Arrays.asList(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW).contains(resource.getQualifier());
   }
-
 }

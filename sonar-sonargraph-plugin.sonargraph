@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.9.205">
+<context version="7.1.10.209">
     <scope type="Project" name="sonar-sonargraph-plugin">
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
             <element type="ExcludeTypePattern" name="**.*Test*"/>
+            <element type="ExcludeTypePattern" name="**.xsd.**"/>
         </element>
         <dependency toName="External|External" type="AllowedDependency"/>
         <architecture>
@@ -78,15 +79,6 @@
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
         </workspace>
-        <itemDefinition>
-            <item type="IgnoreWarningFilterItem">
-                <property value="DuplicateCodeBlocks" name="AttributeId"/>
-                <property value="" name="Comment"/>
-                <property value="2010-03-18 15:44:24" name="Date"/>
-                <property value="JavaSourceFile" name="ElementType"/>
-                <property value="com/hello2morrow/sonarplugin/xsd/*.java # com/hello2morrow/sonarplugin/xsd/*.java" name="Pattern"/>
-            </item>
-        </itemDefinition>
         <physical>
             <element type="BuildUnit" name="sonar-sonargraph-plugin"/>
         </physical>

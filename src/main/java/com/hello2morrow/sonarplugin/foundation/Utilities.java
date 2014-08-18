@@ -225,8 +225,8 @@ public final class Utilities {
    * @param precision
    * @return the saved measure
    */
-  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, int precision) {
-    return saveExistingMeasureToContext(sensorContext, metrics, key, metric, precision, false);
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, AlertThreshold threshold, int precision) {
+    return saveExistingMeasureToContext(sensorContext, metrics, key, metric, threshold, precision, false);
   }
 
   /**
@@ -236,13 +236,14 @@ public final class Utilities {
    * @param metrics
    * @param key
    * @param metric
+   * @param threshold
    * @param precision
    * @return the saved measure
    */
-  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, int precision, boolean flagMissingMetric) {
+  public static Measure saveExistingMeasureToContext(SensorContext sensorContext, Map<String, Number> metrics, String key, Metric metric, AlertThreshold threshold, int precision,
+    boolean flagMissingMetric) {
     double value = Utilities.getBuildUnitMetricValue(metrics, key, flagMissingMetric);
-
-    return Utilities.saveMeasureToContext(sensorContext, metric, value, precision);
+    return Utilities.saveMeasureToContext(sensorContext, metric, value, threshold, precision);
   }
 
   /**
@@ -251,11 +252,16 @@ public final class Utilities {
    * @param sensorContext
    * @param metric
    * @param value
+   * @param threshold
    * @param precision
    * @return
    */
-  public static Measure saveMeasureToContext(SensorContext sensorContext, Metric metric, double value, int precision) {
+  public static Measure saveMeasureToContext(SensorContext sensorContext, Metric metric, double value, AlertThreshold threshold, int precision) {
     Measure m = new Measure(metric, value, precision);
+    if (threshold != null) {
+      m.setAlertStatus(threshold.getLevel(value));
+      m.setAlertText(metric.getKey());
+    }
     sensorContext.saveMeasure(m);
     return m;
   }

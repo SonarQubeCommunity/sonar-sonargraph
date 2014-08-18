@@ -22,6 +22,7 @@ import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Resource;
 
 /**
  * Facade to the @link {@link org.sonar.api.batch.DecoratorContext} that only offers the methods needed to save and get measures.
@@ -42,7 +43,7 @@ public class DecoratorProjectContext implements IProjectContext {
   }
 
   @Override
-  public void saveMeasure(Measure measure) {
+  public void saveMeasure(Measure measure, Resource resource) {
     context.saveMeasure(measure);
   }
 }

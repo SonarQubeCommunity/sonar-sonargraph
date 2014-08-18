@@ -44,15 +44,18 @@ public final class SonargraphAggregatingModuleMetricAggregator extends AbstractM
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project)
-      && super.shouldExecuteOnProject(project);
+    return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project) && super.shouldExecuteOnProject(project);
   }
 
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
-      SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
-      SonargraphSimpleMetrics.IGNORED_WARNINGS);
+    return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS,
+      SonargraphSimpleMetrics.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
+  }
+
+  @Override
+  List<Metric> addThresholdForMetrics() {
+    return generatesMetrics();
   }
 }

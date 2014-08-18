@@ -15,15 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.hello2morrow.sonarplugin.foundation;
 
-import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Resource;
 
-public interface IProjectContext {
-  Measure getMeasure(Metric metric);
+public class AlertThreshold {
 
-  void saveMeasure(Measure measure, Resource resource);
+  private final double warningLevel;
+  private final double alertLevel;
+
+  public AlertThreshold(double warningLevel, double alertLevel) {
+    this.warningLevel = warningLevel;
+    this.alertLevel = alertLevel;
+  }
+
+  public Metric.Level getLevel(double value) {
+    if (value >= alertLevel) {
+      return Metric.Level.ERROR;
+    }
+    if (value >= warningLevel) {
+      return Metric.Level.WARN;
+    }
+    return Metric.Level.OK;
+  }
 }
