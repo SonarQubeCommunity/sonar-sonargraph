@@ -330,7 +330,7 @@ public final class Utilities {
     return result;
   }
 
-  public static boolean isSonargraphProject(Project project, FileSystem moduleFileSystem, RulesProfile profile, List<Metric> sonargraphMetrics) {
+  public static boolean isSonargraphProject(FileSystem moduleFileSystem, RulesProfile profile) {
     // Removed check for alert on sonargraph rule, since that API changed drastically
     return Java.isEnabled(moduleFileSystem) && (areSonargraphRulesActive(profile));
   }

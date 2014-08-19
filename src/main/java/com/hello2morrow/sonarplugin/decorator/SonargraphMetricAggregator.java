@@ -21,7 +21,6 @@ package com.hello2morrow.sonarplugin.decorator;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -38,7 +37,7 @@ import java.util.List;
  */
 public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
-  public SonargraphMetricAggregator(RulesProfile profile, FileSystem moduleFileSystem) {
+  public SonargraphMetricAggregator(RulesProfile profile) {
     super(profile);
   }
 

@@ -62,7 +62,7 @@ public class ReportFileReader implements IReportReader {
       return;
     }
 
-    String reportFileName = determineReportFileName(project, moduleFileSystem, settings);
+    String reportFileName = determineReportFileName(moduleFileSystem, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
     InputStream input = null;
@@ -109,7 +109,7 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  private String determineReportFileName(Project project, FileSystem moduleFileSystem, Settings settings) {
+  private String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
     String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
 
     if (moduleFileSystem == null) {
