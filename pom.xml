@@ -11,7 +11,7 @@
 
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.3</version>
+  <version>3.4-SNAPSHOT</version>
 
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
@@ -123,7 +123,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-sonargraph</url>
-    <tag>sonar-sonargraph-plugin-3.3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <build>
