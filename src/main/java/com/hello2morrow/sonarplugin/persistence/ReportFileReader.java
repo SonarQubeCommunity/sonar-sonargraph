@@ -17,9 +17,9 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
+import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
 import org.slf4j.Logger;
@@ -46,10 +46,12 @@ import java.util.List;
  */
 public class ReportFileReader implements IReportReader {
 
+  private static final String BASE_PATH_ATTRIBUTE_NAME = "Base Path";
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
   private static final String REPORT_DIR = "sonargraph-sonar-plugin";
   private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
   private ReportContext report;
+  private String sonargraphProjectBaseDir;
 
   public ReportFileReader() {
     super();
@@ -70,10 +72,17 @@ public class ReportFileReader implements IReportReader {
 
     try {
       input = new FileInputStream(reportFileName);
+
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
       JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       Unmarshaller u = context.createUnmarshaller();
       report = (ReportContext) u.unmarshal(input);
+      for (XsdAttribute next : report.getGeneral().getAttribute()) {
+        if (next.getName().equals(BASE_PATH_ATTRIBUTE_NAME)) {
+          sonargraphProjectBaseDir = next.getValue();
+          break;
+        }
+      }
     } catch (JAXBException e) {
       LOG.error("JAXB Problem in " + reportFileName, e);
     } catch (FileNotFoundException e) {
@@ -99,6 +108,13 @@ public class ReportFileReader implements IReportReader {
     }
   }
 
+  /**
+   * @return the file object representing the Sonargraph report
+   */
+  public String getSonargraphBasePath() {
+    return sonargraphProjectBaseDir;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -110,7 +126,7 @@ public class ReportFileReader implements IReportReader {
   }
 
   private String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
-    String configuredReportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
+    String configuredReportPath = Utilities.getConfiguredReportPath(settings);
 
     if (moduleFileSystem == null) {
       return configuredReportPath;

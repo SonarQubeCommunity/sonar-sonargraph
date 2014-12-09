@@ -22,7 +22,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
@@ -35,6 +39,7 @@ import org.sonar.api.server.rule.RulesDefinition.Rule;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
@@ -65,8 +70,7 @@ public class TestHelper {
     profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
   }
 
-  public static Settings initSettings()
-  {
+  public static Settings initSettings() {
     Settings settings = new Settings();
     settings.setProperty(SonargraphPluginBase.COST_PER_INDEX_POINT, 7.0);
     return settings;
@@ -114,6 +118,124 @@ public class TestHelper {
         List<File> fileList = new ArrayList<File>();
         fileList.add(new File("test.java"));
         return fileList;
+      }
+    });
+
+    when(fileSystem.predicates()).thenAnswer(new Answer<FilePredicates>() {
+      @Override
+      public FilePredicates answer(InvocationOnMock invocation) throws Throwable {
+        return new FilePredicates() {
+
+          @Override
+          public FilePredicate or(FilePredicate first, FilePredicate second) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate or(FilePredicate... or) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate or(Collection<FilePredicate> or) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate not(FilePredicate p) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate none() {
+            return null;
+          }
+
+          @Override
+          public FilePredicate matchesPathPatterns(String[] inclusionPatterns) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate matchesPathPattern(String inclusionPattern) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate is(File ioFile) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasType(Type type) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasStatus(Status status) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasRelativePath(String s) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasPath(String s) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasLanguages(Collection<String> languages) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasLanguage(String language) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate hasAbsolutePath(String s) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate doesNotMatchPathPattern(String exclusionPattern) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate and(FilePredicate first, FilePredicate second) {
+            return first;
+          }
+
+          @Override
+          public FilePredicate and(FilePredicate... and) {
+            return new FilePredicate() {
+              @Override
+              public boolean apply(InputFile inputFile) {
+                return true;
+              }
+            };
+          }
+
+          @Override
+          public FilePredicate and(Collection<FilePredicate> and) {
+            return null;
+          }
+
+          @Override
+          public FilePredicate all() {
+            return null;
+          }
+        };
       }
     });
     return fileSystem;

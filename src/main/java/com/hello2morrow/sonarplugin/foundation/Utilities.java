@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.Issue;
@@ -184,7 +185,7 @@ public final class Utilities {
     issuable.addIssue(issue);
   }
 
-  public static Resource getResource(Project project, FileSystem fileSystem, final String fqName) {
+  public static Resource getResource(final Project project, final FileSystem fileSystem, final String fqName) {
     final boolean isSourceFile = fqName.endsWith(".java");
 
     if (isSourceFile) {
@@ -337,6 +338,14 @@ public final class Utilities {
 
   public static boolean areSonargraphRulesActive(RulesProfile profile) {
     return !profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
+  }
+
+  /**
+   * @param settings
+   * @return
+   */
+  public static String getConfiguredReportPath(Settings settings) {
+    return settings.getString(SonargraphPluginBase.REPORT_PATH);
   }
 
 }

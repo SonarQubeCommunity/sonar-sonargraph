@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AlarmClockMain_Ant" basedir=".">
+	<!-- Replace version if necessary -->
+	<property name="sonargraph.version" value="7.2.0" />
+	<!-- Replace installation root directory if necessary -->
+	<property name="sonargraph.installation.dir" location="D:/Programs/Sonargraph-Architect-7.2.0" />
+	<property name="sonargraph.lib.dir" location="${sonargraph.installation.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${sonargraph.version}" />
+
+
+	<property name="AlarmClock" location="./AlarmClock"/>
+	<property name="Foundation" location="./Foundation"/>
+
+	<taskdef name="createReportTask" classname="com.hello2morrow.sonargraph.ant.architect.SonargraphArchitectAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.lib.dir}" includes="Sonargraph-${sonargraph.version}.jar" />
+			<fileset dir="${sonargraph.lib.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<!-- Adapt if necessary -->
+	<property name="license.file" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license" />
+	<property name="system.file" location="./architecture/AlarmClockMain.sonargraph" />
+
+	<property name="dir.target.report" location="./target/sonargraph-sonar-plugin"/>
+	<property name="sonar.report" value="sonargraph-sonar-report" />
+	<property name="path.target.report" location="${dir.target.report}/${sonar.report}.xml" />
+
+	<!-- Replace directory if necessary -->
+	<property name="sonar.anttask.dir" location="D:/07_Software/sonar-ant-task-2.2" />
+	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+		<classpath path="${sonar.anttask.dir}/sonar-ant-task-2.2.jar" />
+	</taskdef>
+
+	<target name="clean" description="clean all generated files">
+		<delete dir=".sonar"/>
+		<ant dir="${Foundation}" target="clean"/>
+		<ant dir="${AlarmClock}" target="clean"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<ant dir="${Foundation}" target="compile"/>
+		<ant dir="${AlarmClock}" target="compile"/>
+	</target>
+
+
+	<target name="create-xml-report" depends="compile">
+		<mkdir dir="${dir.target.report}"/>
+		<createReportTask 
+			reportType="xml" 
+			license="${license.file}" 
+			file="${system.file}" 
+			reportDirectory="${dir.target.report}" 
+			reportName="${sonar.report}" 
+			prepareForSonar="true"
+			verbose="true"/>
+	</target>
+
+	<property name="sonar.modules" value="Foundation,AlarmClock"/>
+	
+	<property name="Foundation.sonar.projectName" value="Foundation" />
+	<property name="Foundation.sonar.sources" value="src/main/java" />
+	<property name="Foundation.sonar.binaries" value="target" />
+	<!-- Default module base directory is <current_directory>/<module_ID>. It can be overridden if necessary -->
+	<property name="Foundation.sonar.projectBaseDir" value="./Foundation" />  
+	
+	<property name="AlarmClock.sonar.projectName" value="AlarmClock" />
+	<property name="AlarmClock.sonar.sources" value="src/main/java" />
+	<property name="AlarmClock.sonar.binaries" value="target" />
+	<property name="AlarmClock.sonar.projectBaseDir" value="./AlarmClock" />  
+	
+	<property name="sonar.projectKey" value="com.hello2morrow:AlarmClockMain_Ant"/>
+	<property name="sonar.projectName" value="AlarmClockMain_Ant" />
+	<property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
+	<property name="sonar.sonargraph.report.path" value="${path.target.report}" />
+	<property name="sonar.language" value="java" />
+
+	<target name="sonar" depends="create-xml-report">
+		<sonar:sonar xmlns:sonar="antlib:org.sonar.ant"/>
+	</target>
+
+
+	<property name="issue-tracking-lib" location="../../../../jira-issue-tracking/target/dist/Sonargraph_jira-issue-tracking-2.0.1" />
+	<property name="project-name" value="AlarmClockMain"/>
+	<property name="issue-store" value="${user.home}/.hello2morrow/SonargraphArchitect/issue-tracking/issue-tracking-${project-name}.xml"/>
+
+	<path id="classpath.issue-tracking">
+		<path location="${issue-tracking-lib}"/>
+		<path location="${issue-tracking-lib}/jira"/>
+		<fileset dir="${issue-tracking-lib}/lib" includes="*.jar"/>
+		<fileset dir="${issue-tracking-lib}/jira" includes="*.jar"/>
+		<fileset dir="${sonargraph.lib.dir}" includes="Sonargraph-${sonargraph.version}.jar"/>
+		<fileset dir="${sonargraph.lib.dir}" includes="lib/*.jar"/>
+	</path>
+
+	<target name="run-issue-tracking">
+		<taskdef 
+			classname="com.hello2morrow.sonar.issuetracking.ui.SonargraphIssueTrackingAntTask" 
+			name="SonargraphIssueTracking">
+			<classpath>
+				<path refid="classpath.issue-tracking"/>
+			</classpath>
+		</taskdef>
+		<SonargraphIssueTracking
+		    projectName="${project-name}"
+		    license="${license.file}"
+		    architectureDescription="${system.file}"
+		    issueStore="${issue-store}"
+		  	propertiesFile="./jira-adapter/jira-adapter.properties"
+		  />
+	</target>
+
+</project>

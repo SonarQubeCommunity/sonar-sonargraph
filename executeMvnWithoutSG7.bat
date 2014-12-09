@@ -1,0 +1,1 @@
+mvn -e -Denforcer.skip=true clean package sonar:sonar -Dsonar.exclusions=**/generated-sources/**

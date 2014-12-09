@@ -31,4 +31,5 @@ public interface IReportReader {
 
   XsdAttributeRoot retrieveBuildUnit(Project project);
 
+  String getSonargraphBasePath();
 }

@@ -215,7 +215,7 @@ public final class SonargraphSensor implements Sensor {
   private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit, Project project) {
 
     LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
-    CycleGroupProcessor processor = new CycleGroupProcessor(project, profile, fileSystem, perspectives);
+    CycleGroupProcessor processor = new CycleGroupProcessor(project, profile, perspectives, fileSystem);
     processor.process(reportReader.getReport(), buildUnit);
 
     double cyclicity = processor.getCyclicity();

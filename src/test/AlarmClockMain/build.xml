@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Example6" basedir=".">
+<project name="AlarmClockMain" basedir=".">
 	<!-- Replace version if necessary -->
-	<property name="sonargraph.version" value="7.1.5" />
+	<property name="sonargraph.version" value="7.2.0" />
 	<!-- Replace installation root directory if necessary -->
-	<property name="sonargraph.installation.dir" location="../../../../sonarj/target/dist/java" />
+	<property name="sonargraph.installation.dir" location="D:/Programs/Sonargraph-Architect-7.2.0" />
 	<property name="sonargraph.lib.dir" location="${sonargraph.installation.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${sonargraph.version}" />
 	
 	
@@ -19,7 +19,7 @@
 
 	<!-- Adapt if necessary -->
 	<property name="license.file" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license" />
-	<property name="system.file" location="./AlarmClockMain.sonargraph" />
+	<property name="system.file" location="./AlarmClockMain_withoutSrc.sonargraph" />
 
 	<property name="dir.target.report" location="./target/sonargraph-sonar-plugin"/>
 	<property name="sonar.report" value="sonargraph-sonar-report" />
