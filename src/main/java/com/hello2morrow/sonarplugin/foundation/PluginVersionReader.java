@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * The version is dynamically generated during build and this class extracts it from the generated properties file. 
+ * @author Ingmar
+ */
 public class PluginVersionReader {
   public static final PluginVersionReader INSTANCE = new PluginVersionReader();
 
@@ -45,6 +49,9 @@ public class PluginVersionReader {
     }
   }
 
+  /**
+   * @return the current version of the plugin
+   */
   public String getVersion() {
     return version;
   }

@@ -82,17 +82,15 @@ public class CycleGroupProcessor implements IProcessor {
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if (PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-        if ("Physical package".equals(group.getNamedElementGroup())) {
-          int groupSize = group.getCyclePath().size();
-          cyclicPackages += groupSize;
-          cyclicity += groupSize * groupSize;
-          if (groupSize > biggestCycleGroupSize) {
-            biggestCycleGroupSize = groupSize;
-          }
-
-          handlePackageCycleGroup(group, predicates);
+      if (PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName())) && "Physical package".equals(group.getNamedElementGroup())) {
+        int groupSize = group.getCyclePath().size();
+        cyclicPackages += groupSize;
+        cyclicity += groupSize * groupSize;
+        if (groupSize > biggestCycleGroupSize) {
+          biggestCycleGroupSize = groupSize;
         }
+
+        handlePackageCycleGroup(group, predicates);
       }
     }
   }

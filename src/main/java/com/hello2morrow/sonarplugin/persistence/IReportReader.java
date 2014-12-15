@@ -25,11 +25,25 @@ import org.sonar.api.resources.Project;
 
 public interface IReportReader {
 
+  /**
+   * Process the Sonargraph report
+   * 
+   * @param project
+   * @param moduleFileSystem
+   * @param settings
+   */
   void readSonargraphReport(Project project, FileSystem moduleFileSystem, Settings settings);
 
+  /**
+   * @return the complete unmarshalled XML report
+   */
   ReportContext getReport();
 
+  /**
+   * Return the relevant part for this project of the Sonargraph XML report
+   * @param project
+   * @return the part of the project
+   */
   XsdAttributeRoot retrieveBuildUnit(Project project);
 
-  String getSonargraphBasePath();
 }

@@ -38,4 +38,37 @@ public class AlertThreshold {
     }
     return Metric.Level.OK;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(alertLevel);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(warningLevel);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AlertThreshold other = (AlertThreshold) obj;
+    if (Double.doubleToLongBits(alertLevel) != Double.doubleToLongBits(other.alertLevel)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(warningLevel) != Double.doubleToLongBits(other.warningLevel)) {
+      return false;
+    }
+    return true;
+  }
 }

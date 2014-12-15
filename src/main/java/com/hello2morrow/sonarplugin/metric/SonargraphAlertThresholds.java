@@ -34,26 +34,64 @@ public final class SonargraphAlertThresholds {
   private static final Map<Metric, AlertThreshold> THRESHOLDS = new HashMap<Metric, AlertThreshold>();
   private static final Map<Metric, Metric> CONNECTED_THRESHOLDS = new HashMap<Metric, Metric>();
 
+  private static final int STRUCTURAL_DEBT_WARNING = 400;
+  private static final int STRUCTURAL_DEBT_ERROR = 1600;
+  private static final int TASK_WARNING = 20;
+  private static final int TASK_ERROR = 50;
+
+  private static final int RELATIVE_CYC_WARNING = 5;
+  private static final int RELATIVE_CYC_ERROR = 15;
+
+  private static final int BIGGEST_CYCLE_GROUP_WARNING = 4;
+  private static final int BIGGEST_CYCLE_GROUP_ERROR = 8;
+
+  private static final double NCCD_WARNING = 6.5;
+  private static final double NCCD_ERROR = 10.0;
+  private static final double HIGHEST_NCCD_WARNING = 6.5;
+  private static final double HIGHEST_NCCD_ERROR = 10.0;
+
+  private static final int VIOLATING_TYPE_DEP_WARNING = 1;
+  private static final int VIOLATING_TYPE_DEP_ERROR = 10;
+
+  private static final int VIOLATING_REF_WARNING = 1;
+  private static final int VIOLATING_REF_ERROR = 10;
+  private static final int VIOLATING_TYPES_WARNING = 1;
+  private static final int VIOLATING_TYPES_ERROR = 10;
+  private static final int UNASSIGNED_TYPES_WARNING = 1;
+  private static final int UNASSIGNED_TYPES_ERROR = 20;
+
+  private static final int ALL_WARNINGS_WARNING = 1;
+  private static final int ALL_WARNINGS_ERROR = 20;
+  private static final int CYCLE_WARNINGS_WARNING = 1;
+  private static final int CYCLE_WARNING_ERROR = 10;
+
+  private static final int DUPLICATE_WARNING = 1;
+  private static final int DUPLICAT_ERROR = 20;
+  private static final int THRESHOLD_WARNING = 1;
+  private static final int THRESHOLD_ERROR = 25;
+  private static final int WORKSPACE_WARNING = 1;
+  private static final int WORKSPACE_ERROR = 10;
+
   static {
-    THRESHOLDS.put(SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, new AlertThreshold(400, 1600));
-    THRESHOLDS.put(SonargraphSimpleMetrics.TASKS, new AlertThreshold(20.0, 50.0));
+    THRESHOLDS.put(SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, new AlertThreshold(STRUCTURAL_DEBT_WARNING, STRUCTURAL_DEBT_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.TASKS, new AlertThreshold(TASK_WARNING, TASK_ERROR));
 
-    THRESHOLDS.put(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, new AlertThreshold(5, 15));
-    THRESHOLDS.put(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, new AlertThreshold(4, 8));
+    THRESHOLDS.put(SonargraphDerivedMetrics.RELATIVE_CYCLICITY, new AlertThreshold(RELATIVE_CYC_WARNING, RELATIVE_CYC_ERROR));
+    THRESHOLDS.put(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, new AlertThreshold(BIGGEST_CYCLE_GROUP_WARNING, BIGGEST_CYCLE_GROUP_ERROR));
 
-    THRESHOLDS.put(SonargraphSimpleMetrics.NCCD, new AlertThreshold(6.5, 10.0));
-    THRESHOLDS.put(SonargraphDerivedMetrics.HIGHEST_NCCD, new AlertThreshold(6.5, 10.0));
+    THRESHOLDS.put(SonargraphSimpleMetrics.NCCD, new AlertThreshold(NCCD_WARNING, NCCD_ERROR));
+    THRESHOLDS.put(SonargraphDerivedMetrics.HIGHEST_NCCD, new AlertThreshold(HIGHEST_NCCD_WARNING, HIGHEST_NCCD_ERROR));
 
-    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, new AlertThreshold(1, 10));
-    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_TYPES, new AlertThreshold(1.0, 10.0));
-    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_REFERENCES, new AlertThreshold(1, 10));
-    THRESHOLDS.put(SonargraphSimpleMetrics.UNASSIGNED_TYPES, new AlertThreshold(1.0, 20.0));
+    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, new AlertThreshold(VIOLATING_TYPE_DEP_WARNING, VIOLATING_TYPE_DEP_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_TYPES, new AlertThreshold(VIOLATING_TYPES_WARNING, VIOLATING_TYPES_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.VIOLATING_REFERENCES, new AlertThreshold(VIOLATING_REF_WARNING, VIOLATING_REF_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.UNASSIGNED_TYPES, new AlertThreshold(UNASSIGNED_TYPES_WARNING, UNASSIGNED_TYPES_ERROR));
 
-    THRESHOLDS.put(SonargraphSimpleMetrics.ALL_WARNINGS, new AlertThreshold(1, 20));
-    THRESHOLDS.put(SonargraphSimpleMetrics.CYCLE_WARNINGS, new AlertThreshold(1, 10));
-    THRESHOLDS.put(SonargraphSimpleMetrics.DUPLICATE_WARNINGS, new AlertThreshold(1, 20));
-    THRESHOLDS.put(SonargraphSimpleMetrics.THRESHOLD_WARNINGS, new AlertThreshold(1.0, 25.0));
-    THRESHOLDS.put(SonargraphSimpleMetrics.WORKSPACE_WARNINGS, new AlertThreshold(1.0, 10.0));
+    THRESHOLDS.put(SonargraphSimpleMetrics.ALL_WARNINGS, new AlertThreshold(ALL_WARNINGS_WARNING, ALL_WARNINGS_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.CYCLE_WARNINGS, new AlertThreshold(CYCLE_WARNINGS_WARNING, CYCLE_WARNING_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.DUPLICATE_WARNINGS, new AlertThreshold(DUPLICATE_WARNING, DUPLICAT_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.THRESHOLD_WARNINGS, new AlertThreshold(THRESHOLD_WARNING, THRESHOLD_ERROR));
+    THRESHOLDS.put(SonargraphSimpleMetrics.WORKSPACE_WARNINGS, new AlertThreshold(WORKSPACE_WARNING, WORKSPACE_ERROR));
 
     CONNECTED_THRESHOLDS.put(SonargraphSimpleMetrics.ACD, SonargraphSimpleMetrics.NCCD);
     CONNECTED_THRESHOLDS.put(SonargraphDerivedMetrics.HIGHEST_ACD, SonargraphDerivedMetrics.HIGHEST_NCCD);

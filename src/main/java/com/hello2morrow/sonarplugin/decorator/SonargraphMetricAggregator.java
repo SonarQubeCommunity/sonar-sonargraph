@@ -35,7 +35,7 @@ import java.util.List;
  * @author Ingmar
  *
  */
-public final class SonargraphMetricAggregator extends AbstractMetricAggregator {
+public class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
   public SonargraphMetricAggregator(RulesProfile profile) {
     super(profile);

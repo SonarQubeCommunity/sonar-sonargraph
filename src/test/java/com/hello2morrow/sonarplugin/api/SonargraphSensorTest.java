@@ -26,10 +26,8 @@ import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Qualifiers;
 
 import java.io.File;
@@ -44,27 +42,19 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Ingmar
- *
- */
-public class SonargraphSensorTest {
+public class SonargraphSensorTest extends AbstractSonargraphTest {
 
-  private RulesProfile rulesProfile;
-  private SensorContext sensorContext;
-  private FileSystem moduleFileSystem;
+  public static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
   private SonargraphSensor sensor;
-  private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
-  private Settings settings;
+
+  @Override
+  protected String getReport() {
+    return REPORT;
+  }
 
   @Before
   public void initSensor() {
-    rulesProfile = TestHelper.initRulesProfile();
-    sensorContext = TestHelper.initSensorContext();
-    moduleFileSystem = TestHelper.initModuleFileSystem();
-    settings = TestHelper.initSettings();
-    settings.setProperty(SonargraphPluginBase.REPORT_PATH, REPORT);
-    sensor = new SonargraphSensor(rulesProfile, settings, sensorContext, moduleFileSystem, TestHelper.initPerspectives());
+    sensor = new SonargraphSensor(getRulesProfile(), getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
   }
 
   @Test
@@ -86,18 +76,16 @@ public class SonargraphSensorTest {
     doReturn("AlarmClock").when(project).name();
     doReturn(Qualifiers.MODULE).when(project).getQualifier();
 
-    ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
-
+    FileSystem projectFileSystem = mock(FileSystem.class);
     File baseDir = new File("src/test/resources");
+    when(getModuleFileSystem().baseDir()).thenReturn(baseDir);
     File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
-    when(moduleFileSystem.baseDir()).thenReturn(baseDir);
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
-    when(project.getFileSystem()).thenReturn(projectFileSystem);
+    when(projectFileSystem.baseDir()).thenReturn(baseDir);
 
-    when(moduleFileSystem.files(any(FilePredicate.class))).thenReturn(Arrays.asList(sourceFile));
+    when(getModuleFileSystem().files(any(FilePredicate.class))).thenReturn(Arrays.asList(sourceFile));
 
-    sensor.analyse(project, sensorContext);
-    double value = sensorContext.getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
+    sensor.analyse(project, getSensorContext());
+    double value = getSensorContext().getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
     assertEquals(0.0, value, 0.01);
   }
 
@@ -116,8 +104,8 @@ public class SonargraphSensorTest {
 
   @Test
   public void testShouldNotExecuteOnProject() {
-    rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
-    this.sensor = new SonargraphSensor(rulesProfile, settings, sensorContext, moduleFileSystem, TestHelper.initPerspectives());
+    RulesProfile rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
+    this.sensor = new SonargraphSensor(rulesProfile, getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     project.setLanguage(new Java());
     assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));

@@ -116,7 +116,7 @@ public class TestHelper {
       @Override
       public List<File> answer(InvocationOnMock invocation) throws Throwable {
         List<File> fileList = new ArrayList<File>();
-        fileList.add(new File("test.java"));
+        fileList.add(new File("com/h2m/alarm/model/AlarmClock.java"));
         return fileList;
       }
     });
