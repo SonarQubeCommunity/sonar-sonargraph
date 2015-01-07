@@ -32,7 +32,7 @@
 				<version>7.1.10</version>
 				<configuration>
 					<!-- configuration properties are described below - none is mandatory -->
-					<file>./AlarmClockMain.sonargraph</file>
+					<file>./architecture/AlarmClockMain.sonargraph</file>
 				</configuration>
 				<executions>
 					<execution>

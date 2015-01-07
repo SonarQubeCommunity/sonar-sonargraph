@@ -3,7 +3,7 @@
 	<!-- Replace version if necessary -->
 	<property name="sonargraph.version" value="7.2.0" />
 	<!-- Replace installation root directory if necessary -->
-	<property name="sonargraph.installation.dir" location="D:/Programs/Sonargraph-Architect-7.2.0" />
+	<property name="sonargraph.installation.dir" location="D:/Programs/Sonargraph-Architect/Sonargraph-Architect-7.2.0" />
 	<property name="sonargraph.lib.dir" location="${sonargraph.installation.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${sonargraph.version}" />
 
 
@@ -64,7 +64,7 @@
 	<property name="Foundation.sonar.projectBaseDir" value="./Foundation" />  
 	
 	<property name="AlarmClock.sonar.projectName" value="AlarmClock" />
-	<property name="AlarmClock.sonar.sources" value="src/main/java" />
+	<property name="AlarmClock.sonar.sources" value="src/main/java, src/test/java" />
 	<property name="AlarmClock.sonar.binaries" value="target" />
 	<property name="AlarmClock.sonar.projectBaseDir" value="./AlarmClock" />  
 	

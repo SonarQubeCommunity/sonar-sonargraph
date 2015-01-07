@@ -20,6 +20,7 @@ package com.hello2morrow.sonarplugin.persistence;
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 public class PersistenceUtilities {
 
+  private static final String BASE_PATH_ATTRIBUTE = "Base Path";
   private static final Logger LOG = LoggerFactory.getLogger(PersistenceUtilities.class);
 
   private PersistenceUtilities() {
@@ -112,4 +114,12 @@ public class PersistenceUtilities {
     return value;
   }
 
+  public static String getSonargraphBasePath(ReportContext report) {
+    for (XsdAttribute next : report.getGeneral().getAttribute()) {
+      if (BASE_PATH_ATTRIBUTE.equals(next.getName())) {
+        return next.getValue();
+      }
+    }
+    return null;
+  }
 }

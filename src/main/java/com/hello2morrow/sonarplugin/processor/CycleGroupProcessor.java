@@ -40,12 +40,15 @@ import org.sonar.api.rules.ActiveRule;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class CycleGroupProcessor implements IProcessor {
 
+  private static final String PHYSICAL_PACKAGE_NAMED_ELEMENT_GROUP = "Physical package";
+  private static final String DIRECTORY_NAMED_ELEMENT_GROUP = "Directory";
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
@@ -53,6 +56,7 @@ public class CycleGroupProcessor implements IProcessor {
   private final Project project;
   private final ActiveRule rule;
   private final FileSystem fileSystem;
+  private String sonargraphBasePath;
 
   public CycleGroupProcessor(Project project, final RulesProfile rulesProfile, final ResourcePerspectives perspectives, FileSystem fileSystem) {
     this.project = project;
@@ -78,52 +82,71 @@ public class CycleGroupProcessor implements IProcessor {
     if (rule == null) {
       return;
     }
+
+    this.sonargraphBasePath = PersistenceUtilities.getSonargraphBasePath(report);
+
+    cyclicity = 0;
+    biggestCycleGroupSize = 0;
+    cyclicPackages = 0;
+    boolean packageNotFound = false;
+
     FilePredicates predicates = fileSystem.predicates();
     XsdCycleGroups cycleGroups = report.getCycleGroups();
 
     for (XsdCycleGroup group : cycleGroups.getCycleGroup()) {
-      if (PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName())) && "Physical package".equals(group.getNamedElementGroup())) {
+      if (!PersistenceUtilities.getBuildUnitName(group).equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+        continue;
+      }
+
+      if (PHYSICAL_PACKAGE_NAMED_ELEMENT_GROUP.equals(group.getNamedElementGroup())) {
         int groupSize = group.getCyclePath().size();
         cyclicPackages += groupSize;
         cyclicity += groupSize * groupSize;
         if (groupSize > biggestCycleGroupSize) {
           biggestCycleGroupSize = groupSize;
         }
-
-        handlePackageCycleGroup(group, predicates);
+      } else if (DIRECTORY_NAMED_ELEMENT_GROUP.equals(group.getNamedElementGroup()) && !handlePackageCycleGroup(group, predicates)) {
+        packageNotFound = true;
       }
     }
-  }
 
-  private void handlePackageCycleGroup(XsdCycleGroup group, FilePredicates predicates) {
-    List<Resource> packages = determineCyclicPackages(group, predicates);
-    for (Resource jPackage : packages) {
-      addCycleIssue(jPackage, packages);
+    if (packageNotFound) {
+      Log.warn("Issues not created for all packages involved in cycles. "
+        + "Check if configuration for Sonargraph system includes the generation of cycle warnings for source files and directories!");
     }
   }
 
-  private List<Resource> determineCyclicPackages(XsdCycleGroup group, FilePredicates predicates) {
+  private boolean handlePackageCycleGroup(XsdCycleGroup group, FilePredicates predicates) {
+    List<Resource> srcDirectories = determineCyclicSrcDirectories(group, predicates);
+    boolean issueAddedForAllPackages = true;
+
+    // No source directories are detected for class files
+    for (Resource jPackage : srcDirectories) {
+      issueAddedForAllPackages = addCycleIssue(jPackage, srcDirectories) || issueAddedForAllPackages;
+    }
+    return issueAddedForAllPackages;
+  }
+
+  private List<Resource> determineCyclicSrcDirectories(XsdCycleGroup group, FilePredicates predicates) {
     List<Resource> packages = new ArrayList<Resource>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
-      final String cyclicPath = pathElement.getParent().replace('.', '/');
-      Set<String> srcDirs = new HashSet<String>();
-
-      for (File next : fileSystem.files(predicates.and())) {
-        File dir = next.getParentFile();
-        try {
-          String canonicalPath = dir.getCanonicalPath();
-          if (canonicalPath.replace('\\', '/').endsWith(cyclicPath)) {
-            srcDirs.add(canonicalPath);
-          }
-        } catch (IOException e) {
-          Log.warn("Could not get canonical path for directory '" + dir.getAbsolutePath() + "'", e);
-        }
+      String cyclicPath;
+      try {
+        cyclicPath = new File(this.sonargraphBasePath, pathElement.getParent()).getCanonicalPath().replace('\\', '/');
+      } catch (IOException e1) {
+        Log.error("Failed to determine absolute path for '" + pathElement.getParent() + "'", e1);
+        return Collections.emptyList();
       }
 
+      Set<String> srcDirs = getSourceDirectories(predicates, cyclicPath);
       if (srcDirs.isEmpty()) {
-        Log.warn("Could not locate src directory for package '" + pathElement.getParent() + "'");
+        Log.debug("Could not locate src directory for '" + pathElement.getParent() + "'");
         continue;
       }
+      if (srcDirs.size() > 1) {
+        Log.warn("Found more than one src directory for '" + pathElement.getParent() + "'");
+      }
+
       for (String path : srcDirs) {
         Directory srcDirectory = org.sonar.api.resources.Directory.fromIOFile(new File(path), project);
         if (srcDirectory != null) {
@@ -134,11 +157,28 @@ public class CycleGroupProcessor implements IProcessor {
     return packages;
   }
 
-  private void addCycleIssue(Resource jPackage, List<Resource> packages) {
+  private Set<String> getSourceDirectories(FilePredicates predicates, String cyclicPath) {
+    Set<String> srcDirs = new HashSet<String>();
+
+    for (File next : fileSystem.files(predicates.and())) {
+      File dir = next.getParentFile();
+      try {
+        String canonicalPath = dir.getCanonicalPath();
+        if (canonicalPath.replace('\\', '/').endsWith(cyclicPath)) {
+          srcDirs.add(canonicalPath);
+        }
+      } catch (IOException e) {
+        Log.warn("Could not get canonical path for directory '" + dir.getAbsolutePath() + "'", e);
+      }
+    }
+    return srcDirs;
+  }
+
+  private boolean addCycleIssue(Resource jPackage, List<Resource> packages) {
     Issuable issuable = perspectives.as(Issuable.class, jPackage);
     if (issuable == null) {
       // omit cyclic directory that is part of package of java class folder
-      return;
+      return false;
     }
     IssueBuilder issueBuilder = issuable.newIssueBuilder();
     issueBuilder.severity(rule.getSeverity().toString()).ruleKey(rule.getRule().ruleKey());
@@ -162,5 +202,6 @@ public class CycleGroupProcessor implements IProcessor {
     // The number of cycle group warnings in the issues drill-down can therefore differ
     // from the number given in Sonargraph Architect dashbox in the components dashboard.
     issuable.addIssue(issueBuilder.build());
+    return true;
   }
 }

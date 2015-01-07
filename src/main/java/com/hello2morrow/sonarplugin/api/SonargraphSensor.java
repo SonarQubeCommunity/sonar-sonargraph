@@ -124,6 +124,10 @@ public final class SonargraphSensor implements Sensor {
 
     this.sensorContext = sensorContext;
     reportReader.readSonargraphReport(project, fileSystem, settings);
+    if (PersistenceUtilities.getSonargraphBasePath(reportReader.getReport()) == null) {
+      LOG.error("Sonargraph base path cannot be determined");
+      return;
+    }
 
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
 

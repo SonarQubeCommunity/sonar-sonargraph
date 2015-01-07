@@ -2,8 +2,9 @@
 <project name="Example6-AlarmClock" basedir=".">
 	
 	<property name="src" location="./src/main/java"/>
+	<property name="test" location="./src/test/java"/>
 	<property name="target" location="./target/classes"/>
-
+  
 	<property name="foundation.classes" location="../Foundation/target/classes"/>
 	
 	<path id="classpath">
@@ -21,6 +22,7 @@
 			includeantruntime="false">
 			
 			<src path="${src}" />
+			<src path="${test}"/>
 		</javac>
 	</target>
 
@@ -29,7 +31,7 @@
 	</target>
 
 	<property name="sonar.projectKey" value="com.hello2morrow:AlarmClock" />
-	<property name="sonar.sources" value="${src}" />
+	<property name="sonar.sources" value="${src}, ${test}" />
 	<property name="sonar.binaries" value="${target}" />
 	
 </project>
