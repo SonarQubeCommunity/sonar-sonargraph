@@ -25,7 +25,8 @@ import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroup;
 import com.hello2morrow.sonarplugin.xsd.XsdCycleGroups;
 import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
-import org.jfree.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.ResourcePerspectives;
@@ -49,6 +50,8 @@ public class CycleGroupProcessor implements IProcessor {
 
   private static final String PHYSICAL_PACKAGE_NAMED_ELEMENT_GROUP = "Physical package";
   private static final String DIRECTORY_NAMED_ELEMENT_GROUP = "Directory";
+
+  private static final Logger LOG = LoggerFactory.getLogger(CycleGroupProcessor.class);
   private double cyclicity = 0;
   private double biggestCycleGroupSize = 0;
   private double cyclicPackages = 0;
@@ -111,7 +114,7 @@ public class CycleGroupProcessor implements IProcessor {
     }
 
     if (packageNotFound) {
-      Log.warn("Issues not created for all packages involved in cycles. "
+      LOG.warn("Issues not created for all packages involved in cycles. "
         + "Check if configuration for Sonargraph system includes the generation of cycle warnings for source files and directories!");
     }
   }
@@ -134,17 +137,17 @@ public class CycleGroupProcessor implements IProcessor {
       try {
         cyclicPath = new File(this.sonargraphBasePath, pathElement.getParent()).getCanonicalPath().replace('\\', '/');
       } catch (IOException e1) {
-        Log.error("Failed to determine absolute path for '" + pathElement.getParent() + "'", e1);
+        LOG.error("Failed to determine absolute path for '" + pathElement.getParent() + "'", e1);
         return Collections.emptyList();
       }
 
       Set<String> srcDirs = getSourceDirectories(predicates, cyclicPath);
       if (srcDirs.isEmpty()) {
-        Log.debug("Could not locate src directory for '" + pathElement.getParent() + "'");
+        LOG.debug("Could not locate src directory for '" + pathElement.getParent() + "'");
         continue;
       }
       if (srcDirs.size() > 1) {
-        Log.warn("Found more than one src directory for '" + pathElement.getParent() + "'");
+        LOG.warn("Found more than one src directory for '" + pathElement.getParent() + "'");
       }
 
       for (String path : srcDirs) {
@@ -168,7 +171,7 @@ public class CycleGroupProcessor implements IProcessor {
           srcDirs.add(canonicalPath);
         }
       } catch (IOException e) {
-        Log.warn("Could not get canonical path for directory '" + dir.getAbsolutePath() + "'", e);
+        LOG.warn("Could not get canonical path for directory '" + dir.getAbsolutePath() + "'", e);
       }
     }
     return srcDirs;

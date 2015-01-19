@@ -46,12 +46,12 @@
 
   <issueManagement>
   <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14211</url>
+    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14758</url>
   </issueManagement>
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>4.3</sonar.version>
+    <sonar.version>4.3.2</sonar.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
@@ -137,7 +137,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>1.5</version>
+        <!-- version>1.5</version -->
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>
