@@ -137,7 +137,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <!-- version>1.5</version -->
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>

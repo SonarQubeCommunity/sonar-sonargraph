@@ -348,4 +348,13 @@ public final class Utilities {
     return settings.getString(SonargraphPluginBase.REPORT_PATH);
   }
 
+  public static String getSourceFilePath(String groupParentPath, String sourceFilePath) {
+    int lastIndexOf = sourceFilePath.lastIndexOf('/');
+    String dirOfSourceFile = sourceFilePath.substring(0, lastIndexOf);
+    if (groupParentPath.endsWith(dirOfSourceFile)) {
+      return groupParentPath + sourceFilePath.substring(lastIndexOf);
+    }
+    return null;
+  }
+
 }

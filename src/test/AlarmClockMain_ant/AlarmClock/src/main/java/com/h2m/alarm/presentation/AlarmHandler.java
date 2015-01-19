@@ -9,7 +9,8 @@ import com.h2m.common.observer.Observable.IObserver;
 public abstract class AlarmHandler implements IObserver
 {
     private final static List<AlarmHandler> s_AlarmHandler = new ArrayList<AlarmHandler>();
-
+    private AlarmToConsole m_dummyReference;
+    
     protected AlarmHandler()
     {
         s_AlarmHandler.add(this);

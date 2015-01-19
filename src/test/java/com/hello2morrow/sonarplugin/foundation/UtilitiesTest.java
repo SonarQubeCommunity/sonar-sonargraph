@@ -135,8 +135,7 @@ public class UtilitiesTest {
   }
 
   @Test
-  public void testIsAggregationProject()
-  {
+  public void testIsAggregationProject() {
     DecoratorContext context = mock(DecoratorContext.class);
     Collection<Measure> measures = new ArrayList<Measure>(2);
     measures.add(new Measure(SonargraphSimpleMetrics.ACD, 2.0, 1));
@@ -149,8 +148,7 @@ public class UtilitiesTest {
   }
 
   @Test
-  public void testGetBuildUnitNameCycleGroup()
-  {
+  public void testGetBuildUnitNameCycleGroup() {
     XsdCycleGroup group = mock(XsdCycleGroup.class);
     when(group.getParent()).thenReturn(Utilities.DEFAULT_BUILD_UNIT);
     String projectName = "Alarm-Clock";
@@ -164,8 +162,7 @@ public class UtilitiesTest {
   }
 
   @Test
-  public void testIsSingleModuleProject()
-  {
+  public void testIsSingleModuleProject() {
     assertFalse(Utilities.isSingleModuleProject(null));
 
     Project project = new Project("Test", null, "Test");
@@ -177,8 +174,7 @@ public class UtilitiesTest {
   }
 
   @Test
-  public void testBuildUnitMatchesAnalyzedProject()
-  {
+  public void testBuildUnitMatchesAnalyzedProject() {
     String buildUnitName = "sonargraph.core";
     assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, new Project("com.hello2morrow:sonargraph.core", "architect-branch_7.1.8", "test")));
 
@@ -195,6 +191,15 @@ public class UtilitiesTest {
     assertEquals("some.group.id:some.module.id", buildUnitName);
     Project project = new Project("some.group.id:some.module.id");
     assertTrue(Utilities.buildUnitMatchesAnalyzedProject(buildUnitName, project));
+  }
+
+  @Test
+  public void testGetSourceFilePath() {
+    String groupParentPath = "AlarmClock/src/main/java/com/h2m/alarm/presentation";
+    String sourceFilePath = "com/h2m/alarm/presentation/AlarmHandler.java";
+
+    assertEquals("AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmHandler.java", Utilities.getSourceFilePath(groupParentPath, sourceFilePath));
+
   }
 
   private List<DuplicateCodeBlock> createTwoCodeBlocks() {

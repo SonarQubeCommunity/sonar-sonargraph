@@ -70,10 +70,7 @@ public class PersistenceUtilities {
   }
 
   public static String getBuildUnitName(XsdCycleGroup group) {
-    if (Utilities.DEFAULT_BUILD_UNIT.equals(group.getParent())) {
-      return group.getElementScope();
-    }
-    return group.getParent();
+    return group.getElementScope();
   }
 
   public static void readAttributesToMap(XsdAttributeRoot root, final Map<String, Number> attributeMap) {
