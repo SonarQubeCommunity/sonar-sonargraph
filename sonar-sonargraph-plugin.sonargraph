@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.10.209">
+<context version="7.2.1.228">
     <scope type="Project" name="sonar-sonargraph-plugin">
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
@@ -79,6 +79,15 @@
                 <reference name="Project|sonar-sonargraph-plugin::BuildUnit|sonar-sonargraph-plugin"/>
             </element>
         </workspace>
+        <itemDefinition>
+            <item type="IgnoreWarningFilterItem">
+                <property value="Ignored" name="AttributeId"/>
+                <property value="" name="Comment"/>
+                <property value="2015-01-21 08:39:09" name="Date"/>
+                <property value="SourceOnlyType" name="ElementType"/>
+                <property value="com.hello2morrow.sonarplugin.Test" name="Pattern"/>
+            </item>
+        </itemDefinition>
         <physical>
             <element type="BuildUnit" name="sonar-sonargraph-plugin"/>
         </physical>
@@ -137,6 +146,12 @@
                         <element type="IncludeTypePattern" name="org.slf4j.*"/>
                     </element>
                 </element>
+            </element>
+            <element type="Layer" name="Not to be used">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="WeakTypePattern" name="**"/>
+                </element>
+                <stereotype name="Hidden"/>
             </element>
         </architecture>
     </scope>
