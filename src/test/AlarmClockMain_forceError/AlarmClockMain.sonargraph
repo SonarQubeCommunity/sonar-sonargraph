@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context version="7.2.2.230">
+    <database host="localhost" port="3308" name="AlarmClockMain"/>
+    <scope type="Project" name="AlarmClock">
+        <architecture>
+            <element type="Layer" name="Presentation">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.h2m.alarm.presentation.*"/>
+                </element>
+                <dependency toName="Project|AlarmClock::Layer|Model" type="AllowedDependency"/>
+            </element>
+            <element type="Layer" name="Model">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.h2m.alarm.model.*"/>
+                </element>
+            </element>
+        </architecture>
+        <workspace>
+            <element type="JavaRootDirectory" name="AlarmClock/src/main/java">
+                <reference name="Project|AlarmClock::BuildUnit|AlarmClock"/>
+            </element>
+            <element type="JavaRootDirectory" name="AlarmClock/target/classes">
+                <reference name="Project|AlarmClock::BuildUnit|AlarmClock"/>
+            </element>
+        </workspace>
+        <physical>
+            <element type="BuildUnit" name="AlarmClock"/>
+        </physical>
+    </scope>
+    <scope type="External" name="External">
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="java.lang.Object"/>
+            <element type="ExcludeTypePattern" name="java.io.*"/>
+            <element type="ExcludeTypePattern" name="java.util.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.*"/>
+        </element>
+    </scope>
+    <scope type="Global" name="Global">
+        <element type="Configuration" name="Configuration">
+            <property value="true" name="CycleAnalysisDepthSourceFile"/>
+        </element>
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+        </element>
+    </scope>
+</context>
