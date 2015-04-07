@@ -102,15 +102,20 @@ public final class SonargraphSensor implements Sensor {
       return false;
     }
 
-    boolean isSonargraphProject = Utilities.isSonargraphProject(this.fileSystem, this.profile);
-    if (!isSonargraphProject) {
+    if (!Utilities.isSonargraphProject(this.fileSystem, this.profile)) {
       LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Project" + project.getName() + " [" + project.getKey()
-        + "] is not processed, since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.warn("Sonargraph: Skipping project" + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
       LOG.warn(SEPARATOR);
+      return false;
     }
 
-    return isSonargraphProject;
+    if (!reportReader.hasSonargraphReport(fileSystem, settings)) {
+      LOG.warn(SEPARATOR);
+      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
+      LOG.warn(SEPARATOR);
+      return false;
+    }
+    return true;
   }
 
   @Override

@@ -109,10 +109,17 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     project.setLanguage(new Java());
     assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));
+  }
 
-    // rulesProfile.setAlerts(Arrays.asList(new Alert(rulesProfile, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, Alert.OPERATOR_GREATER,
-    // "3", "1")));
-    // initSensor();
-    // assertTrue("Alert active for sonargraph rule, sensor must be executed", sensor.shouldExecuteOnProject(project));
+  @Test
+  public void testShouldNotExecuteOnProjectWithoutReport() {
+    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
+    project.setLanguage(new Java());
+    Project module = new Project("hello2morrow:Foundation", "", "Foundation");
+    module.setParent(project);
+    module.setLanguage(new Java());
+    getSettings().setProperty(SonargraphPluginBase.REPORT_PATH, "c:/fantasyPath");
+    assertFalse("Sensor must not execute on aggregating project", sensor.shouldExecuteOnProject(project));
+    assertFalse("Sensor must not execute on module without report", sensor.shouldExecuteOnProject(module));
   }
 }
