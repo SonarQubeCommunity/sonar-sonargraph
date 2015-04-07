@@ -6,8 +6,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>AlarmClockMain</name>
-
-
 	<description>Project aggregating the different modules</description>
 	<modules>
 		<module>Foundation</module>
@@ -19,29 +17,9 @@
 			<id>maven-central-repository</id>
 			<url>http://repo1.maven.org/maven2</url>
 		</pluginRepository>
-		<pluginRepository>
-			<id>hello2morrow.maven.repository</id>
-			<url>http://maven.hello2morrow.com/repository</url>
-		</pluginRepository>
 	</pluginRepositories>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>com.hello2morrow.sonargraph</groupId>
-				<artifactId>maven-sonargraph-plugin</artifactId>
-				<version>7.2.2</version>
-				<configuration>
-					<!-- configuration properties are described below - none is mandatory -->
-					<file>./architecture/AlarmClockMain.sonargraph</file>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>architect-report-verify</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -51,7 +29,6 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 </project>

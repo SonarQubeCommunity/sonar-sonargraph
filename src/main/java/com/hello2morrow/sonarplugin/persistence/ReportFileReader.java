@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -138,7 +139,15 @@ public class ReportFileReader implements IReportReader {
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
     if (buildUnitList.size() == 1) {
-      return buildUnitList.get(0);
+      if (project.isRoot()) {
+        return buildUnitList.get(0);
+      }
+
+      XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
+      String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
+      if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+        return sonarBuildUnit;
+      }
     } else if (buildUnitList.size() > 1) {
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
         String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
@@ -151,5 +160,14 @@ public class ReportFileReader implements IReportReader {
         + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
     }
     return null;
+  }
+
+  @Override
+  public boolean hasSonargraphReport(FileSystem fileSystem, Settings settings) {
+    String reportFileName = determineReportFileName(fileSystem, settings);
+    if (reportFileName == null || !(new File(reportFileName).exists())) {
+      return false;
+    }
+    return true;
   }
 }

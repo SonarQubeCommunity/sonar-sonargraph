@@ -1,1 +1,1 @@
-mvn -e -Denforcer.skip=true clean package com.hello2morrow.sonargraph:maven-sonargraph-plugin:7.2.0:architect-report -Dsonargraph.file=./sonar-sonargraph-plugin.sonargraph -Dsonargraph.prepareForSonar=true sonar:sonar -Dsonar.exclusions=**/generated-sources/**
+mvn -e -Denforcer.skip=true clean package com.hello2morrow.sonargraph:maven-sonargraph-plugin:7.2.2:architect-report -Dsonargraph.file=./sonar-sonargraph-plugin.sonargraph -Dsonargraph.prepareForSonar=true sonar:sonar -Dsonar.exclusions=**/generated-sources/**
