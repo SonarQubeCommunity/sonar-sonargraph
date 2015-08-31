@@ -58,6 +58,7 @@ import java.util.Map;
  */
 public final class SonargraphSensor implements Sensor {
 
+  public static final String PLUGIN_NAME = "Sonar-Sonargraph-Plugin";
   private static final String NOT_PROCESSED_MESSAGE = "Module will not be processed by Sonargraph!";
   private static final String SEPARATOR = "----------------------------------------------------------------";
   private static final int SONARGRAPH_METRICS_COUNT = 70;
@@ -120,8 +121,8 @@ public final class SonargraphSensor implements Sensor {
 
   @Override
   public void analyse(final Project project, SensorContext sensorContext) {
-    if (project == null || sensorContext == null) {
-      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
+    if (hasConfigurationProblem(project, sensorContext)) {
+      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. Please check your project configuration!");
       return;
     }
 
@@ -151,7 +152,7 @@ public final class SonargraphSensor implements Sensor {
     PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
 
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
-    if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
+    if (hasNoStatements(numberOfStatements)) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
       Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       sensorContext.saveMeasure(m);
@@ -164,9 +165,17 @@ public final class SonargraphSensor implements Sensor {
     this.analyseMetricsForArchitectureDashbox(buildUnit, project);
   }
 
+  private boolean hasNoStatements(Number numberOfStatements) {
+    return numberOfStatements == null || numberOfStatements.intValue() < 1;
+  }
+
+  private boolean hasConfigurationProblem(final Project project, SensorContext sensorContext) {
+    return project == null || sensorContext == null;
+  }
+
   @Override
   public String toString() {
-    return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
+    return PLUGIN_NAME + " [" + PluginVersionReader.INSTANCE.getVersion() + "]";
   }
 
   /**
@@ -212,7 +221,7 @@ public final class SonargraphSensor implements Sensor {
     double indexCost = SonargraphPluginBase.COST_PER_INDEX_POINT_DEFAULT;
     if (indexCostString != null && indexCostString.trim().length() > 0) {
       try {
-        indexCost = new Double(indexCostString.trim()).doubleValue();
+        indexCost = Double.parseDouble(indexCostString.trim());
       } catch (NumberFormatException e) {
         LOG.error("Property " + SonargraphPluginBase.COST_PER_INDEX_POINT + " must be a double value." + " Ignoring value '" + indexCostString + "' and using default value '"
           + indexCost + "'.");

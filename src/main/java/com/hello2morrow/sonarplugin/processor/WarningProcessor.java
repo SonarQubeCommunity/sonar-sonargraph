@@ -73,59 +73,91 @@ public class WarningProcessor implements IProcessor {
     for (XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
 
       String key = SonargraphPluginBase.getRuleKey(warningGroup.getAttributeGroup());
-      if (key != null) {
-        ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
-        if (rule == null) {
-          LOG.info("Sonargraph threshold not active in current profile");
-        } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
-          handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
-        } else {
-          for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
-            String attrName = warningByAttribute.getAttributeName();
-            for (XsdWarning warning : warningByAttribute.getWarning()) {
-              String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
-              String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
-              bu = Utilities.getBuildUnitName(bu);
-              if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-                processPosition(rule, warning, msg);
-              }
-            }
-          }
+      if (key == null) {
+        continue;
+      }
+
+      ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
+      if (rule == null) {
+        LOG.info("Sonargraph threshold not active in current profile");
+      } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
+        handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
+      } else {
+        handleWarnings(buildUnit, warningGroup, rule);
+      }
+    }
+  }
+
+  private void handleWarnings(XsdAttributeRoot buildUnit, XsdWarningsByAttributeGroup warningGroup, ActiveRule rule) {
+    for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
+      String attrName = warningByAttribute.getAttributeName();
+      for (XsdWarning warning : warningByAttribute.getWarning()) {
+        String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
+        String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
+        bu = Utilities.getBuildUnitName(bu);
+        if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
+          processPositions(rule, warning, msg);
         }
       }
     }
   }
 
-  private void processPosition(ActiveRule rule, XsdWarning warning, String msg) {
+  private void processPositions(ActiveRule rule, XsdWarning warning, String msg) {
     if (!warning.getPosition().isEmpty()) {
       for (XsdPosition pos : warning.getPosition()) {
-        String relFileName = pos.getFile();
-
-        if (relFileName != null) {
-          Resource resource = Utilities.getResource(project, fileSystem, relFileName);
-          if (resource != null) {
-            Utilities.saveViolation(resource, resourcePerspectives, rule, null, Integer.valueOf(pos.getLine()), msg);
-          }
-        }
+        processPosition(rule, msg, pos);
       }
     } else {
-      String elemType = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element type");
+      processWarningWithoutPosition(rule, warning, msg);
+    }
+  }
 
-      if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
-        // Attach a violation at line 1
-        String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
-        String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
-        Resource resource = Utilities.getResource(project, fileSystem, fqName);
-        if (resource != null) {
-          Utilities.saveViolation(resource, resourcePerspectives, rule, null, 1, msg);
-        }
+  private void processWarningWithoutPosition(ActiveRule rule, XsdWarning warning, String msg) {
+    String elemType = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element type");
+    if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
+      // Attach a violation at line 1
+      String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
+      String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
+      Resource resource = Utilities.getResource(project, fileSystem, fqName);
+      if (resource != null) {
+        Utilities.saveViolation(resource, resourcePerspectives, rule, null, 1, msg);
+      }
+    }
+  }
+
+  private void processPosition(ActiveRule rule, String msg, XsdPosition pos) {
+    String relFileName = pos.getFile();
+
+    if (relFileName != null) {
+      Resource resource = Utilities.getResource(project, fileSystem, relFileName);
+      if (resource != null) {
+        Utilities.saveViolation(resource, resourcePerspectives, rule, null, Integer.valueOf(pos.getLine()), msg);
       }
     }
   }
 
   private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing duplicate code blocks");
+    Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = extractDuplicateWarningsToMap(warningGroup);
+    for (Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
+      saveDuplicateViolation(rule, buildUnit, entry);
+    }
+  }
 
+  private void saveDuplicateViolation(ActiveRule rule, XsdAttributeRoot buildUnit, Entry<Integer, List<DuplicateCodeBlock>> entry) {
+    for (DuplicateCodeBlock block : entry.getValue()) {
+      String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
+      String fqName = block.getElementName();
+      if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
+        Resource resource = Utilities.getResource(project, fileSystem, fqName);
+        if (resource != null) {
+          Utilities.saveViolation(resource, resourcePerspectives, rule, null, block.getStartLine(), message);
+        }
+      }
+    }
+  }
+
+  private Map<Integer, List<DuplicateCodeBlock>> extractDuplicateWarningsToMap(XsdWarningsByAttributeGroup warningGroup) {
     Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
 
     for (XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
@@ -140,18 +172,6 @@ public class WarningProcessor implements IProcessor {
         duplicateCodeBlocks.get(block.getBlockId()).add(block);
       }
     }
-
-    for (Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
-      for (DuplicateCodeBlock block : entry.getValue()) {
-        String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
-        String fqName = block.getElementName();
-        if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
-          Resource resource = Utilities.getResource(project, fileSystem, fqName);
-          if (resource != null) {
-            Utilities.saveViolation(resource, resourcePerspectives, rule, null, block.getStartLine(), message);
-          }
-        }
-      }
-    }
+    return duplicateCodeBlocks;
   }
 }

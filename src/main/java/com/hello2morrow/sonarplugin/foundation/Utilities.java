@@ -143,23 +143,12 @@ public final class Utilities {
       if (duplicate == block) {
         continue;
       }
+
       int remaining = toBeDescribed - i;
 
       // No connection for first described element.
       if (!isFirst && blocks.size() > 2) {
-        if (remaining > 0) {
-          // Not last, and not first: enumerate.
-          message.append(",\n");
-        } else {
-          // Last.
-          if (toBeDescribed == 2) {
-            // Just two parts.
-            message.append(" and\n");
-          } else {
-            // More than two parts: Enumeration.
-            message.append(", and\n");
-          }
-        }
+        createLineSeparatorForDuplicateBlockMessage(message, toBeDescribed, remaining);
       }
       isFirst = false;
       final int endLineDuplicate = duplicate.getBlockLength() + duplicate.getStartLine() - 1;
@@ -167,6 +156,22 @@ public final class Utilities {
     }
     message.append(".");
     return message.toString();
+  }
+
+  private static void createLineSeparatorForDuplicateBlockMessage(final StringBuilder message, int toBeDescribed, int remaining) {
+    if (remaining > 0) {
+      // Not last, and not first: enumerate.
+      message.append(",\n");
+    } else {
+      // Last.
+      if (toBeDescribed == 2) {
+        // Just two parts.
+        message.append(" and\n");
+      } else {
+        // More than two parts: Enumeration.
+        message.append(", and\n");
+      }
+    }
   }
 
   public static void saveViolation(Resource resource, ResourcePerspectives perspectives, ActiveRule rule, String priority, int line, String msg) {

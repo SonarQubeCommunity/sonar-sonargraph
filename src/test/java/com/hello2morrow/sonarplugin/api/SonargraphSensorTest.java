@@ -122,4 +122,12 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
     assertFalse("Sensor must not execute on aggregating project", sensor.shouldExecuteOnProject(project));
     assertFalse("Sensor must not execute on module without report", sensor.shouldExecuteOnProject(module));
   }
+
+  @Test
+  public void testToString() {
+    SonargraphSensor sensor = new SonargraphSensor(RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA"), getSettings(), getSensorContext(), getModuleFileSystem(),
+      TestHelper.initPerspectives());
+    assertTrue("Does not start with plugin name", sensor.toString().startsWith(SonargraphSensor.PLUGIN_NAME));
+    assertTrue("Does not contain version info", sensor.toString().length() > (SonargraphSensor.PLUGIN_NAME.length() + 2));
+  }
 }

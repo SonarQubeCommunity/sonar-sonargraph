@@ -109,14 +109,14 @@ public class TaskProcessor implements IProcessor {
   }
 
   private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
-    String priority = PersistenceUtilities.getAttribute(task.getAttribute(), "Priority");
-    String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
-    String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
+    final String priority = PersistenceUtilities.getAttribute(task.getAttribute(), "Priority");
+    final String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
+    final String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
 
     // This should not be needed, but the current description sucks
-    description = handleDescription(description);
+    String descriptionText = handleDescription(description);
 
-    int index = description.indexOf(PACKAGE);
+    int index = descriptionText.indexOf(PACKAGE);
     int counter = count;
 
     if (index > 0 && index < PACKAGE.length()) {
@@ -124,27 +124,34 @@ public class TaskProcessor implements IProcessor {
       // create to many non relevant markers
       counter++;
     } else {
-      if (assignedTo != null) {
-        assignedTo = '[' + assignedTo.trim() + ']';
-        if (assignedTo.length() > 2) {
-          description += ' ' + assignedTo;
-        }
+      if (assignedTo != null && assignedTo.trim().length() > 0) {
+        descriptionText += " [" + assignedTo.trim() + "]";
       }
       for (XsdPosition pos : task.getPosition()) {
         String relFileName = pos.getFile();
-
         if (relFileName != null) {
-          int line = Integer.valueOf(pos.getLine());
-          if (line == 0) {
-            line = 1;
-          }
+          int line = processLinePosition(pos);
           Resource resource = Utilities.getResource(project, fileSystem, relFileName);
-          Utilities.saveViolation(resource, resourcePerspectives, rule, priorityMap.get(priority), line, description);
+          Utilities.saveViolation(resource, resourcePerspectives, rule, priorityMap.get(priority), line, descriptionText);
         }
         counter++;
       }
     }
     return counter;
+  }
+
+  private int processLinePosition(XsdPosition pos) {
+    int line;
+    try {
+      line = Integer.valueOf(pos.getLine());
+      if (line == 0) {
+        line = 1;
+      }
+    } catch (NumberFormatException ex) {
+      LOG.error("Failed to process position '" + pos.getLine() + "'", ex);
+      line = 1;
+    }
+    return line;
   }
 
   private String handleDescription(String descr) {

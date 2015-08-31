@@ -139,26 +139,37 @@ public class ReportFileReader implements IReportReader {
     List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
     if (buildUnitList.size() == 1) {
-      if (project.isRoot()) {
-        return buildUnitList.get(0);
-      }
+      return getBuildUnitForSingleBuildUnitProject(project, buildUnitList);
+    } else if (buildUnitList.size() > 1) {
+      return getBuildUnitForMultipleBuildUnitProject(project, buildUnitList);
+    }
+    return null;
+  }
 
-      XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
+  private XsdAttributeRoot getBuildUnitForMultipleBuildUnitProject(Project project, List<XsdAttributeRoot> buildUnitList) {
+    for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
       String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
       if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
         return sonarBuildUnit;
       }
-    } else if (buildUnitList.size() > 1) {
-      for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
-        String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-        if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
-          return sonarBuildUnit;
-        }
-      }
-
-      LOG.warn("Project  with key [" + project.getKey() + "] could not be mapped to a build unit. "
-        + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
     }
+
+    LOG.warn("Project  with key [" + project.getKey() + "] could not be mapped to a build unit. "
+      + "The project will not be analyzed. Check the build unit configuration of your Sonargraph system.");
+    return null;
+  }
+
+  private XsdAttributeRoot getBuildUnitForSingleBuildUnitProject(Project project, List<XsdAttributeRoot> buildUnitList) {
+    if (project.isRoot()) {
+      return buildUnitList.get(0);
+    }
+
+    XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
+    String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
+    if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+      return sonarBuildUnit;
+    }
+
     return null;
   }
 

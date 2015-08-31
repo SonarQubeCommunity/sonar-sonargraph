@@ -35,6 +35,7 @@ import java.util.Map;
 
 public class PersistenceUtilities {
 
+  private static final String DEFAULT_PROJECT_NAME = "My Project";
   private static final String BASE_PATH_ATTRIBUTE = "Base Path";
   private static final Logger LOG = LoggerFactory.getLogger(PersistenceUtilities.class);
 
@@ -73,7 +74,7 @@ public class PersistenceUtilities {
     String buildUnitName = group.getElementScope();
 
     // special handling for reports produced with free SonarQube license or without Sonargraph system file
-    if (buildUnitName.equals("My Project") && group.getParent() != null) {
+    if (DEFAULT_PROJECT_NAME.equals(buildUnitName) && group.getParent() != null) {
       return group.getParent();
     }
 
@@ -88,22 +89,28 @@ public class PersistenceUtilities {
       for (XsdAttribute attr : cat.getAttribute()) {
         String attrName = attr.getStandardName();
         String value = attr.getValue();
-
-        try {
-          if (value.startsWith("< 0.01")) {
-            value = "0.0";
-          }
-
-          if (value.contains(".")) {
-            attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(value));
-          } else {
-            attributeMap.put(attrName, SonargraphPluginBase.INTEGER_FORMAT.parse(value));
-          }
-        } catch (ParseException e) {
-          // Ignore this value
-          LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
-        }
+        processAttribute(attributeMap, attrName, value);
       }
+    }
+  }
+
+  private static void processAttribute(final Map<String, Number> attributeMap, final String attrName, final String value) {
+    String adjustedValue;
+    if (value.startsWith("< 0.01")) {
+      adjustedValue = "0.0";
+    } else {
+      adjustedValue = value;
+    }
+
+    try {
+      if (adjustedValue.contains(".")) {
+        attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(adjustedValue));
+      } else {
+        attributeMap.put(attrName, SonargraphPluginBase.INTEGER_FORMAT.parse(adjustedValue));
+      }
+    } catch (ParseException e) {
+      // Ignore this value
+      LOG.error("Failed to parse value : " + adjustedValue + ", " + e.getMessage());
     }
   }
 
