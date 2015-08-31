@@ -70,6 +70,14 @@ public class PersistenceUtilities {
   }
 
   public static String getBuildUnitName(XsdCycleGroup group) {
+    String buildUnitName = group.getElementScope();
+
+    // special handling for reports produced with free SonarQube license or without Sonargraph system file
+    if (buildUnitName.equals("My Project") && group.getParent() != null) {
+      return group.getParent();
+    }
+
+    // reports produced with commercial license
     return group.getElementScope();
   }
 
