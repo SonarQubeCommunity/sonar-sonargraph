@@ -1,0 +1,7 @@
+2015-08-31 16:26:22,447 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2015-08-31 16:26:22,450 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2015-08-31 16:26:22,450 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2015-08-31 16:26:22,451 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2015-08-31 16:26:22,452 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2015-08-31 16:26:22,452 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2015-08-31 16:26:22,452 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
