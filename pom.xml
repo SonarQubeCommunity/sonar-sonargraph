@@ -3,15 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar-plugins</groupId>
+    <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>18</version>
-    <relativePath>../parent</relativePath>
+    <version>23</version>
   </parent>
 
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.4.3-SNAPSHOT</version>
+  <version>3.5-SNAPSHOT</version>
 
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
@@ -51,7 +50,8 @@
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>4.3.2</sonar.version>
+    <sonar.version>5.2</sonar.version>
+    <sonar.plugin.version>5.2</sonar.plugin.version>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
@@ -59,23 +59,15 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-java-plugin</artifactId>
-      <version>2.1</version>
-      <type>sonar-plugin</type>
+      <version>${sonar.plugin.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.java</groupId>
+      <artifactId>sonar-java-plugin</artifactId>
+      <version>3.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -135,8 +127,9 @@
     </resources>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>
