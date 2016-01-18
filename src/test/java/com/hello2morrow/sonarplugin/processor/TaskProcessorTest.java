@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
@@ -55,6 +56,8 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
     Project project = mock(Project.class);
     when(project.key()).thenReturn("hello2morrow:AlarmClock");
     when(project.name()).thenReturn("AlarmClock");
+
+    DefaultFileSystem projectFileSystem = new DefaultFileSystem(baseDir);
 
     initProjectFileSystem(baseDir, project);
 

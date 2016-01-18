@@ -19,9 +19,9 @@
 package com.hello2morrow.sonarplugin.metric;
 
 import com.hello2morrow.sonarplugin.foundation.AlertThreshold;
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
@@ -104,7 +104,7 @@ public final class SonargraphAlertThresholds {
     // singleton
   }
 
-  public static void addAlertToMeasure(final IProjectContext context, final Measure measure, final double value) {
+  public static void addAlertToMeasure(final DecoratorContext context, final Measure measure, final double value) {
     final AlertThreshold threshold = THRESHOLDS.get(measure.getMetric());
     if (threshold != null) {
       measure.setAlertStatus(threshold.getLevel(value));

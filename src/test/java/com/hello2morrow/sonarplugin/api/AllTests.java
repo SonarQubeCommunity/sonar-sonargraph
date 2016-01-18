@@ -17,8 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecoratorTest;
-import com.hello2morrow.sonarplugin.decorator.SonargraphSystemDashBoardDecoratorTest;
 import com.hello2morrow.sonarplugin.foundation.ReportFileReaderTest;
 import com.hello2morrow.sonarplugin.foundation.UtilitiesTest;
 import com.hello2morrow.sonarplugin.metric.SonargraphBuildUnitMetricsTest;
@@ -29,18 +27,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-  ReadTest.class,
-  SonargraphPluginTest.class,
-  SonargraphRulesRepositoryTest.class,
-  SonargraphInternalMetricsTest.class,
-  SonargraphSensorTest.class,
-  SonargraphDerivedMetricsDecoratorTest.class,
-  SonargraphSystemDashBoardDecoratorTest.class,
-  ReportFileReaderTest.class,
-  UtilitiesTest.class,
-  SonargraphBuildUnitMetricsTest.class,
-  SonargraphSystemMetricsTest.class})
+@SuiteClasses({ReadTest.class, SonargraphPluginTest.class, SonargraphRulesRepositoryTest.class, SonargraphInternalMetricsTest.class, SonargraphSensorTest.class,
+  ReportFileReaderTest.class, UtilitiesTest.class, SonargraphBuildUnitMetricsTest.class, SonargraphSystemMetricsTest.class})
 public class AllTests {
 
 }

@@ -113,7 +113,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
     }
 
     Measure measureToSave = new Measure(targetMetric, new Double(sourceMeasure.getValue()), 0);
-    SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(target), measureToSave, sourceMeasure.getValue());
+    SonargraphAlertThresholds.addAlertToMeasure(target, measureToSave, sourceMeasure.getValue());
     target.saveMeasure(measureToSave);
     return true;
   }

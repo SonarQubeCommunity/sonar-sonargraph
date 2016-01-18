@@ -20,9 +20,11 @@ package com.hello2morrow.sonarplugin.api;
 
 import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 
+@BatchSide
 public final class SonargraphRulesRepository implements RulesDefinition {
 
   private static final String SONARGRAPH_TASK = "Sonargraph Task";

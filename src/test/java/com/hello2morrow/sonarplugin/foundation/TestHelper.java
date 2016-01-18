@@ -235,6 +235,11 @@ public class TestHelper {
           public FilePredicate all() {
             return null;
           }
+
+          @Override
+          public FilePredicate hasLanguages(String... arg0) {
+            return null;
+          }
         };
       }
     });

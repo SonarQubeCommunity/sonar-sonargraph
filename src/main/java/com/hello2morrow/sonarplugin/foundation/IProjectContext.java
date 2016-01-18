@@ -20,10 +20,8 @@ package com.hello2morrow.sonarplugin.foundation;
 
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Resource;
 
 public interface IProjectContext {
   Measure getMeasure(Metric metric);
 
-  void saveMeasure(Measure measure, Resource resource);
 }

@@ -18,8 +18,8 @@
 package com.hello2morrow.sonarplugin.metric;
 
 import com.hello2morrow.sonarplugin.foundation.AlertThreshold;
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.junit.Test;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
@@ -33,7 +33,7 @@ public class SonargraphAlertThresholdsTest {
 
   @Test
   public void testSimpleMetric() {
-    IProjectContext context = mock(IProjectContext.class);
+    DecoratorContext context = mock(DecoratorContext.class);
     Measure measure0 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 0.0);
     verify(measure0).setAlertStatus(Metric.Level.OK);
 
@@ -49,7 +49,7 @@ public class SonargraphAlertThresholdsTest {
 
   @Test
   public void testConnectedMetric() {
-    IProjectContext context = mock(IProjectContext.class);
+    DecoratorContext context = mock(DecoratorContext.class);
     // SonargraphSimpleMetrics.NCCD, new AlertThreshold(6.5, 10.0
 
     Measure nccd = setupMetric(SonargraphSimpleMetrics.NCCD);
@@ -100,7 +100,7 @@ public class SonargraphAlertThresholdsTest {
     assertEquals("Connected metric not correct", SonargraphSimpleMetrics.NCCD, SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.ACD));
   }
 
-  private Measure createMeasureAndSetValue(IProjectContext context, Metric metric, double value) {
+  private Measure createMeasureAndSetValue(DecoratorContext context, Metric metric, double value) {
     Measure measure = setupMetric(metric);
     SonargraphAlertThresholds.addAlertToMeasure(context, measure, value);
     return measure;

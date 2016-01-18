@@ -61,7 +61,7 @@ public abstract class AbstractMetricAggregator extends AbstractSumChildrenDecora
     super.decorate(resource, context);
     for (Metric metric : addThresholdForMetrics()) {
       Measure measure = context.getMeasure(metric);
-      SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measure, measure.getValue());
+      SonargraphAlertThresholds.addAlertToMeasure(context, measure, measure.getValue());
       context.saveMeasure(measure);
     }
   }

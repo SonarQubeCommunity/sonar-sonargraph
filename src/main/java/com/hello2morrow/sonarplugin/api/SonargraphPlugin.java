@@ -18,10 +18,6 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.decorator.SonargraphAggregatingModuleMetricAggregator;
-import com.hello2morrow.sonarplugin.decorator.SonargraphDerivedMetricsDecorator;
-import com.hello2morrow.sonarplugin.decorator.SonargraphMetricAggregator;
-import com.hello2morrow.sonarplugin.decorator.SonargraphSystemDashBoardDecorator;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
@@ -29,7 +25,6 @@ import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import com.hello2morrow.sonarplugin.view.SonargraphArchitectureDashboard;
 import com.hello2morrow.sonarplugin.view.SonargraphCyclicityDashboard;
 import com.hello2morrow.sonarplugin.view.SonargraphStructuralDebtDashboard;
-import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
@@ -53,17 +48,17 @@ public final class SonargraphPlugin extends SonarPlugin {
   @SuppressWarnings("rawtypes")
   @Override
   public List getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
-
+    List<Class<?>> list = new ArrayList<Class<?>>();
     list.add(SonargraphRulesRepository.class);
+
     list.add(SonargraphSimpleMetrics.class);
     list.add(SonargraphDerivedMetrics.class);
     list.add(SonargraphInternalMetrics.class);
     list.add(SonargraphSensor.class);
-    list.add(SonargraphMetricAggregator.class);
-    list.add(SonargraphAggregatingModuleMetricAggregator.class);
-    list.add(SonargraphDerivedMetricsDecorator.class);
-    list.add(SonargraphSystemDashBoardDecorator.class);
+    // list.add(SonargraphMetricAggregator.class);
+    // list.add(SonargraphAggregatingModuleMetricAggregator.class);
+    // list.add(SonargraphDerivedMetricsDecorator.class);
+    // list.add(SonargraphSystemDashBoardDecorator.class);
     list.add(SonargraphStructuralDebtDashboard.class);
     list.add(SonargraphCyclicityDashboard.class);
     list.add(SonargraphArchitectureDashboard.class);

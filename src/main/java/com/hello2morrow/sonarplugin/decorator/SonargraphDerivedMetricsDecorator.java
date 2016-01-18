@@ -97,7 +97,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
   private Measure createMeasure(DecoratorContext context, Metric metric, double value, int precision) {
     Measure measureToSave = new Measure(metric, value, precision);
-    SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measureToSave, value);
+    SonargraphAlertThresholds.addAlertToMeasure(context, measureToSave, value);
     return measureToSave;
   }
 
@@ -159,7 +159,7 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
       context.saveMeasure(createMeasure(context, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages, 1));
 
       Measure measure = context.getMeasure(SonargraphSimpleMetrics.CYCLICITY);
-      SonargraphAlertThresholds.addAlertToMeasure(new DecoratorProjectContext(context), measure, measure.getValue());
+      SonargraphAlertThresholds.addAlertToMeasure(context, measure, measure.getValue());
       context.saveMeasure(measure);
     }
   }
