@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="crm-domain-example" default="jar" basedir="..">
+	<import file="../../hello2morrow/build/build.xml" />
+	<import file="../../hello2morrow/build/targets.xml" />
+
+	<property name="jar" value="${ant.project.name}-${crm-domain-example.version}.jar" />
+	<property name="dist.source" value="${ant.project.name}-source-${crm-domain-example.version}.zip" />
+	<tstamp>
+	    <format property="year" pattern="yyyy"/>
+	 </tstamp>
+
+	
+	<path id="classpath.general">
+		<fileset file="${log4j.jar}" />
+		<fileset file="${junit.jar}" />
+	</path>
+	<path id="classpath.runtime">
+		<fileset dir="${target.lib}" includes="*.jar" />
+		<fileset dir="../sonarj/target/dist/java" includes="**/*.jar" />
+	</path>
+	<path id="classpath.develop">
+		<path refid="classpath.general" />
+	</path>
+
+	<target name="init">
+		<mkdir dir="${target.cls}" />
+		<mkdir dir="${target.lib}" />
+		<mkdir dir="${lib}" />
+	</target>
+
+	<target name="compile" depends="init" description="compiles">
+		<javac encoding="UTF-8" destdir="${target.cls}" debug="on" source="1.4" failonerror="true">
+			<src path="${src.java}" />
+			<src path="${src.java-test}" />
+			<classpath refid="classpath.develop" />
+		</javac>
+	</target>
+
+	<target name="create-manifest" if="create.manifest">
+		<tstamp />
+		<echo file="${manifest}">Implementation-Vendor: hello2morrow GmbH (c) 2005 - ${year}
+Implementation-Version: ${crm-domain-example.version}
+Implementation-Title: crm-domain-example
+Creation-Date: ${DSTAMP}</echo>
+	</target>
+
+	<target name="jar" depends="compile,create-manifest" description="build java archive">
+		<jar destfile="${target.lib}/${jar}">
+			<fileset dir="${target.cls}" includes="**/*.class" />
+			<fileset dir="${src.config}/ear">
+				<include name="**/*.properties" />
+				<include name="**/*.xml" />
+			</fileset>
+			<fileset dir="${src.config}/test">
+				<include name="**/*.properties" />
+				<include name="**/*.xml" />
+			</fileset>
+			<fileset dir="${target}" includes="META-INF/MANIFEST.MF" />
+		</jar>
+	</target>
+
+	<target name="prepare-dist-source" depends="compile" description="">
+		<tstamp />
+		<mkdir dir="${target.dist.source}" />
+		<copy todir="${target.dist.source}" preservelastmodified="true">
+			<fileset dir="..">
+				<include name="crm-domain-example/lib/**/*" />
+				<include name="crm-domain-example/src/**/*" />
+				<include name="crm-domain-example/tutorialSteps/*.sonargraph" />
+				<include name="crm-domain-example/target/cls/**/*" />
+				<include name="crm-domain-example/.project" />
+				<include name="crm-domain-example/pom.xml" />
+			</fileset>
+		</copy>
+		<copy file=".classpath.distribution" tofile="${target.dist.source}/crm-domain-example/.classpath"/>
+		<copy todir="${target.dist.source}/crm-domain-example" preservelastmodified="true">
+			<fileset dir="../shared/log4j">
+				<include name="lib/log4j-1.2.15.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${target.dist.source}/crm-domain-example" preservelastmodified="true">
+			<fileset dir="../shared/junit">
+				<include name="lib/junit-3.8.1.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-source" depends="prepare-dist-source" description="">
+		<tstamp />
+		<zip destfile="${target}/${dist.source}">
+			<fileset dir="${target.dist.source}">
+				<include name="crm-domain-example/**/*" />
+			</fileset>
+		</zip>
+	</target>
+
+	<target name="test" depends="jar" description="run junit tests">
+		<junit printsummary="yes" haltonfailure="yes">
+			<classpath refid="classpath.runtime" />
+			<formatter type="plain" />
+
+			<test name="com.hello2morrow.ddaexample.business.testsuites.BusinessTestSuiteWithoutAppServer" haltonfailure="no" outfile="result">
+				<formatter type="xml" />
+			</test>
+		</junit>
+	</target>
+
+	<target name="clean" description="clean all generated files">
+		<delete dir="${target}" failonerror="false" />
+	</target>
+
+	<property name="license" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
+    <property name="project.file" value="tutorialSteps/Sonargraph-Demo_Step7.sonargraph"/>
+    <property name="target.report" location="${target}/report"/>
+
+	<target name="clean-report" description="clean all generated report files">
+		<delete dir="${target.report}" failonerror="false" />
+	</target>
+
+	<target name="create-report" description="">
+        <mkdir dir="${target.report}"/>
+	    <taskdef classname="com.hello2morrow.sonargraph.ant.architect.SonargraphArchitectAntTask" name="SonargraphArchitectAntTask" classpathref="classpath.runtime" />
+	    <SonargraphArchitectAntTask
+	    	 reportType="xml"
+		     license="${license}"
+		     file="${project.file}"
+		     reportDirectory="${target.report}"
+	    	 reportName="sonargraph-report"
+			 failOnArchitectureViolationsExist = "false"
+			 failOnArchitectureWarningsExist = "false"
+			 failOnCyclicElementsExist = "false"
+			 failOnWorkItemsExist = "false"
+			 failOnEmptyWorkspace = "false"
+			 propertyArchitectureViolationsExist = "architectureViolationsExist"
+	    />
+	</target>
+
+</project>

@@ -1,0 +1,5 @@
+projectKey=com.hello2morrow.dda:crm-domain-example
+serverUrl=http://localhost:9000
+dashboardUrl=http://localhost:9000/dashboard/index/com.hello2morrow.dda:crm-domain-example
+ceTaskId=AVJUl2IyFoNjEOA8TCZ2
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AVJUl2IyFoNjEOA8TCZ2

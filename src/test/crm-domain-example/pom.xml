@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.hello2morrow.dda</groupId>
+	<artifactId>crm-domain-example</artifactId>
+	<packaging>jar</packaging>
+	<version>7.2.4</version>
+	<name>Sonargraph - CRM Domain Example</name>
+	<url>http://www.hello2morrow.com</url>
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.9</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-central-repository</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>hello2morrow.maven.repository</id>
+			<url>http://maven.hello2morrow.com/repository</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.hello2morrow.sonargraph</groupId>
+				<artifactId>maven-sonargraph-plugin</artifactId>
+				<version>7.2.3</version>
+				<configuration>
+					<!--
+						Following configurations can also be supplied in Sonargraph reporting section below. 
+					-->
+					<!--
+					<license>sonargraph license if not located in ${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license</license>
+					-->
+					<file>${basedir}/tutorialSteps/Sonargraph-Demo_Step7.sonargraph</file>
+					<verbose>false</verbose>
+					<reportDir>${basedir}/target.maven</reportDir>
+					<reportName>sonargraph-architect-report</reportName>
+          <prepareForSonar>true</prepareForSonar>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>architect-report-verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.4</source>
+					<target>1.4</target>
+				</configuration>
+			</plugin>
+		</plugins>
+		<directory>target.maven</directory>
+		<outputDirectory>target.maven/cls</outputDirectory>
+		<finalName>${artifactId}-${version}</finalName>
+		<sourceDirectory>src/java</sourceDirectory>
+	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>com.hello2morrow.sonargraph</groupId>
+				<artifactId>maven-sonargraph-plugin</artifactId>
+				<version>7.2.4</version>
+				<!--
+					Note that Sonargraph configurations only have effect for Maven "site" generation, if they are defined in the section below
+					(except "reportDir" which has no effect in reporting section).
+					On the other hand, all configurations defined below serve as setting for goal "sonargraph:architect-report", as far as they are not 
+					overwritten in the build section above.
+				-->
+				<configuration>
+					<reportName>architect-report-site</reportName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+	
+</project>
