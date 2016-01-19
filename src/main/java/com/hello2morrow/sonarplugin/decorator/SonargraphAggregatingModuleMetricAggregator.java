@@ -26,6 +26,8 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,11 +49,16 @@ public final class SonargraphAggregatingModuleMetricAggregator extends AbstractM
     return project.getQualifier().equals(Qualifiers.MODULE) && Utilities.isAggregatingProject(project) && super.shouldExecuteOnProject(project);
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS,
+    List<Metric<Serializable>> metrics = Arrays.asList(SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS,
       SonargraphSimpleMetrics.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
+
+    List<Metric> newMetrics = new ArrayList<>();
+    newMetrics.addAll(metrics);
+    return newMetrics;
   }
 
   @Override

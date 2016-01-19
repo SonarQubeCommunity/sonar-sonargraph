@@ -29,10 +29,10 @@ import com.hello2morrow.sonarplugin.xsd.XsdTypeRelation;
 import com.hello2morrow.sonarplugin.xsd.XsdViolations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
 
 public class ArchitectureViolationProcessor implements IProcessor {
 
@@ -79,7 +79,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
     }
   }
 
-  private void processPosition(org.sonar.api.batch.sensor.SensorContext context, org.sonar.api.batch.rule.ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
+  private void processPosition(SensorContext context, org.sonar.api.batch.rule.ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
     for (XsdPosition pos : rel.getPosition()) {
       String relFileName = pos.getFile();
       int line = 0;

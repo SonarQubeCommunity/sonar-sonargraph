@@ -287,7 +287,7 @@ public final class Utilities {
   }
 
   /**
-   * Creates a new measure for the specified metric and saves it to the sensor context.
+   * Creates a new value for the specified metric and saves it to the sensor context.
    *
    * @param sensorContext
    * @param metric

@@ -19,14 +19,12 @@ package com.hello2morrow.sonarplugin.api;
 
 import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
@@ -54,7 +52,7 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
 
   @Before
   public void initSensor() {
-    sensor = new SonargraphSensor(getRulesProfile(), getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
+    sensor = new SonargraphSensor(getRulesProfile(), getSettings(), getSensorContext());
   }
 
   @Test
@@ -103,15 +101,6 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
   }
 
   @Test
-  public void testShouldNotExecuteOnProject() {
-    RulesProfile rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
-    this.sensor = new SonargraphSensor(rulesProfile, getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
-    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(new Java());
-    assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));
-  }
-
-  @Test
   public void testShouldNotExecuteOnProjectWithoutReport() {
     Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     project.setLanguage(new Java());
@@ -120,6 +109,5 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
     module.setLanguage(new Java());
     getSettings().setProperty(SonargraphPluginBase.REPORT_PATH, "c:/fantasyPath");
     assertFalse("Sensor must not execute on aggregating project", sensor.shouldExecuteOnProject(project));
-    assertFalse("Sensor must not execute on module without report", sensor.shouldExecuteOnProject(module));
   }
 }

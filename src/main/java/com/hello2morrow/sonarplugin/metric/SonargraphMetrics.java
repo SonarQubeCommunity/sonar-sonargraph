@@ -26,13 +26,16 @@ import java.util.List;
 public final class SonargraphMetrics {
 
   private static final SonargraphMetrics INSTANCE = new SonargraphMetrics();
+  @SuppressWarnings("rawtypes")
   private final List<Metric> allMetrics;
 
   private SonargraphMetrics() {
-    allMetrics = new ArrayList<Metric>(new SonargraphDerivedMetrics().getMetrics());
+    allMetrics = new ArrayList<>();
+    allMetrics.addAll(new SonargraphDerivedMetrics().getMetrics());
     allMetrics.addAll(new SonargraphSimpleMetrics().getMetrics());
   }
 
+  @SuppressWarnings("rawtypes")
   public static List<Metric> getAll() {
     return Collections.unmodifiableList(INSTANCE.allMetrics);
   }

@@ -25,14 +25,16 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public final class SonargraphAlertThresholds {
 
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphAlertThresholds.class);
   private static final Map<Metric, AlertThreshold> THRESHOLDS = new HashMap<Metric, AlertThreshold>();
-  private static final Map<Metric, Metric> CONNECTED_THRESHOLDS = new HashMap<Metric, Metric>();
+  private static final Map<Metric<Serializable>, Metric<Serializable>> CONNECTED_THRESHOLDS = new HashMap<>();
 
   private static final int STRUCTURAL_DEBT_WARNING = 400;
   private static final int STRUCTURAL_DEBT_ERROR = 1600;
@@ -101,7 +103,7 @@ public final class SonargraphAlertThresholds {
   }
 
   private SonargraphAlertThresholds() {
-    // singleton
+    // do not instantiate
   }
 
   public static void addAlertToMeasure(final DecoratorContext context, final Measure measure, final double value) {
@@ -112,7 +114,7 @@ public final class SonargraphAlertThresholds {
       return;
     }
 
-    Metric copyAlertFromMetric = CONNECTED_THRESHOLDS.get(measure.getMetric());
+    Metric<? extends Serializable> copyAlertFromMetric = CONNECTED_THRESHOLDS.get(measure.getMetric());
     if (copyAlertFromMetric != null) {
       Measure fromMeasure = context.getMeasure(copyAlertFromMetric);
       if (fromMeasure != null) {
@@ -128,7 +130,7 @@ public final class SonargraphAlertThresholds {
     return THRESHOLDS.get(metric);
   }
 
-  public static Metric getConnectedMetric(Metric connectedMetric) {
+  public static Metric<Serializable> getConnectedMetric(Metric connectedMetric) {
     return CONNECTED_THRESHOLDS.get(connectedMetric);
   }
 }

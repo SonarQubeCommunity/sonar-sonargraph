@@ -19,10 +19,9 @@
 package com.hello2morrow.sonarplugin.api;
 
 import com.hello2morrow.sonarplugin.foundation.PluginVersionReader;
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.SonargraphStandaloneMetricNames;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
-import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
@@ -39,11 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
@@ -57,78 +53,41 @@ import java.util.Map;
  *
  */
 public final class SonargraphSensor implements Sensor {
+  private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private static final String NOT_PROCESSED_MESSAGE = "Module will not be processed by Sonargraph!";
   private static final String SEPARATOR = "----------------------------------------------------------------";
   private static final int SONARGRAPH_METRICS_COUNT = 70;
   private static final double HUNDRET_PERCENT = 100.0;
-  private static final int NO_DECIMAL = 0;
-
-  private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   private final Map<String, Number> buildUnitmetrics;
   private final Map<String, Number> systemMetrics;
 
-  private SensorContext sensorContext;
-  private final RulesProfile profile;
-
   private final IReportReader reportReader;
   private final Settings settings;
-  private final FileSystem fileSystem;
-  private final ResourcePerspectives perspectives;
 
-  public SonargraphSensor(RulesProfile profile, Settings settings, FileSystem moduleFileSystem, ResourcePerspectives perspectives) {
-    this.profile = profile;
+  public SonargraphSensor(Settings settings) {
     this.settings = settings;
-    this.fileSystem = moduleFileSystem;
-    this.perspectives = perspectives;
     reportReader = new ReportFileReader();
     buildUnitmetrics = new HashMap<String, Number>();
     systemMetrics = new HashMap<String, Number>(SONARGRAPH_METRICS_COUNT);
   }
 
-  /**
-   * Used by JUnit tests
-   */
-  SonargraphSensor(final RulesProfile profile, Settings settings, SensorContext sensorContext, FileSystem moduleFileSystem, ResourcePerspectives perspectives) {
-    this(profile, settings, moduleFileSystem, perspectives);
-    this.sensorContext = sensorContext;
-  }
-
   /* called from maven */
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    if (Utilities.isAggregatingProject(project)) {
-      return false;
-    }
-
-    if (!Utilities.isSonargraphProject(this.fileSystem, this.profile)) {
-      LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project" + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
-      LOG.warn(SEPARATOR);
-      return false;
-    }
-
-    if (!reportReader.hasSonargraphReport(fileSystem, settings)) {
-      LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
-      LOG.warn(SEPARATOR);
-      return false;
-    }
-    return true;
+    return !SonarQubeUtilities.isAggregatingProject(project);
   }
 
   @Override
   public void analyse(final Project project, SensorContext sensorContext) {
-    if (project == null || sensorContext == null) {
-      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
+    if (!isValidProject(project, sensorContext)) {
       return;
     }
 
     LOG.info("Sonargraph: Execute for module " + project.getName() + " [" + project.getKey() + "]");
 
-    this.sensorContext = sensorContext;
-    reportReader.readSonargraphReport(project, fileSystem, settings);
+    reportReader.readSonargraphReport(project, sensorContext.fileSystem(), settings);
     if (PersistenceUtilities.getSonargraphBasePath(reportReader.getReport()) == null) {
       LOG.error("Sonargraph base path cannot be determined");
       return;
@@ -138,7 +97,8 @@ public final class SonargraphSensor implements Sensor {
 
     if (buildUnit == null) {
       LOG.warn("No Sonargraph build units found in report for [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
-      Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure<Boolean> m = new Measure<>(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      m.setValue(SonarQubeUtilities.TRUE);
       sensorContext.saveMeasure(m);
       return;
     }
@@ -153,15 +113,39 @@ public final class SonargraphSensor implements Sensor {
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
-      Measure m = new Measure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure<Boolean> m = new Measure<>(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      m.setValue(SonarQubeUtilities.TRUE);
       sensorContext.saveMeasure(m);
       return;
     }
 
-    this.analyseBuildUnit();
-    this.analyseMetricsForStructuralDebtDashbox(buildUnit, project);
-    this.analyseMetricsForStructureDashbox(buildUnit, project);
-    this.analyseMetricsForArchitectureDashbox(buildUnit, project);
+    this.analyseBuildUnit(buildUnit, sensorContext, project);
+    this.analyseMetricsForStructuralDebtDashbox(buildUnit, sensorContext, project);
+    this.analyseMetricsForStructureDashbox(buildUnit, sensorContext, project);
+    this.analyseMetricsForArchitectureDashbox(buildUnit, sensorContext, project);
+  }
+
+  private boolean isValidProject(final Project project, SensorContext sensorContext) {
+    if (project == null || sensorContext == null) {
+      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
+      return false;
+    }
+
+    if (!SonarQubeUtilities.isSonargraphProject(sensorContext)) {
+      LOG.warn(SEPARATOR);
+      LOG.warn("Sonargraph: Skipping project" + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.warn(SEPARATOR);
+      return false;
+    }
+
+    if (!reportReader.hasSonargraphReport(sensorContext.fileSystem(), settings)) {
+      LOG.warn(SEPARATOR);
+      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
+      LOG.warn(SEPARATOR);
+      return false;
+    }
+
+    return true;
   }
 
   @Override
@@ -173,37 +157,34 @@ public final class SonargraphSensor implements Sensor {
    * This method retrieves general metrics from the report generated by Sonargraph
    */
   /* package access to ease testing */
-  void analyseBuildUnit() {
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_PACKAGES, SonargraphSimpleMetrics.INTERNAL_PACKAGES,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.INTERNAL_PACKAGES), NO_DECIMAL);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.JAVA_FILES, SonargraphSimpleMetrics.JAVA_FILES,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.JAVA_FILES), NO_DECIMAL);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TYPE_DEPENDENCIES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.TYPE_DEPENDENCIES), NO_DECIMAL);
+  void analyseBuildUnit(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.JAVA_FILES, SonargraphSimpleMetrics.JAVA_FILES);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TYPE_DEPENDENCIES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES);
   }
 
-  private void analyseMetricsForStructuralDebtDashbox(XsdAttributeRoot buildUnit, Project project) {
-    Number structuralDebtIndex = buildUnitmetrics.get(SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX), NO_DECIMAL);
+  private void analyseMetricsForStructuralDebtDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
+    double structuralDebtIndex = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX,
+      SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX);
+
     double indexCost = this.determineCostPerIndexPoint();
     if (indexCost > 0) {
       double structuralDebtCost = 0;
-      if (structuralDebtIndex != null && structuralDebtIndex.intValue() > 0) {
-        structuralDebtCost = structuralDebtIndex.intValue() * indexCost;
+      if (structuralDebtIndex > 0) {
+        structuralDebtCost = structuralDebtIndex * indexCost;
       }
-      Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, structuralDebtCost,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST), NO_DECIMAL);
+
+      SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, structuralDebtCost);
     }
+
+    double tasks;
     if (project.getQualifier().equals(Qualifiers.MODULE)) {
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.TASKS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphInternalMetrics.SYSTEM_ALL_TASKS, null, NO_DECIMAL);
+      tasks = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphInternalMetrics.SYSTEM_ALL_TASKS);
     } else {
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.TASKS), NO_DECIMAL);
+      tasks = SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS);
     }
-    IProcessor taskProcessor = new TaskProcessor(project, fileSystem, profile, sensorContext, perspectives);
+
+    IProcessor taskProcessor = new TaskProcessor(project, sensorContext, (int) tasks);
     taskProcessor.process(reportReader.getReport(), buildUnit);
   }
 
@@ -221,141 +202,111 @@ public final class SonargraphSensor implements Sensor {
     return indexCost;
   }
 
-  private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit, Project project) {
+  private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
 
     LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
-    CycleGroupProcessor processor = new CycleGroupProcessor(project, profile, perspectives, fileSystem);
+    CycleGroupProcessor processor = new CycleGroupProcessor(sensorContext);
     processor.process(reportReader.getReport(), buildUnit);
 
+    double packages = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_PACKAGES,
+      SonargraphSimpleMetrics.INTERNAL_PACKAGES);
     double cyclicity = processor.getCyclicity();
     double biggestCycleGroupSize = processor.getBiggestCycleGroupSize();
     double cyclicPackages = processor.getCyclicPackages();
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.CYCLICITY, cyclicity);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.CYCLIC_PACKAGES, cyclicPackages);
 
-    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, biggestCycleGroupSize,
-      SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP), NO_DECIMAL);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.CYCLICITY, cyclicity, SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.CYCLICITY),
-      NO_DECIMAL);
-    Utilities.saveMeasureToContext(sensorContext, SonargraphSimpleMetrics.CYCLIC_PACKAGES, cyclicPackages,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.CYCLIC_PACKAGES), NO_DECIMAL);
-
+    // FIXME: this needs to be changed:
     /* For the aggregating project, these derived metrics are calculated in the SonargraphDerivedMetricsDecorator */
-    double packages = sensorContext.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES).getValue();
     if (packages > 0) {
       double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity) / packages;
       double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages / packages;
-      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity,
-        SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.RELATIVE_CYCLICITY), 1);
-      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages,
-        SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT), 1);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, relCyclicity);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, relCyclicPackages);
     } else {
-      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, 0,
-        SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.RELATIVE_CYCLICITY), NO_DECIMAL);
-      Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, 0,
-        SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT), 1);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.RELATIVE_CYCLICITY, 0);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT, 0);
     }
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.EROSION_REFS, SonargraphSimpleMetrics.REFERENCES_TO_REMOVE,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.REFERENCES_TO_REMOVE), NO_DECIMAL);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.EROSION_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT), NO_DECIMAL);
 
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.ACD, SonargraphSimpleMetrics.ACD,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.ACD), 1);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.NCCD, SonargraphSimpleMetrics.NCCD,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.NCCD), 1);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.EROSION_REFS, SonargraphSimpleMetrics.REFERENCES_TO_REMOVE);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.EROSION_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT);
+
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.ACD, SonargraphSimpleMetrics.ACD);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.NCCD, SonargraphSimpleMetrics.NCCD);
 
     /* rACD is not displayed on the dashbox but fits well into this category */
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.RELATIVE_ACD, SonargraphSimpleMetrics.RELATIVE_ACD,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.RELATIVE_ACD), 1);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INSTRUCTIONS, SonargraphSimpleMetrics.INSTRUCTIONS,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.INSTRUCTIONS), NO_DECIMAL);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.RELATIVE_ACD, SonargraphSimpleMetrics.RELATIVE_ACD);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INSTRUCTIONS, SonargraphSimpleMetrics.INSTRUCTIONS);
   }
 
-  private void analyseMetricsForArchitectureDashbox(XsdAttributeRoot buildUnit, Project project) {
-    this.analyseArchitectureMeasures(buildUnit);
-    this.analyseWarnings(project);
-    if (profile != null) {
-      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
-      architectureViolationHandler.process(reportReader.getReport(), buildUnit);
-      IProcessor warningProcessor = new WarningProcessor(project, profile, fileSystem, this.perspectives);
-      warningProcessor.process(reportReader.getReport(), buildUnit);
-    } else {
-      LOG.error("RuleFinder must be set in constructor!");
-    }
+  private void analyseMetricsForArchitectureDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
+    this.analyseArchitectureMeasures(buildUnit, sensorContext, project);
+    this.analyseWarnings(sensorContext, project);
+
+    IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
+    architectureViolationHandler.process(reportReader.getReport(), buildUnit);
+    IProcessor warningProcessor = new WarningProcessor(sensorContext);
+    warningProcessor.process(reportReader.getReport(), buildUnit);
   }
 
-  private void analyseArchitectureMeasures(XsdAttributeRoot buildUnit) {
+  private void analyseArchitectureMeasures(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
     LOG.debug("Analysing architectural measures of build unit: " + buildUnit.getName());
     if (!buildUnitmetrics.containsKey(SonargraphStandaloneMetricNames.UNASSIGNED_TYPES)) {
       LOG.info("No architecture measures found for build unit: " + buildUnit.getName());
       return;
     }
-    double types = Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.INTERNAL_TYPES), NO_DECIMAL).getValue();
+
+    double types = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES);
     assert types >= 1.0 : "Project must not be empty !";
 
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_DEPENDENCIES,
-      SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES, SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES), NO_DECIMAL);
-    Measure violatingTypes = Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_TYPES,
-      SonargraphSimpleMetrics.VIOLATING_TYPES, SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.VIOLATING_TYPES), NO_DECIMAL);
-    double violatingTypesPercent = HUNDRET_PERCENT * violatingTypes.getValue() / types;
-    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent,
-      SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT), 1);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_REFERENCES, SonargraphSimpleMetrics.VIOLATING_REFERENCES,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.VIOLATING_REFERENCES), NO_DECIMAL);
-    Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_VIOLATIONS, SonargraphSimpleMetrics.IGNORED_VIOLATONS,
-      SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.IGNORED_VIOLATONS), NO_DECIMAL);
-    Measure unassignedTypes = Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.UNASSIGNED_TYPES,
-      SonargraphSimpleMetrics.UNASSIGNED_TYPES, SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.UNASSIGNED_TYPES), NO_DECIMAL);
-    double unassignedTypesPercent = HUNDRET_PERCENT * unassignedTypes.getValue() / types;
-    Utilities.saveMeasureToContext(sensorContext, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent,
-      SonargraphAlertThresholds.getThreshold(SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT), 1);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_DEPENDENCIES,
+      SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES);
+    double violatingTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_TYPES,
+      SonargraphSimpleMetrics.VIOLATING_TYPES);
+    double violatingTypesPercent = HUNDRET_PERCENT * violatingTypes / types;
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_REFERENCES, SonargraphSimpleMetrics.VIOLATING_REFERENCES);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_VIOLATIONS, SonargraphSimpleMetrics.IGNORED_VIOLATONS);
+
+    double unassignedTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.UNASSIGNED_TYPES,
+      SonargraphSimpleMetrics.UNASSIGNED_TYPES);
+    double unassignedTypesPercent = HUNDRET_PERCENT * unassignedTypes / types;
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent);
   }
 
-  private void analyseWarnings(Project project) {
+  private void analyseWarnings(SensorContext sensorContext, Project project) {
     if (project.getQualifier().equals(Qualifiers.MODULE)) {
       LOG.debug("Values for warning metrics are only taken from build unit section for child module projects.");
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.ALL_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.CYCLE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.DUPLICATE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.WORKSPACE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.THRESHOLD_WARNINGS), NO_DECIMAL, false);
-      Utilities.saveExistingMeasureToContext(sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.IGNORED_WARNINGS), NO_DECIMAL);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
 
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
+
+      // FIXME: This needs to be changed
       /*
        * Save overall system warnings to internal metrics. The decorator executed on the root parent module will retrieve them and store
        * them in the visible metrics.
        */
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, null,
-        NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, null,
-        NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS,
-        null, NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
-        null, NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
-        null, NO_DECIMAL);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS);
+      SonarQubeUtilities
+        .saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS);
+      SonarQubeUtilities
+        .saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS);
 
     } else {
       LOG.debug("Values for warning metrics are only taken from general section to also include logical cycle group warnings.");
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.ALL_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.CYCLE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.DUPLICATE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.WORKSPACE_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.THRESHOLD_WARNINGS), NO_DECIMAL);
-      Utilities.saveExistingMeasureToContext(sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS,
-        SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.IGNORED_WARNINGS), NO_DECIMAL);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS);
+      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
     }
   }
 }

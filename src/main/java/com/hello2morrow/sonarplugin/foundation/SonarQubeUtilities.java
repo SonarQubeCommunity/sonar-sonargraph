@@ -17,8 +17,10 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
+import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
@@ -26,12 +28,19 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class SonarQubeUtilities {
 
@@ -39,15 +48,43 @@ public class SonarQubeUtilities {
 
   private static final String SOURCE_FILE_NOT_FOUND_MESSAGE = "Cannot obtain source file ";
 
+  public static final Double TRUE = 1.0;
+  public static final Double FALSE = 0.0;
+  private static final int NO_DECIMAL = 0;
+  private static final int DECIMAL = 1;
+
   private SonarQubeUtilities() {
     // do not instantiate
   }
 
-  public static void saveViolation(org.sonar.api.batch.sensor.SensorContext context, InputFile file, org.sonar.api.batch.rule.ActiveRule rule, String priority, int line, String msg) {
+  public static double saveMeasure(Resource resource, SensorContext context, Map<String, Number> metrics, String sonargraphMetricName, Metric<Serializable> sonarQubeMetric) {
+    final double value = SonargraphUtilities.getBuildUnitMetricValue(metrics, sonargraphMetricName, true).doubleValue();
+    return saveMeasure(resource, context, sonarQubeMetric, value);
+  }
+
+  public static double saveMeasure(Resource resource, SensorContext context, Metric<Serializable> sonarQubeMetric, double value) {
+    return saveMeasure(resource, context, sonarQubeMetric, value, null, -1);
+  }
+
+  public static double saveMeasure(Resource resource, SensorContext context, Metric<Serializable> sonarQubeMetric, double value, Metric<Serializable> connectedThresholdMetric,
+    double thresholdMetricValue) {
+    final Measure<Serializable> measure = new Measure<>(sonarQubeMetric, value, sonarQubeMetric.getType() == ValueType.INT ? NO_DECIMAL : DECIMAL);
+    final Metric<Serializable> metricForThreshold = connectedThresholdMetric != null ? connectedThresholdMetric : sonarQubeMetric;
+    final AlertThreshold threshold = SonargraphAlertThresholds.getThreshold(metricForThreshold);
+    if (threshold != null && thresholdMetricValue >= 0) {
+      measure.setAlertStatus(threshold.getLevel(value));
+      measure.setAlertText(sonarQubeMetric.getKey());
+    }
+    context.saveMeasure(resource, sonarQubeMetric, value);
+    return value;
+  }
+
+  public static void saveViolation(org.sonar.api.batch.SensorContext context, InputFile file, org.sonar.api.batch.rule.ActiveRule rule, String priority, int line, String msg) {
     NewIssue newIssue = context.newIssue();
     TextRange textRange = file.newRange(line, 0, line + 1, 0);
     NewIssueLocation location = newIssue.newLocation().on(file).at(textRange).message(msg);
     newIssue.at(location).forRule(rule.ruleKey());
+    // TODO: Handle severity
     newIssue.save();
   }
 
@@ -55,6 +92,7 @@ public class SonarQubeUtilities {
     NewIssue newIssue = context.newIssue();
     NewIssueLocation location = newIssue.newLocation().on(dir).message(msg);
     newIssue.at(location).forRule(rule.ruleKey());
+    // TODO: Handle severity
     newIssue.save();
   }
 
@@ -91,6 +129,45 @@ public class SonarQubeUtilities {
       }
     }
     return rule;
+  }
+
+  public static boolean isAggregatingProject(final Project project) {
+    if (project == null) {
+      return false;
+    }
+    return !project.getModules().isEmpty();
+  }
+
+  public static boolean isRootParentProject(final Project project) {
+    boolean isRootParentProject = false;
+    if (project == null) {
+      return false;
+    }
+    List<Project> modules = project.getModules();
+    if (project.getParent() == null && modules != null && !modules.isEmpty()) {
+      isRootParentProject = true;
+    }
+    return isRootParentProject;
+  }
+
+  public static boolean isSingleModuleProject(final Project project) {
+    if (project == null) {
+      return false;
+    }
+
+    if (project.getModules().isEmpty() && project.getParent() == null) {
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean isSonargraphProject(SensorContext context) {
+    // Removed check for alert on sonargraph rule, since that API changed drastically
+    return Java.isEnabled(context.fileSystem()) && (areSonargraphRulesActive(context));
+  }
+
+  public static boolean areSonargraphRulesActive(SensorContext context) {
+    return !context.activeRules().findByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
   }
 
 }
