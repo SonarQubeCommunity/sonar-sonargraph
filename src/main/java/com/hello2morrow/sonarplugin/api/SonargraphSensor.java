@@ -274,7 +274,7 @@ public final class SonargraphSensor implements Sensor {
     this.analyseArchitectureMeasures(buildUnit);
     this.analyseWarnings(project);
     if (profile != null) {
-      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(project, profile, fileSystem, perspectives);
+      IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
       architectureViolationHandler.process(reportReader.getReport(), buildUnit);
       IProcessor warningProcessor = new WarningProcessor(project, profile, fileSystem, this.perspectives);
       warningProcessor.process(reportReader.getReport(), buildUnit);

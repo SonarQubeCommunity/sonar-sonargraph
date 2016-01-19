@@ -37,12 +37,17 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public final class Utilities {
 
   private static final String SOURCE_FILE_NOT_FOUND_MESSAGE = "Cannot obtain source file ";
+
   public static final String DEFAULT_BUILD_UNIT = "(Default Build Unit)";
   private static final String PROJECT_BUILDUNIT_SEPARATOR = "::";
   private static final String GROUP_ARTIFACT_SEPARATOR = ":";
@@ -59,6 +64,7 @@ public final class Utilities {
   private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
   private Utilities() {
+    // must not be instantiated
   }
 
   public static String getBuildUnitName(String fqName) {
@@ -78,6 +84,15 @@ public final class Utilities {
       buName = fqName.substring(0, projectSeparatorPos);
     }
     return buName;
+  }
+
+  public static <T> Collection<T> convertIterableToCollection(Iterable<T> iterable) {
+    List<T> result = new ArrayList<>();
+    Iterator<T> iterator = iterable.iterator();
+    while (iterator.hasNext()) {
+      result.add(iterator.next());
+    }
+    return result;
   }
 
   public static boolean isAggregationProject(DecoratorContext context, final Metric indicator) {
@@ -114,6 +129,7 @@ public final class Utilities {
     return false;
   }
 
+  @Deprecated
   public static String generateSpaceEntity(int numberOfSpaces) {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < numberOfSpaces; i++) {
@@ -122,6 +138,7 @@ public final class Utilities {
     return builder.toString();
   }
 
+  @Deprecated
   public static String generateSpaces(int numberOfSpaces) {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < numberOfSpaces; i++) {
@@ -169,6 +186,7 @@ public final class Utilities {
     return message.toString();
   }
 
+  @Deprecated
   public static void saveViolation(Resource resource, ResourcePerspectives perspectives, ActiveRule rule, String priority, int line, String msg) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     IssueBuilder issueBuilder = issuable.newIssueBuilder();
@@ -185,6 +203,7 @@ public final class Utilities {
     issuable.addIssue(issue);
   }
 
+  @Deprecated
   public static Resource getResource(final Project project, final FileSystem fileSystem, final String fqName) {
     final boolean isSourceFile = fqName.endsWith(".java");
 

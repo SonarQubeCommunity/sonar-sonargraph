@@ -29,8 +29,8 @@ import com.hello2morrow.sonarplugin.xsd.XsdTask;
 import com.hello2morrow.sonarplugin.xsd.XsdTasks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -99,13 +99,16 @@ public class TaskProcessor implements IProcessor {
       }
     }
     Metric connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
-    Measure measureToCopyThreshold = sensorContext.getMeasure(connectedMetric);
+
+    // FIXME
+    // Measure measureToCopyThreshold = sensorContext.getMeasure(connectedMetric);
 
     Measure measureToSave = new Measure(SonargraphSimpleMetrics.TASK_REFS, new Double(count), 0);
-    measureToSave.setAlertStatus(measureToCopyThreshold.getAlertStatus());
+    // measureToSave.setAlertStatus(measureToCopyThreshold.getAlertStatus());
     measureToSave.setAlertText(SonargraphSimpleMetrics.TASK_REFS.getKey());
 
-    sensorContext.saveMeasure(measureToSave);
+    // FIXME
+    // sensorContext.saveMeasure(measureToSave);
   }
 
   private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {

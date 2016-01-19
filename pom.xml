@@ -30,22 +30,18 @@
 
   <developers>
     <developer>
-      <id>hello2morrow</id>
-      <name>Alexander von Zitzewitz</name>
-    </developer>
-    <developer>
       <id>ingmarkellner</id>
       <name>Ingmar Kellner</name>
     </developer>
     <developer>
-      <id>nwe_h2m</id>
-      <name>Norman Wenzel</name>
+      <id>hello2morrow</id>
+      <name>Alexander von Zitzewitz</name>
     </developer>
   </developers>
 
   <issueManagement>
-  <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14758</url>
+    <system>Git</system>
+    <url>https://github.com/issues</url>
   </issueManagement>
 
   <properties>

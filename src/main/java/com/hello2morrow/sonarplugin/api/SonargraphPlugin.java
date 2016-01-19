@@ -59,6 +59,7 @@ public final class SonargraphPlugin extends SonarPlugin {
     // list.add(SonargraphAggregatingModuleMetricAggregator.class);
     // list.add(SonargraphDerivedMetricsDecorator.class);
     // list.add(SonargraphSystemDashBoardDecorator.class);
+
     list.add(SonargraphStructuralDebtDashboard.class);
     list.add(SonargraphCyclicityDashboard.class);
     list.add(SonargraphArchitectureDashboard.class);

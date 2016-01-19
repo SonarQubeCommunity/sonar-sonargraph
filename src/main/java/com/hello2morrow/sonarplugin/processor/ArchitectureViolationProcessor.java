@@ -17,8 +17,9 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdArchitectureViolation;
@@ -28,44 +29,37 @@ import com.hello2morrow.sonarplugin.xsd.XsdTypeRelation;
 import com.hello2morrow.sonarplugin.xsd.XsdViolations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.sensor.SensorContext;
 
 public class ArchitectureViolationProcessor implements IProcessor {
 
-  private final RulesProfile rulesProfile;
-  private final FileSystem fileSystem;
-  private final ResourcePerspectives resourcePerspective;
-  private final Project project;
+  private final SensorContext sensorContext;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-  public ArchitectureViolationProcessor(final Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, ResourcePerspectives perspective) {
-    this.project = project;
-    this.rulesProfile = rulesProfile;
-    this.fileSystem = fileSystem;
-    this.resourcePerspective = perspective;
+  public ArchitectureViolationProcessor(SensorContext context) {
+    this.sensorContext = context;
   }
 
   @Override
   public void process(ReportContext report, XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing architecture violation of buildUnit: " + buildUnit.getName());
 
-    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY);
+    ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
       LOG.info("Sonargraph architecture rule not active in current profile");
       return;
     }
+
     XsdViolations violations = report.getViolations();
     String uses = "Uses ";
     for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
       for (XsdTypeRelation rel : violation.getTypeRelation()) {
         String toType = PersistenceUtilities.getAttribute(rel.getAttribute(), "To");
-        String bu = PersistenceUtilities.getAttribute(rel.getAttribute(), "From build unit");
+        String fromBuildUnit = PersistenceUtilities.getAttribute(rel.getAttribute(), "From build unit");
 
         String dimension = violation.getDimension();
         String message = "";
@@ -77,15 +71,15 @@ public class ArchitectureViolationProcessor implements IProcessor {
         message = message + uses + toType;
         String explanation = "\nExplanation: " + PersistenceUtilities.getAttribute(rel.getAttribute(), "Explanation");
 
-        bu = Utilities.getBuildUnitName(bu);
-        if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-          processPosition(rule, rel, message, explanation);
+        fromBuildUnit = SonargraphUtilities.getBuildUnitName(fromBuildUnit);
+        if (fromBuildUnit.equals(SonargraphUtilities.getBuildUnitName(buildUnit.getName()))) {
+          processPosition(sensorContext, rule, rel, message, explanation);
         }
       }
     }
   }
 
-  private void processPosition(ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
+  private void processPosition(org.sonar.api.batch.sensor.SensorContext context, org.sonar.api.batch.rule.ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
     for (XsdPosition pos : rel.getPosition()) {
       String relFileName = pos.getFile();
       int line = 0;
@@ -98,9 +92,9 @@ public class ArchitectureViolationProcessor implements IProcessor {
       if (relFileName != null && (pos.getType() != null) && (line > 0)) {
         String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        Resource resource = Utilities.getResource(project, fileSystem, relFileName);
-        if (resource != null) {
-          Utilities.saveViolation(resource, resourcePerspective, rule, null, Integer.valueOf(pos.getLine()), msg);
+        InputComponent component = SonarQubeUtilities.getInputPath(context.fileSystem(), relFileName);
+        if (component != null && component.isFile()) {
+          SonarQubeUtilities.saveViolation(context, (InputFile) component, rule, "", Integer.parseInt(pos.getLine()), msg);
         }
       }
     }

@@ -28,7 +28,6 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -77,7 +76,7 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
     initIssuableAndBuilder(issuable2, issueBuilder2);
 
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(Resource.class))).thenReturn(issuable1).thenReturn(issuable2);
+    // when(perspectives.as(any(Class.class), any(Resource.class))).thenReturn(issuable1).thenReturn(issuable2);
 
     TaskProcessor processor = new TaskProcessor(project, fileSystem, getRulesProfile(), getSensorContext(), perspectives);
     ReportFileReader reader = new ReportFileReader();
