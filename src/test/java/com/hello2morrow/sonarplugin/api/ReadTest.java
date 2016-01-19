@@ -28,8 +28,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -61,22 +59,11 @@ public class ReadTest extends TestCase {
         return args[0];
       }
     });
-    when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
-
-      @Override
-      public Object answer(InvocationOnMock invocation) {
-        Object arg = invocation.getArguments()[0];
-        Measure result = new Measure((Metric) arg);
-        result.setValue(0.0);
-        return result;
-      }
-    });
-
     SonargraphSensor sensor = new SonargraphSensor(profile, TestHelper.initSettings(), sensorContext, TestHelper.initModuleFileSystem(), TestHelper.initPerspectives());
 
     Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
     XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
     assertNotNull(buildUnit);
-    sensor.analyseBuildUnit();
+    sensor.analyseBuildUnit(buildUnit, project);
   }
 }

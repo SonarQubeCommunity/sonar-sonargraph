@@ -27,12 +27,21 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
+import org.sonar.api.batch.sensor.duplication.Duplication;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
@@ -40,13 +49,58 @@ import org.sonar.api.server.rule.RulesDefinition.Rule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestHelper {
+
+  private static class InMemorySensorStorage implements SensorStorage {
+
+    private final Map<String, org.sonar.api.batch.sensor.measure.Measure> measures = new HashMap<>();
+
+    private final Collection<Issue> allIssues = new ArrayList<>();
+
+    private final Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
+    private final Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
+
+    private final List<Duplication> duplications = new ArrayList<>();
+
+    @Override
+    public void store(org.sonar.api.batch.sensor.measure.Measure measure) {
+      measures.put(measure.metric().key(), measure);
+    }
+
+    @Override
+    public void store(Issue issue) {
+      allIssues.add(issue);
+    }
+
+    @Override
+    public void store(Duplication duplication) {
+      duplications.add(duplication);
+    }
+
+    @Override
+    public void store(DefaultHighlighting highlighting) {
+      highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
+    }
+
+    @Override
+    public void store(DefaultCoverage defaultCoverage) {
+      String key = defaultCoverage.inputFile().key();
+      if (!coverageByComponent.containsKey(key)) {
+        coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
+      }
+      coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
+    }
+
+  }
 
   public static RulesProfile initRulesProfile() {
     RulesDefinition rulesDefinition = new SonargraphRulesRepository();
@@ -77,17 +131,41 @@ public class TestHelper {
   }
 
   @SuppressWarnings("rawtypes")
-  public static SensorContext initSensorContext() {
+  public static SensorContext initSensorContext(final FileSystem moduleFileSystem) {
+    final InMemorySensorStorage sensorStorage = new InMemorySensorStorage();
     SensorContext sensorContext = mock(SensorContext.class);
 
-    when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
+    when(sensorContext.activeRules()).thenAnswer(new Answer() {
 
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        ActiveRulesBuilder builder = new ActiveRulesBuilder();
+        return builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate().build();
+      }
+    });
+
+    when(sensorContext.fileSystem()).thenAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        return moduleFileSystem;
+      }
+    });
+
+    when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
         return args[0];
       }
     });
+
+    when(sensorContext.newMeasure()).thenAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultMeasure(sensorStorage);
+      }
+    });
+
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
 
       @Override

@@ -43,8 +43,8 @@ public abstract class AbstractSonargraphTest {
   @Before
   public void setup() {
     rulesProfile = TestHelper.initRulesProfile();
-    sensorContext = TestHelper.initSensorContext();
     moduleFileSystem = TestHelper.initModuleFileSystem();
+    sensorContext = TestHelper.initSensorContext(moduleFileSystem);
     settings = TestHelper.initSettings();
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, getReport());
   }
