@@ -19,7 +19,7 @@ package com.hello2morrow.sonarplugin.persistence;
 
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
@@ -50,22 +50,22 @@ public class PersistenceUtilities {
 
   public static DuplicateCodeBlock createDuplicateCodeBlock(XsdWarning warning) {
     DuplicateCodeBlock block = new DuplicateCodeBlock();
-    String attribute = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BLOCK_ID);
+    String attribute = PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.BLOCK_ID);
     if (null == attribute) {
       LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
       return null;
     }
     block.setBlockId(Integer.parseInt(attribute));
-    block.setProjectName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.PROJECT));
-    block.setBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BUILD_UNIT));
-    block.setElementType(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT_TYPE));
+    block.setProjectName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.PROJECT));
+    block.setBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.BUILD_UNIT));
+    block.setElementType(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ELEMENT_TYPE));
 
-    String blockLength = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ATTRIBUTE_VALUE);
+    String blockLength = PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ATTRIBUTE_VALUE);
     int pos = blockLength.indexOf(" lines");
     block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
 
-    block.setElementName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT));
-    block.setStartLine(Integer.parseInt(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.START_LINE)));
+    block.setElementName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ELEMENT));
+    block.setStartLine(Integer.parseInt(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.START_LINE)));
     return block;
   }
 

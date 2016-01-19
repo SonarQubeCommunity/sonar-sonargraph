@@ -47,6 +47,7 @@ public class SonarQubeUtilities {
   private static final Logger LOG = LoggerFactory.getLogger(SonarQubeUtilities.class);
 
   private static final String SOURCE_FILE_NOT_FOUND_MESSAGE = "Cannot obtain source file ";
+  private static final String GROUP_ARTIFACT_SEPARATOR = ":";
 
   public static final Double TRUE = 1.0;
   public static final Double FALSE = 0.0;
@@ -168,6 +169,43 @@ public class SonarQubeUtilities {
 
   public static boolean areSonargraphRulesActive(SensorContext context) {
     return !context.activeRules().findByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
+  }
+
+  public static boolean buildUnitMatchesAnalyzedProject(String buName, Project project) {
+    final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
+    final String[] elements = project.key().split(GROUP_ARTIFACT_SEPARATOR);
+    assert elements.length >= 1 : "project.getKey() must not return an empty string";
+
+    boolean result = false;
+
+    final String groupId = elements[0];
+    String artifactId = elements[elements.length - 1];
+    /**
+     * We need this check to support sonar.branch functionality. Branch tags are appended to the project key
+     * <group-id>:<artifact-id>:<branch-tag>
+     */
+    if (isBranch) {
+      artifactId = elements[elements.length - 2];
+    }
+
+    final String longName = artifactId + "[" + groupId + "]";
+    final String longName2 = groupId + ':' + artifactId;
+
+    if (buName.equalsIgnoreCase(artifactId)) {
+      result = true;
+    }
+    if (buName.equalsIgnoreCase(longName)) {
+      result = true;
+    }
+    if (buName.equalsIgnoreCase(longName2)) {
+      result = true;
+    }
+
+    if (buName.startsWith("...") && longName2.endsWith(buName.substring(2))) {
+      result = true;
+    }
+
+    return result;
   }
 
 }

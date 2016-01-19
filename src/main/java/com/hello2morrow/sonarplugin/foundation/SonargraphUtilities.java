@@ -19,6 +19,7 @@ package com.hello2morrow.sonarplugin.foundation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
 
 import java.util.List;
@@ -32,6 +33,13 @@ public class SonargraphUtilities {
 
   private static final String UNKNOWN = "<UNKNOWN>";
   private static final String PROJECT_BUILDUNIT_SEPARATOR = "::";
+  public static final String START_LINE = "Start line";
+  public static final String ELEMENT = "Element";
+  public static final String ATTRIBUTE_VALUE = "Attribute value";
+  public static final String ELEMENT_TYPE = "Element type";
+  public static final String BUILD_UNIT = "Build unit";
+  public static final String PROJECT = "Project";
+  public static final String BLOCK_ID = "Block id";
 
   private SonargraphUtilities() {
     // do not instantiate
@@ -147,4 +155,9 @@ public class SonargraphUtilities {
     message.append(".");
     return message.toString();
   }
+
+  public static String getConfiguredReportPath(Settings settings) {
+    return settings.getString(SonargraphPluginBase.REPORT_PATH);
+  }
+
 }

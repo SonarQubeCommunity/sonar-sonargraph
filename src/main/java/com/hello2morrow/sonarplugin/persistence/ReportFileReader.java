@@ -17,7 +17,8 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
@@ -111,7 +112,7 @@ public class ReportFileReader implements IReportReader {
   }
 
   private String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
-    String configuredReportPath = Utilities.getConfiguredReportPath(settings);
+    String configuredReportPath = SonargraphUtilities.getConfiguredReportPath(settings);
 
     if (moduleFileSystem == null) {
       return configuredReportPath;
@@ -144,14 +145,14 @@ public class ReportFileReader implements IReportReader {
       }
 
       XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
-      String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-      if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+      String buName = SonargraphUtilities.getBuildUnitName(sonarBuildUnit.getName());
+      if (SonarQubeUtilities.buildUnitMatchesAnalyzedProject(buName, project)) {
         return sonarBuildUnit;
       }
     } else if (buildUnitList.size() > 1) {
       for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
-        String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-        if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+        String buName = SonargraphUtilities.getBuildUnitName(sonarBuildUnit.getName());
+        if (SonarQubeUtilities.buildUnitMatchesAnalyzedProject(buName, project)) {
           return sonarBuildUnit;
         }
       }

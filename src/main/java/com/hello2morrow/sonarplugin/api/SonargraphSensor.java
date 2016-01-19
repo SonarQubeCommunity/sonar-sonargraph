@@ -298,7 +298,6 @@ public final class SonargraphSensor implements Sensor {
       SonarQubeUtilities
         .saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS);
       SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS);
-
     } else {
       LOG.debug("Values for warning metrics are only taken from general section to also include logical cycle group warnings.");
       SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
