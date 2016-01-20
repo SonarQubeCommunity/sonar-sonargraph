@@ -38,6 +38,7 @@ import org.sonar.api.resources.Resource;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -218,4 +219,11 @@ public class SonarQubeUtilities {
     return result;
   }
 
+  public static List<String> convertMetricListToKeyList(List<Metric<Serializable>> metrics) {
+    List<String> keys = new ArrayList<>();
+    for (Metric<Serializable> next : metrics) {
+      keys.add(next.getKey());
+    }
+    return keys;
+  }
 }

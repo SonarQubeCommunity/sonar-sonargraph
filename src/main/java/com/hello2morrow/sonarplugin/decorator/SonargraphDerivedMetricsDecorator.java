@@ -21,7 +21,6 @@ import com.hello2morrow.sonarplugin.foundation.Utilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
-import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
@@ -65,11 +64,12 @@ public class SonargraphDerivedMetricsDecorator implements Decorator {
 
     for (DecoratorContext childContext : context.getChildren()) {
 
-      Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
-      if (m != null) {
-        LOG.warn("Skipping module [" + childContext.getResource().getName() + "] because it is not part of the Sonargraph workspace or does not contain any code.");
-        continue;
-      }
+      // Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      // if (m != null) {
+      // LOG.warn("Skipping module [" + childContext.getResource().getName() +
+      // "] because it is not part of the Sonargraph workspace or does not contain any code.");
+      // continue;
+      // }
 
       Measure cycleGroup = childContext.getMeasure(SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP);
       Measure acd = childContext.getMeasure(SonargraphSimpleMetrics.ACD);

@@ -19,6 +19,9 @@
 package com.hello2morrow.sonarplugin.api;
 
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonarplugin.measurecomputer.SonargraphAggregatedMeasureComputer;
+import com.hello2morrow.sonarplugin.measurecomputer.SonargraphDerivedMeasureComputer;
+import com.hello2morrow.sonarplugin.measurecomputer.SonargraphHighestMeasureComputer;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
@@ -55,6 +58,10 @@ public final class SonargraphPlugin extends SonarPlugin {
     list.add(SonargraphDerivedMetrics.class);
     list.add(SonargraphInternalMetrics.class);
     list.add(SonargraphSensor.class);
+
+    list.add(SonargraphAggregatedMeasureComputer.class);
+    list.add(SonargraphDerivedMeasureComputer.class);
+    list.add(SonargraphHighestMeasureComputer.class);
     // list.add(SonargraphMetricAggregator.class);
     // list.add(SonargraphAggregatingModuleMetricAggregator.class);
     // list.add(SonargraphDerivedMetricsDecorator.class);

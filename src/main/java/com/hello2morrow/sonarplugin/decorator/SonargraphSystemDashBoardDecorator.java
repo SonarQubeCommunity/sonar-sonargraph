@@ -60,7 +60,7 @@ public class SonargraphSystemDashBoardDecorator implements Decorator {
 
   private boolean getMeasuresFromChildContexts(DecoratorContext context) {
     for (DecoratorContext childContext : context.getChildren()) {
-      Measure m = childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
+      Measure m = null; // childContext.getMeasure(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
       if (m != null) {
         LOG.info("Skipping module [" + childContext.getProject().getName() + "] because it is not part of the Sonargraph workspace or does not contain any code.");
       } else if (!getMeasures(context, childContext)) {

@@ -40,10 +40,14 @@ public class SonargraphInternalMetrics implements Metrics {
 
   private static final String INTERNAL_PREFIX = "Internal Metric - ";
 
-  /** Internally used Metric to flag that this maven module is not part of the Sonargraph workspace and should therefore be ignored. **/
-  public static final Metric<Serializable> MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE = new Metric.Builder("sonargraph_ignore_module", INTERNAL_PREFIX + "Exclude Module",
-    Metric.ValueType.BOOL).setDescription("Module must be excluded from Sonargraph processing").setDirection(Metric.DIRECTION_NONE).setQualitative(false)
+  /** Internally used Metric to flag that this maven module has been processed by the sensor. **/
+  public static final Metric<Serializable> MODULE_PROCESSED_BY_SENSOR = new Metric.Builder("sonargraph_module_processed_by_sensor", INTERNAL_PREFIX + "Module processed by sensor",
+    Metric.ValueType.BOOL).setDescription("Module has been processed by Sonargraph sensor").setDirection(Metric.DIRECTION_NONE).setQualitative(false)
     .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
+
+  public static final Metric<Serializable> ROOT_PROJECT_TO_BE_PROCESSED = new Metric.Builder("sonargraph_root_project_to_be_processed",
+    INTERNAL_PREFIX + "Root Sonargraph project", Metric.ValueType.BOOL).setDescription("Root project that needs to be processed by measure computers")
+    .setDirection(Metric.DIRECTION_NONE).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
 
   public static final Metric<Serializable> SYSTEM_ALL_WARNINGS = new Metric.Builder("sonargraph_system_all_warnings", INTERNAL_PREFIX + "System All Warnings", Metric.ValueType.INT)
     .setDescription("Number of All Warnings").setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true)
@@ -68,14 +72,10 @@ public class SonargraphInternalMetrics implements Metrics {
   public static final Metric<Serializable> SYSTEM_ALL_TASKS = new Metric.Builder("sonargraph_system_all_tasks", "System All Tasks", Metric.ValueType.INT)
     .setDescription("Number of Tasks").setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
 
-  public static final Metric<Serializable> SHOULD_EXECUTE = new Metric.Builder("sonargraph_should_execute", "Should Execute on Project", Metric.ValueType.BOOL)
-    .setDescription("Should execute on project").setDirection(Metric.DIRECTION_WORST).setQualitative(false).setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true)
-    .create();
-
   @Override
   public List<Metric> getMetrics() {
-    List<Metric<Serializable>> metrics = Arrays.asList(MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE, SYSTEM_ALL_WARNINGS, SYSTEM_CYCLE_WARNINGS, SYSTEM_THRESHOLD_WARNINGS,
-      SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS, SYSTEM_ALL_TASKS, SHOULD_EXECUTE);
+    List<Metric<Serializable>> metrics = Arrays.asList(MODULE_PROCESSED_BY_SENSOR, ROOT_PROJECT_TO_BE_PROCESSED, SYSTEM_ALL_WARNINGS, SYSTEM_CYCLE_WARNINGS,
+      SYSTEM_THRESHOLD_WARNINGS, SYSTEM_WORKSPACE_WARNINGS, SYSTEM_IGNORED_WARNINGS, SYSTEM_ALL_TASKS);
     List<Metric> newMetrics = new ArrayList<>();
     newMetrics.addAll(metrics);
     return newMetrics;

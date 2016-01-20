@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 
 import java.util.HashMap;
@@ -68,10 +67,9 @@ public final class SonargraphSensor implements Sensor {
     this.settings = settings;
   }
 
-  /* called from maven */
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return project.isModule() || (project.isRoot() && project.getModules().isEmpty());
+    return true;
   }
 
   @Override
@@ -86,9 +84,14 @@ public final class SonargraphSensor implements Sensor {
     }
 
     if (!SonarQubeUtilities.isSonargraphProject(sensorContext)) {
-      LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
-      LOG.warn(SEPARATOR);
+      LOG.info(SEPARATOR);
+      LOG.info("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.info(SEPARATOR);
+      return false;
+    }
+
+    if (project.isRoot() && !project.getModules().isEmpty()) {
+      sensorContext.saveMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED, SonarQubeUtilities.TRUE);
       return false;
     }
 
@@ -109,6 +112,8 @@ public final class SonargraphSensor implements Sensor {
     }
 
     LOG.info("Sonargraph: Execute for module " + project.getName() + " [" + project.getKey() + "]");
+    sensorContext.saveMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED, SonarQubeUtilities.FALSE);
+
     final IReportReader reportReader = new ReportFileReader();
     reportReader.readSonargraphReport(project, sensorContext.fileSystem(), settings);
     if (PersistenceUtilities.getSonargraphBasePath(reportReader.getReport()) == null) {
@@ -116,35 +121,10 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    // if (!project.isRoot()) {
-    // // We need to save system metrics for the root project
-    // analyseSystemMetrics(sensorContext, project, reportReader);
-    // }
-
-    analyseModuleMetrics(sensorContext, project, reportReader);
-  }
-
-  private void analyseSystemMetrics(SensorContext sensorContext, Project project, IReportReader reportReader) {
-    XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
-    PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
-
-    analyseBasicMetrics(systemMetrics, sensorContext, project);
-
-    analyseMetricsForStructuralDebtDashbox(systemMetrics, sensorContext, project);
-
-    analyseMetricsForArchitectureDashbox(systemMetrics, sensorContext, project);
-
-    // TODO:
-    // analyseMetricsForStructureDashbox
-  }
-
-  private void analyseModuleMetrics(SensorContext sensorContext, Project project, IReportReader reportReader) {
     XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
     if (buildUnit == null) {
       LOG.warn("No Sonargraph build units found in report for [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
-      Measure<Boolean> m = new Measure<>(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
-      m.setValue(SonarQubeUtilities.TRUE);
-      sensorContext.saveMeasure(m);
+      sensorContext.saveMeasure(SonargraphInternalMetrics.MODULE_PROCESSED_BY_SENSOR, SonarQubeUtilities.FALSE);
       return;
     }
 
@@ -155,11 +135,11 @@ public final class SonargraphSensor implements Sensor {
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
-      Measure<Boolean> m = new Measure<>(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
-      m.setValue(SonarQubeUtilities.TRUE);
-      sensorContext.saveMeasure(m);
+      sensorContext.saveMeasure(SonargraphInternalMetrics.MODULE_PROCESSED_BY_SENSOR, SonarQubeUtilities.FALSE);
       return;
     }
+
+    sensorContext.saveMeasure(SonargraphInternalMetrics.MODULE_PROCESSED_BY_SENSOR, SonarQubeUtilities.TRUE);
 
     analyseBasicMetrics(buildUnitmetrics, sensorContext, project);
     int numberOfTasks = analyseMetricsForStructuralDebtDashbox(buildUnitmetrics, sensorContext, project);
@@ -168,13 +148,32 @@ public final class SonargraphSensor implements Sensor {
 
     analyseMetricsForArchitectureDashbox(buildUnitmetrics, sensorContext, project);
 
-    analyseMetricsForStructureDashbox(reportReader, buildUnit, sensorContext, project);
+    LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
+    CycleGroupProcessor processor = new CycleGroupProcessor(sensorContext);
+    processor.process(reportReader.getReport(), buildUnit);
+
+    analyseMetricsForStructureDashbox(sensorContext, project, processor);
 
     IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
     architectureViolationHandler.process(reportReader.getReport(), buildUnit);
 
     IProcessor warningProcessor = new WarningProcessor(sensorContext);
     warningProcessor.process(reportReader.getReport(), buildUnit);
+
+    if (!project.isRoot()) {
+      XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
+      PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
+      addInternalSystemMetrics(systemMetrics, project, sensorContext);
+    }
+  }
+
+  private void addInternalSystemMetrics(Map<String, Number> metricsMap, Project project, SensorContext sensorContext) {
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.TASKS, SonargraphInternalMetrics.SYSTEM_ALL_TASKS);
   }
 
   /**
@@ -218,12 +217,7 @@ public final class SonargraphSensor implements Sensor {
     return indexCost;
   }
 
-  private void analyseMetricsForStructureDashbox(IReportReader reportReader, XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
-
-    LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
-    CycleGroupProcessor processor = new CycleGroupProcessor(sensorContext);
-    processor.process(reportReader.getReport(), buildUnit);
-
+  private void analyseMetricsForStructureDashbox(SensorContext sensorContext, Project project, CycleGroupProcessor processor) {
     double packages = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_PACKAGES,
       SonargraphSimpleMetrics.INTERNAL_PACKAGES);
     double cyclicity = processor.getCyclicity();
@@ -233,8 +227,6 @@ public final class SonargraphSensor implements Sensor {
     SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.CYCLICITY, cyclicity);
     SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.CYCLIC_PACKAGES, cyclicPackages);
 
-    // FIXME: this needs to be changed:
-    /* For the aggregating project, these derived metrics are calculated in the SonargraphDerivedMetricsDecorator */
     if (packages > 0) {
       double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity) / packages;
       double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages / packages;

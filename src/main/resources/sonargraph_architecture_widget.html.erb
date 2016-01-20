@@ -32,7 +32,7 @@ if measure('sonargraph_architecture_violations')
     </tr>
     <tr>
     	<td>
-              <%= format_measure('sonargraph_architecture_violations', :suffix => ' violating references', :url => "#{ApplicationController.root_context}/drilldown/violations/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.architecture") -%> <%= tendency_icon(measure('sonargraph_architecture_violations')) %> 
+              <%= format_measure('sonargraph_architecture_violations', :suffix => ' violating references', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.architecture") -%> <%= tendency_icon(measure('sonargraph_architecture_violations')) %> 
         </td>
         <td>
               <%= format_measure('sonargraph_duplicate_warnings', :suffix => ' duplicate code blocks', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.duplicate") -%> <%= tendency_icon(measure('sonargraph_duplicate_warnings')) %>
