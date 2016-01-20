@@ -32,6 +32,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * FIXME [IK] This needs to be handled by a MeasureComputer
+ * 
+ * 
  * This decorator is applicable for aggregating modules that are not root projects. The warning metrics are simply added from the child
  * modules.
  *

@@ -120,6 +120,9 @@ public class PersistenceUtilities {
   }
 
   public static String getSonargraphBasePath(ReportContext report) {
+    if (report == null) {
+      return null;
+    }
     for (XsdAttribute next : report.getGeneral().getAttribute()) {
       if (BASE_PATH_ATTRIBUTE.equals(next.getName())) {
         return next.getValue();

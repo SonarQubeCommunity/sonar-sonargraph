@@ -25,6 +25,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,8 @@ public class SonargraphMetricAggregator extends AbstractMetricAggregator {
   @DependedUpon
   public List<Metric> generatesMetrics() {
 
-    return Arrays.asList(SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES, SonargraphSimpleMetrics.INTERNAL_TYPES,
+    List<Metric> metrics = new ArrayList<>();
+    List<Metric<Serializable>> newMetrics = Arrays.asList(SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES, SonargraphSimpleMetrics.INTERNAL_TYPES,
       SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
 
       /* structural debt metrics */
@@ -66,6 +68,9 @@ public class SonargraphMetricAggregator extends AbstractMetricAggregator {
 
       /* warnings */
       SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+
+    metrics.addAll(newMetrics);
+    return metrics;
   }
 
   @Override

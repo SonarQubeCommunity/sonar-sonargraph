@@ -52,10 +52,6 @@ public class ReportFileReader implements IReportReader {
   private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
   private ReportContext report;
 
-  public ReportFileReader() {
-    super();
-  }
-
   @Override
   public void readSonargraphReport(final Project project, FileSystem moduleFileSystem, Settings settings) {
     if (project == null) {
@@ -111,7 +107,7 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  private String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
+  private static String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
     String configuredReportPath = SonargraphUtilities.getConfiguredReportPath(settings);
 
     if (moduleFileSystem == null) {
@@ -163,8 +159,7 @@ public class ReportFileReader implements IReportReader {
     return null;
   }
 
-  @Override
-  public boolean hasSonargraphReport(FileSystem fileSystem, Settings settings) {
+  public static boolean hasSonargraphReport(FileSystem fileSystem, Settings settings) {
     String reportFileName = determineReportFileName(fileSystem, settings);
     if (reportFileName == null || !(new File(reportFileName).exists())) {
       return false;

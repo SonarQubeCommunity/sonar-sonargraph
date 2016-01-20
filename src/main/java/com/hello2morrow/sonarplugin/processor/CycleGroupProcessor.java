@@ -29,17 +29,14 @@ import com.hello2morrow.sonarplugin.xsd.XsdCyclePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.resources.Directory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class CycleGroupProcessor implements IProcessor {
@@ -109,12 +106,13 @@ public class CycleGroupProcessor implements IProcessor {
   private boolean createCycleGroupIssue(final XsdCycleGroup group, final String namedElementGroup, ActiveRule rule) {
     if (PHYSICAL_PACKAGE_NAMED_ELEMENT_GROUP.equals(namedElementGroup)) {
       int groupSize = group.getCyclePath().size();
+      // FIXME: This seems to be wrong. We need to omit duplicates.
       cyclicPackages += groupSize;
       cyclicity += groupSize * groupSize;
       if (groupSize > biggestCycleGroupSize) {
         biggestCycleGroupSize = groupSize;
       }
-    } else if (DIRECTORY_NAMED_ELEMENT_GROUP.equals(namedElementGroup) && !handlePackageCycleGroup(group, rule)) {
+    } else if (DIRECTORY_NAMED_ELEMENT_GROUP.equals(namedElementGroup) && !handleSrcDirectoryCycleGroup(group, rule)) {
       return false;
     } else if ("Source file".equals(namedElementGroup)) {
       handleSourceFileGroup(group, rule);
@@ -133,7 +131,7 @@ public class CycleGroupProcessor implements IProcessor {
   private List<InputFile> determineCyclicSrcFiles(XsdCycleGroup group) {
     List<InputFile> srcFiles = new ArrayList<>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
-      String cyclicFilePathRelative = SonargraphUtilities.getSourceFilePath(group.getParent(), pathElement.getParent());
+      String cyclicFilePathRelative = pathElement.getParent();
       if (cyclicFilePathRelative == null) {
         LOG.error("Failed to determine relative path within system for cycleGroupParent '" + group.getParent() + "' and source file '" + pathElement.getParent() + "'");
         continue;
@@ -142,16 +140,21 @@ public class CycleGroupProcessor implements IProcessor {
       InputPath inputPath = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), cyclicFilePathRelative);
       if (inputPath == null) {
         LOG.error("Failed to determine path for '" + cyclicFilePathRelative + "'");
+      } else {
+        assert inputPath.isFile() : "inputFile must be a file";
+        srcFiles.add((InputFile) inputPath);
       }
-      assert inputPath.isFile() : "inputFile must be a file";
-      srcFiles.add((InputFile) inputPath);
     }
 
     return srcFiles;
   }
 
-  private boolean handlePackageCycleGroup(XsdCycleGroup group, ActiveRule rule) {
-    List<InputPath> srcDirectories = determineCyclicSrcDirectories(group);
+  private boolean handleSrcDirectoryCycleGroup(XsdCycleGroup group, ActiveRule rule) {
+    final List<InputPath> srcDirectories = determineCyclicSrcDirectories(group);
+    if (srcDirectories.isEmpty()) {
+      return true;
+    }
+
     boolean issueAddedForAllPackages = true;
 
     // No source directories are detected for class files
@@ -161,59 +164,42 @@ public class CycleGroupProcessor implements IProcessor {
     return issueAddedForAllPackages;
   }
 
+  /**
+   * Determines the relative path, since class directories of Sonargraph workspace might be different from Maven class directories 
+   * @param group
+   * @return
+   */
   private List<InputPath> determineCyclicSrcDirectories(XsdCycleGroup group) {
-    List<InputPath> packages = new ArrayList<>();
+    final List<InputPath> packages = new ArrayList<>();
     for (XsdCyclePath pathElement : group.getCyclePath()) {
-      String cyclicPath;
+      final String cyclicPath = pathElement.getParent();
       try {
-        cyclicPath = new File(this.sonargraphBasePath, pathElement.getParent()).getCanonicalPath().replace('\\', '/');
-      } catch (IOException e1) {
-        LOG.error("Failed to determine absolute path for '" + pathElement.getParent() + "'", e1);
-        return Collections.emptyList();
+        final String absolutePath = new File(sonargraphBasePath, cyclicPath).getCanonicalPath().replace('\\', '/');
+        final InputPath srcDir = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), absolutePath, true);
+        if (srcDir != null) {
+          packages.add(srcDir);
+        } else {
+          LOG.error("Could not locate directory for '" + cyclicPath + "'.");
+        }
+      } catch (IOException e) {
+        LOG.error("Failed to determine absolute path for '" + cyclicPath + "'.");
       }
-
-      List<InputPath> srcDirs = getSourceDirectories(cyclicPath);
-      if (srcDirs.isEmpty()) {
-        LOG.debug("Could not locate src directory for '" + pathElement.getParent() + "'");
-        continue;
-      }
-      if (srcDirs.size() > 1) {
-        LOG.warn("Found more than one src directory for '" + pathElement.getParent() + "'");
-      }
-
-      packages.addAll(srcDirs);
-
     }
     return packages;
   }
 
-  private List<InputPath> getSourceDirectories(String cyclicPath) {
-    final List<InputPath> srcDirs = new ArrayList<>();
-    final FileSystem fileSystem = sensorContext.fileSystem();
-
-    for (File next : fileSystem.files(fileSystem.predicates().and())) {
-      final File dir = next.getParentFile();
-      try {
-        final String canonicalPath = dir.getCanonicalPath();
-        if (canonicalPath.replace('\\', '/').endsWith(cyclicPath)) {
-          srcDirs.add(fileSystem.inputDir(dir));
-        }
-      } catch (IOException e) {
-        LOG.warn("Could not get canonical path for directory '" + dir.getAbsolutePath() + "'", e);
-      }
-    }
-    return srcDirs;
-  }
-
   private boolean addCycleIssue(InputPath resource, List<InputPath> involvedResources, ActiveRule rule) {
+    assert resource != null : "Parameter 'resource' of method 'addCycleIssue' must not be null";
+    assert involvedResources != null && involvedResources.size() > 0 : "Parameter 'involvedResources' of method 'addCycleIssue' must not be empty";
+    assert rule != null : "Parameter 'rule' of method 'addCycleIssue' must not be null";
 
     List<InputPath> tempInvolvedResources = new ArrayList<InputPath>(involvedResources);
     tempInvolvedResources.remove(resource);
     StringBuilder builder = new StringBuilder();
-    if (resource instanceof Directory) {
-      builder.append("Package participates in a cycle group");
-    } else {
+    if (resource.isFile()) {
       builder.append("File participates in a cycle group");
+    } else {
+      builder.append("Package participates in a cycle group");
     }
     boolean first = true;
     for (InputPath next : tempInvolvedResources) {
@@ -231,7 +217,7 @@ public class CycleGroupProcessor implements IProcessor {
     }
 
     if (resource.isFile()) {
-      SonarQubeUtilities.saveViolation(sensorContext, (InputFile) resource, rule, "", 0, builder.toString());
+      SonarQubeUtilities.saveViolation(sensorContext, (InputFile) resource, rule, "", 1, builder.toString());
     } else {
       SonarQubeUtilities.saveViolation(sensorContext, (InputDir) resource, rule, "", builder.toString());
     }

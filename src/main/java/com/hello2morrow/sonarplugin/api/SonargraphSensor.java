@@ -41,7 +41,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,23 +59,47 @@ public final class SonargraphSensor implements Sensor {
   private static final int SONARGRAPH_METRICS_COUNT = 70;
   private static final double HUNDRET_PERCENT = 100.0;
 
-  private final Map<String, Number> buildUnitmetrics;
-  private final Map<String, Number> systemMetrics;
+  private final Map<String, Number> buildUnitmetrics = new HashMap<String, Number>();
+  private final Map<String, Number> systemMetrics = new HashMap<String, Number>(SONARGRAPH_METRICS_COUNT);
 
-  private final IReportReader reportReader;
   private final Settings settings;
 
   public SonargraphSensor(Settings settings) {
     this.settings = settings;
-    reportReader = new ReportFileReader();
-    buildUnitmetrics = new HashMap<String, Number>();
-    systemMetrics = new HashMap<String, Number>(SONARGRAPH_METRICS_COUNT);
   }
 
   /* called from maven */
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !SonarQubeUtilities.isAggregatingProject(project);
+    return project.isModule() || (project.isRoot() && project.getModules().isEmpty());
+  }
+
+  @Override
+  public String toString() {
+    return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
+  }
+
+  private boolean isValidProject(final Project project, SensorContext sensorContext) {
+    if (project == null || sensorContext == null) {
+      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
+      return false;
+    }
+
+    if (!SonarQubeUtilities.isSonargraphProject(sensorContext)) {
+      LOG.warn(SEPARATOR);
+      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.warn(SEPARATOR);
+      return false;
+    }
+
+    if (!ReportFileReader.hasSonargraphReport(sensorContext.fileSystem(), settings)) {
+      LOG.warn(SEPARATOR);
+      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
+      LOG.warn(SEPARATOR);
+      return false;
+    }
+
+    return true;
   }
 
   @Override
@@ -86,15 +109,37 @@ public final class SonargraphSensor implements Sensor {
     }
 
     LOG.info("Sonargraph: Execute for module " + project.getName() + " [" + project.getKey() + "]");
-
+    final IReportReader reportReader = new ReportFileReader();
     reportReader.readSonargraphReport(project, sensorContext.fileSystem(), settings);
     if (PersistenceUtilities.getSonargraphBasePath(reportReader.getReport()) == null) {
       LOG.error("Sonargraph base path cannot be determined");
       return;
     }
 
-    XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
+    // if (!project.isRoot()) {
+    // // We need to save system metrics for the root project
+    // analyseSystemMetrics(sensorContext, project, reportReader);
+    // }
 
+    analyseModuleMetrics(sensorContext, project, reportReader);
+  }
+
+  private void analyseSystemMetrics(SensorContext sensorContext, Project project, IReportReader reportReader) {
+    XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
+    PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
+
+    analyseBasicMetrics(systemMetrics, sensorContext, project);
+
+    analyseMetricsForStructuralDebtDashbox(systemMetrics, sensorContext, project);
+
+    analyseMetricsForArchitectureDashbox(systemMetrics, sensorContext, project);
+
+    // TODO:
+    // analyseMetricsForStructureDashbox
+  }
+
+  private void analyseModuleMetrics(SensorContext sensorContext, Project project, IReportReader reportReader) {
+    XsdAttributeRoot buildUnit = reportReader.retrieveBuildUnit(project);
     if (buildUnit == null) {
       LOG.warn("No Sonargraph build units found in report for [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
       Measure<Boolean> m = new Measure<>(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE);
@@ -107,9 +152,6 @@ public final class SonargraphSensor implements Sensor {
 
     PersistenceUtilities.readAttributesToMap(buildUnit, buildUnitmetrics);
 
-    XsdAttributeRoot attributesPart = reportReader.getReport().getAttributes();
-    PersistenceUtilities.readAttributesToMap(attributesPart, systemMetrics);
-
     Number numberOfStatements = buildUnitmetrics.get(SonargraphStandaloneMetricNames.INSTRUCTIONS);
     if (numberOfStatements == null || numberOfStatements.intValue() < 1) {
       LOG.warn("No code to be analysed in [" + project.getName() + "]. " + NOT_PROCESSED_MESSAGE);
@@ -119,51 +161,33 @@ public final class SonargraphSensor implements Sensor {
       return;
     }
 
-    this.analyseBuildUnit(buildUnit, sensorContext, project);
-    this.analyseMetricsForStructuralDebtDashbox(buildUnit, sensorContext, project);
-    this.analyseMetricsForStructureDashbox(buildUnit, sensorContext, project);
-    this.analyseMetricsForArchitectureDashbox(buildUnit, sensorContext, project);
-  }
+    analyseBasicMetrics(buildUnitmetrics, sensorContext, project);
+    int numberOfTasks = analyseMetricsForStructuralDebtDashbox(buildUnitmetrics, sensorContext, project);
+    IProcessor taskProcessor = new TaskProcessor(project, sensorContext, numberOfTasks);
+    taskProcessor.process(reportReader.getReport(), buildUnit);
 
-  private boolean isValidProject(final Project project, SensorContext sensorContext) {
-    if (project == null || sensorContext == null) {
-      LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
-      return false;
-    }
+    analyseMetricsForArchitectureDashbox(buildUnitmetrics, sensorContext, project);
 
-    if (!SonarQubeUtilities.isSonargraphProject(sensorContext)) {
-      LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project" + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
-      LOG.warn(SEPARATOR);
-      return false;
-    }
+    analyseMetricsForStructureDashbox(reportReader, buildUnit, sensorContext, project);
 
-    if (!reportReader.hasSonargraphReport(sensorContext.fileSystem(), settings)) {
-      LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
-      LOG.warn(SEPARATOR);
-      return false;
-    }
+    IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
+    architectureViolationHandler.process(reportReader.getReport(), buildUnit);
 
-    return true;
-  }
-
-  @Override
-  public String toString() {
-    return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
+    IProcessor warningProcessor = new WarningProcessor(sensorContext);
+    warningProcessor.process(reportReader.getReport(), buildUnit);
   }
 
   /**
    * This method retrieves general metrics from the report generated by Sonargraph
    */
   /* package access to ease testing */
-  void analyseBuildUnit(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
-    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.JAVA_FILES, SonargraphSimpleMetrics.JAVA_FILES);
-    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TYPE_DEPENDENCIES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES);
+  void analyseBasicMetrics(Map<String, Number> metricMap, SensorContext sensorContext, Project project) {
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.JAVA_FILES, SonargraphSimpleMetrics.JAVA_FILES);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.TYPE_DEPENDENCIES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES);
   }
 
-  private void analyseMetricsForStructuralDebtDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
-    double structuralDebtIndex = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX,
+  private int analyseMetricsForStructuralDebtDashbox(Map<String, Number> metricsMap, SensorContext sensorContext, Project project) {
+    double structuralDebtIndex = SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.STUCTURAL_DEBT_INDEX,
       SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX);
 
     double indexCost = this.determineCostPerIndexPoint();
@@ -176,16 +200,8 @@ public final class SonargraphSensor implements Sensor {
       SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, structuralDebtCost);
     }
 
-    double tasks;
-    if (project.getQualifier().equals(Qualifiers.MODULE)) {
-      tasks = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphInternalMetrics.SYSTEM_ALL_TASKS);
-    } else {
-      tasks = SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS);
-    }
-
-    IProcessor taskProcessor = new TaskProcessor(project, sensorContext, (int) tasks);
-    taskProcessor.process(reportReader.getReport(), buildUnit);
+    double tasks = SonarQubeUtilities.saveMeasure(project, sensorContext, metricsMap, SonargraphStandaloneMetricNames.TASKS, SonargraphSimpleMetrics.TASKS);
+    return (int) tasks;
   }
 
   private double determineCostPerIndexPoint() {
@@ -202,7 +218,7 @@ public final class SonargraphSensor implements Sensor {
     return indexCost;
   }
 
-  private void analyseMetricsForStructureDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
+  private void analyseMetricsForStructureDashbox(IReportReader reportReader, XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
 
     LOG.debug("Analysing cycleGroups of buildUnit: " + buildUnit.getName());
     CycleGroupProcessor processor = new CycleGroupProcessor(sensorContext);
@@ -240,72 +256,40 @@ public final class SonargraphSensor implements Sensor {
     SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INSTRUCTIONS, SonargraphSimpleMetrics.INSTRUCTIONS);
   }
 
-  private void analyseMetricsForArchitectureDashbox(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
-    this.analyseArchitectureMeasures(buildUnit, sensorContext, project);
-    this.analyseWarnings(sensorContext, project);
-
-    IProcessor architectureViolationHandler = new ArchitectureViolationProcessor(sensorContext);
-    architectureViolationHandler.process(reportReader.getReport(), buildUnit);
-    IProcessor warningProcessor = new WarningProcessor(sensorContext);
-    warningProcessor.process(reportReader.getReport(), buildUnit);
+  private void analyseMetricsForArchitectureDashbox(Map<String, Number> metricMap, SensorContext sensorContext, Project project) {
+    this.analyseArchitectureMeasures(metricMap, sensorContext, project);
+    this.analyseWarnings(metricMap, sensorContext, project);
   }
 
-  private void analyseArchitectureMeasures(XsdAttributeRoot buildUnit, SensorContext sensorContext, Project project) {
-    LOG.debug("Analysing architectural measures of build unit: " + buildUnit.getName());
-    if (!buildUnitmetrics.containsKey(SonargraphStandaloneMetricNames.UNASSIGNED_TYPES)) {
-      LOG.info("No architecture measures found for build unit: " + buildUnit.getName());
+  private void analyseArchitectureMeasures(Map<String, Number> metricMap, SensorContext sensorContext, Project project) {
+    if (!metricMap.containsKey(SonargraphStandaloneMetricNames.UNASSIGNED_TYPES)) {
+      LOG.info("No architecture measures found");
       return;
     }
 
-    double types = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.INTERNAL_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES);
+    double types = SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.INTERNAL_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES);
     assert types >= 1.0 : "Project must not be empty !";
 
-    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_DEPENDENCIES,
-      SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES);
-    double violatingTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_TYPES,
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.VIOLATING_DEPENDENCIES, SonargraphSimpleMetrics.VIOLATING_TYPE_DEPENDENCIES);
+    double violatingTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.VIOLATING_TYPES,
       SonargraphSimpleMetrics.VIOLATING_TYPES);
     double violatingTypesPercent = HUNDRET_PERCENT * violatingTypes / types;
     SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, violatingTypesPercent);
-    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.VIOLATING_REFERENCES, SonargraphSimpleMetrics.VIOLATING_REFERENCES);
-    SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_VIOLATIONS, SonargraphSimpleMetrics.IGNORED_VIOLATONS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.VIOLATING_REFERENCES, SonargraphSimpleMetrics.VIOLATING_REFERENCES);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.IGNORED_VIOLATIONS, SonargraphSimpleMetrics.IGNORED_VIOLATONS);
 
-    double unassignedTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.UNASSIGNED_TYPES,
+    double unassignedTypes = SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.UNASSIGNED_TYPES,
       SonargraphSimpleMetrics.UNASSIGNED_TYPES);
     double unassignedTypesPercent = HUNDRET_PERCENT * unassignedTypes / types;
     SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT, unassignedTypesPercent);
   }
 
-  private void analyseWarnings(SensorContext sensorContext, Project project) {
-    if (project.getQualifier().equals(Qualifiers.MODULE)) {
-      LOG.debug("Values for warning metrics are only taken from build unit section for child module projects.");
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
-
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, buildUnitmetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
-
-      // FIXME: This needs to be changed
-      /*
-       * Save overall system warnings to internal metrics. The decorator executed on the root parent module will retrieve them and store
-       * them in the visible metrics.
-       */
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS);
-      SonarQubeUtilities
-        .saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS);
-      SonarQubeUtilities
-        .saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS);
-    } else {
-      LOG.debug("Values for warning metrics are only taken from general section to also include logical cycle group warnings.");
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS);
-      SonarQubeUtilities.saveMeasure(project, sensorContext, systemMetrics, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
-    }
+  private void analyseWarnings(Map<String, Number> metricMap, SensorContext sensorContext, Project project) {
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.ALL_WARNINGS, SonargraphSimpleMetrics.ALL_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.CYCLE_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.DUPLICATE_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.WORKSPACE_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, metricMap, SonargraphStandaloneMetricNames.IGNORED_WARNINGS, SonargraphSimpleMetrics.IGNORED_WARNINGS);
   }
 }

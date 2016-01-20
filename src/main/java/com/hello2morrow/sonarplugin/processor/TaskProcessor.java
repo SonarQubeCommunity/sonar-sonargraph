@@ -38,11 +38,8 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.Severity;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Ingmar
@@ -73,7 +70,6 @@ public class TaskProcessor implements IProcessor {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
     final XsdTasks tasks = report.getTasks();
-    final Map<String, String> priorityMap = new HashMap<String, String>();
 
     ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.TASK_RULE_KEY);
     int taskReferenceCount = 0;
@@ -83,14 +79,10 @@ public class TaskProcessor implements IProcessor {
       return;
     }
 
-    priorityMap.put("Low", Severity.INFO);
-    priorityMap.put("Medium", Severity.MINOR);
-    priorityMap.put("High", Severity.MAJOR);
-
     for (XsdTask task : tasks.getTask()) {
       final String buildUnitFromTask = SonargraphUtilities.getBuildUnitName(PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit"));
       if (buildUnitFromTask.equals(SonargraphUtilities.getBuildUnitName(buildUnit.getName()))) {
-        taskReferenceCount = handleTask(priorityMap, rule, taskReferenceCount, task);
+        taskReferenceCount += handleTask(rule, task);
       }
     }
 
@@ -98,7 +90,7 @@ public class TaskProcessor implements IProcessor {
     SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, connectedMetric, this.tasks);
   }
 
-  private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
+  private int handleTask(ActiveRule rule, final XsdTask task) {
     String severity = SonargraphUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
     String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
@@ -107,7 +99,7 @@ public class TaskProcessor implements IProcessor {
     description = handleDescription(description);
 
     int index = description.indexOf(PACKAGE);
-    int counter = count;
+    int counter = 0;
 
     if (index > 0 && index < PACKAGE.length()) {
       // Package refactorings won't get markers - this would

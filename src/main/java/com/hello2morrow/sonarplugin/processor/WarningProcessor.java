@@ -97,7 +97,8 @@ public class WarningProcessor implements IProcessor {
           InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
           if (path != null) {
             if (path.isFile()) {
-              SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, Integer.parseInt(pos.getLine()), msg);
+              int line = Integer.parseInt(pos.getLine());
+              SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, line > 0 ? line : 1, msg);
             } else {
               SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, null, msg);
             }

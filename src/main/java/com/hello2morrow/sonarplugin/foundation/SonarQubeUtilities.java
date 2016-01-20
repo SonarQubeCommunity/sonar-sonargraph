@@ -47,6 +47,7 @@ public class SonarQubeUtilities {
   private static final Logger LOG = LoggerFactory.getLogger(SonarQubeUtilities.class);
 
   private static final String SOURCE_FILE_NOT_FOUND_MESSAGE = "Cannot obtain source file ";
+  private static final String DIRECTORY_NOT_FOUND_MESSAGE = "Cannot obtain directory ";
   private static final String GROUP_ARTIFACT_SEPARATOR = ":";
 
   public static final Double TRUE = 1.0;
@@ -97,23 +98,32 @@ public class SonarQubeUtilities {
     newIssue.save();
   }
 
-  public static InputPath getInputPath(FileSystem fileSystem, final String fqName) {
+  public static InputPath getInputPath(final FileSystem fileSystem, final String fqName) {
+    return getInputPath(fileSystem, fqName, false);
+  }
+
+  public static InputPath getInputPath(final FileSystem fileSystem, final String fqName, final boolean useAbsolutePath) {
     final boolean isSourceFile = fqName.endsWith(".java");
     if (isSourceFile) {
       InputFile file = fileSystem.inputFile(new FilePredicate() {
         @Override
         public boolean apply(InputFile file) {
-          return file.relativePath().endsWith(fqName);
+          return useAbsolutePath ? file.absolutePath().endsWith(fqName) : file.relativePath().endsWith(fqName);
         }
       });
       if (file == null) {
-        LOG.error(SOURCE_FILE_NOT_FOUND_MESSAGE + fqName);
+        LOG.error((isSourceFile ? SOURCE_FILE_NOT_FOUND_MESSAGE : DIRECTORY_NOT_FOUND_MESSAGE) + fqName);
         return null;
       }
       return file;
     }
 
-    File dir = new File(fileSystem.baseDir(), fqName);
+    File dir;
+    if (useAbsolutePath) {
+      dir = new File(fqName);
+    } else {
+      dir = new File(fileSystem.baseDir(), fqName);
+    }
     if (!dir.exists()) {
       return null;
     }
@@ -164,7 +174,7 @@ public class SonarQubeUtilities {
 
   public static boolean isSonargraphProject(SensorContext context) {
     // Removed check for alert on sonargraph rule, since that API changed drastically
-    return Java.isEnabled(context.fileSystem()) && (areSonargraphRulesActive(context));
+    return areSonargraphRulesActive(context);
   }
 
   public static boolean areSonargraphRulesActive(SensorContext context) {

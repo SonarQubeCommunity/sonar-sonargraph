@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class contains hidden metrics that are used to exchange information between the sensor and decorators. These metrics are not
+ * This class contains hidden metrics that are used to exchange information between the sensor and metric computer. These metrics are not
  * accessible to the user.
  *
  * @author Ingmar
@@ -38,9 +38,9 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public class SonargraphInternalMetrics implements Metrics {
 
-  private static final String INTERNAL_PREFIX = "Internal Metric<Serializable> - ";
+  private static final String INTERNAL_PREFIX = "Internal Metric - ";
 
-  /** Internally used Metric<Serializable> to flag that this maven module is not part of the Sonargraph workspace and should therefore be ignored. **/
+  /** Internally used Metric to flag that this maven module is not part of the Sonargraph workspace and should therefore be ignored. **/
   public static final Metric<Serializable> MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE = new Metric.Builder("sonargraph_ignore_module", INTERNAL_PREFIX + "Exclude Module",
     Metric.ValueType.BOOL).setDescription("Module must be excluded from Sonargraph processing").setDirection(Metric.DIRECTION_NONE).setQualitative(false)
     .setDomain(SonargraphSimpleMetrics.DOMAIN_SONARGRAPH).setHidden(true).create();
