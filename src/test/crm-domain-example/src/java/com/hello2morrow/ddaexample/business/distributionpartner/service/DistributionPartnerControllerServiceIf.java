@@ -27,7 +27,7 @@ public interface DistributionPartnerControllerServiceIf extends ServiceIf
 		throws BusinessException, TechnicalException;
 
 	public final static String CREATE_REQUEST_FOR_OFFER_CMD = "DistributionPartner::CreateRequestForOfferCmd";
-	public com.hello2morrow.dda.foundation.common.ObjectIdIf createRequestForOffer(com.hello2morrow.ddaexample.business.user.service.ContextDto contextDto, com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto requestDto) 
+	public com.hello2morrow.dda.foundation.common.ObjectIdIf createRequestForOffer(com.hello2morrow.ddaexample.business.user.service.ContextDto contextDto, com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto requestDto) 
 		throws BusinessException, TechnicalException;
 
 	public final static String CREATE_REQUEST_FOR_TEST_DRIVE_CMD = "DistributionPartner::CreateRequestForTestDriveCmd";

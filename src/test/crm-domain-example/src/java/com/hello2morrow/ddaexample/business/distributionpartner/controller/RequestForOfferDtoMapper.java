@@ -23,12 +23,12 @@ public final class RequestForOfferDtoMapper
             DtoManager dtoManager = DtoManager.getInstance();
             dtoManager.addDtoCtor
             (
-            	com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer.class, com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto.class.getConstructor(new Class[0])
+            	com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer.class, com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto.class.getConstructor(new Class[0])
             );
             dtoManager.addDomainObjectToDtoMapper
             (
             	com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer.class, 
-            	RequestForOfferDtoMapper.class.getDeclaredMethod("mapDomainObjectToDto", new Class[]{com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer.class, com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto.class})
+            	RequestForOfferDtoMapper.class.getDeclaredMethod("mapDomainObjectToDto", new Class[]{com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer.class, com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto.class})
             );
         }
         catch (SecurityException e)
@@ -48,10 +48,10 @@ public final class RequestForOfferDtoMapper
 		//make it unaccessible
 	}
 	
-	public static com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto[] createDtosFromDomainObjects(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer[] domainObjects) throws TechnicalException
+	public static com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto[] createDtosFromDomainObjects(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer[] domainObjects) throws TechnicalException
 	{
 		assert AssertionUtility.checkArray(domainObjects);
-		com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto[] createdDtos = new com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto[domainObjects.length];
+		com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto[] createdDtos = new com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto[domainObjects.length];
 		 
         for (int i = 0; i < domainObjects.length; i++)
         {
@@ -61,22 +61,22 @@ public final class RequestForOfferDtoMapper
         return createdDtos;
 	}
 
-	public static com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto createDtoFromDomainObject(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject) throws TechnicalException
+	public static com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto createDtoFromDomainObject(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject) throws TechnicalException
 	{
 		assert domainObject != null;
 
         DtoManager dtoManager = DtoManager.getInstance();
 		Class domainObjectClass = domainObject.getClass();
 		
-        com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto dto = 
-        	(com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto) dtoManager.createDto(domainObjectClass);
+        com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto dto = 
+        	(com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto) dtoManager.createDto(domainObjectClass);
         
         dtoManager.mapDomainObjectToDto(domainObject, dto);
 
 		return dto;
 	}
 	
-	public static void mapDomainObjectToDto(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject, com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto dto) 
+	public static void mapDomainObjectToDto(com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject, com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto dto) 
 		throws TechnicalException
 	{
 		assert dto != null;
@@ -86,7 +86,7 @@ public final class RequestForOfferDtoMapper
 		
 	}
 
-	public static void mapDtoToDomainObject(com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto dto, com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject, boolean resolveReferences)
+	public static void mapDtoToDomainObject(com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto dto, com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer domainObject, boolean resolveReferences)
 		throws BusinessException, TechnicalException
 	{
 		assert dto != null;

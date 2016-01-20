@@ -1,504 +1,514 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.0.0.400">
-    <database name="CRM-Domain-Example" port="3308" host="localhost"/>
-    <scope name="CRM-Example Project" type="Project">
-        <element name="Filter" type="TypeFilterReferenceOverridden">
-            <element name="**" type="IncludeTypePattern"/>
-            <element name="**.test.**" type="ExcludeTypePattern"/>
-            <element name="com.hello2morrow.ddaexample.business.testsuites.*" type="ExcludeTypePattern"/>
+<context version="7.2.3.235">
+    <database host="localhost" port="3308" name="CRM-Domain-Example"/>
+    <scope type="Project" name="CRM-Example Project">
+        <element type="Configuration" name="Configuration">
+            <property value="true" name="CycleAnalysisDepthSourceFile"/>
+        </element>
+        <element type="TypeFilterReferenceOverridden" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="**.test.**"/>
+            <element type="ExcludeTypePattern" name="com.hello2morrow.ddaexample.business.testsuites.*"/>
         </element>
         <architecture>
-            <element name="Business" type="LayerGroup">
-                <element name="Assignment" type="TypeFilter"/>
-                <element name="Common" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.common.**" type="IncludeTypePattern"/>
+            <element type="LayerGroup" name="Business">
+                <element type="TypeFilter" name="Assignment"/>
+                <element type="VerticalSlice" name="Common">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.common.**"/>
                     </element>
                     <stereotype name="Unrestricted"/>
                     <stereotype name="Public"/>
                 </element>
-                <element name="Distributionpartner" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.business.distributionpartner.**" type="StrongTypePattern"/>
+                <element type="VerticalSlice" name="Distributionpartner">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.distributionpartner.**"/>
                     </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Contact"/>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Customer"/>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Request"/>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|User"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Contact" type="AllowedDependency"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Customer" type="AllowedDependency"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Request" type="AllowedDependency"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|User" type="AllowedDependency"/>
                 </element>
-                <element name="User" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.business.user.**" type="StrongTypePattern"/>
-                    </element>
-                </element>
-                <element name="Request" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.business.request.**" type="StrongTypePattern"/>
+                <element type="VerticalSlice" name="User">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.user.**"/>
                     </element>
                 </element>
-                <element name="Contact" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.business.contact.**" type="StrongTypePattern"/>
+                <element type="VerticalSlice" name="Request">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.request.**"/>
                     </element>
                 </element>
-                <element name="Customer" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.business.customer.**" type="StrongTypePattern"/>
-                    </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Contact"/>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|User"/>
-                </element>
-                <element name="Controller" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.ddaexample.**.controller.**" type="IncludeTypePattern"/>
-                        <element name="com.hello2morrow.dda.business.common.controller.**" type="StrongTypePattern"/>
-                        <element name="com.hello2morrow.dda.business.common.startup.**" type="StrongTypePattern"/>
-                        <element name="com.hello2morrow.ddaexample.business.common.startup.**" type="StrongTypePattern"/>
-                    </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi"/>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Service"/>
-                </element>
-                <element name="Data" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.data.**" type="IncludeTypePattern"/>
-                    </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi"/>
-                </element>
-                <element name="Domain" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.domain.**" type="IncludeTypePattern"/>
-                    </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi"/>
-                </element>
-                <element name="Dsi" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.dsi.**" type="IncludeTypePattern"/>
+                <element type="VerticalSlice" name="Contact">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.contact.**"/>
                     </element>
                 </element>
-                <element name="Service" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.service.**" type="IncludeTypePattern"/>
+                <element type="VerticalSlice" name="Customer">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.customer.**"/>
+                    </element>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|Contact" type="AllowedDependency"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::VerticalSlice|User" type="AllowedDependency"/>
+                </element>
+                <element type="Layer" name="Controller">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.ddaexample.**.controller.**"/>
+                        <element type="StrongTypePattern" name="com.hello2morrow.dda.business.common.controller.**"/>
+                        <element type="StrongTypePattern" name="com.hello2morrow.dda.business.common.startup.**"/>
+                        <element type="StrongTypePattern" name="com.hello2morrow.ddaexample.business.common.startup.**"/>
+                    </element>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi" type="AllowedDependency"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Service" type="AllowedDependency"/>
+                </element>
+                <element type="Layer" name="Data">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.data.**"/>
+                    </element>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi" type="AllowedDependency"/>
+                </element>
+                <element type="Layer" name="Domain">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.domain.**"/>
+                    </element>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Business::Layer|Dsi" type="AllowedDependency"/>
+                </element>
+                <element type="Layer" name="Dsi">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.dsi.**"/>
                     </element>
                 </element>
-                <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Foundation"/>
-                <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Integration"/>
+                <element type="Layer" name="Service">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.service.**"/>
+                    </element>
+                </element>
+                <dependency toName="Project|CRM-Example Project::LayerGroup|Foundation" type="AllowedDependency"/>
+                <dependency toName="Project|CRM-Example Project::LayerGroup|Integration" type="AllowedDependency"/>
             </element>
-            <element name="Foundation" type="LayerGroup">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="com.hello2morrow.dda.foundation.**" type="IncludeTypePattern"/>
+            <element type="LayerGroup" name="Foundation">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.hello2morrow.dda.foundation.**"/>
                 </element>
-                <element name="Exception" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.dda.foundation.common.exception.**" type="StrongTypePattern"/>
+                <element type="Layer" name="Exception">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.dda.foundation.common.exception.**"/>
                     </element>
                     <stereotype name="Unrestricted"/>
                 </element>
-                <element name="Common" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.dda.foundation.common.exception.**" type="StrongTypePattern"/>
+                <element type="VerticalSlice" name="Common">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="StrongTypePattern" name="com.hello2morrow.dda.foundation.common.exception.**"/>
                     </element>
                     <stereotype name="Unrestricted"/>
                 </element>
             </element>
-            <element name="Integration" type="LayerGroup">
-                <element name="Assignment" type="TypeFilter"/>
-                <element name="ESI" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.esi.**" type="IncludeTypePattern"/>
+            <element type="LayerGroup" name="Integration">
+                <element type="TypeFilter" name="Assignment"/>
+                <element type="Layer" name="ESI">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.esi.**"/>
                     </element>
                 </element>
-                <element name="Adapter" type="Layer">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.adapter.**" type="IncludeTypePattern"/>
+                <element type="Layer" name="Adapter">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.adapter.**"/>
                     </element>
-                    <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Integration::Layer|ESI"/>
+                    <dependency toName="Project|CRM-Example Project::LayerGroup|Integration::Layer|ESI" type="AllowedDependency"/>
                 </element>
-                <element name="Common" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.common.**" type="IncludeTypePattern"/>
+                <element type="VerticalSlice" name="Common">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.common.**"/>
                     </element>
                     <stereotype name="Unrestricted"/>
                     <stereotype name="Public"/>
                 </element>
-                <element name="Contact" type="VerticalSlice">
-                    <element name="Assignment" type="TypeFilter">
-                        <element name="com.hello2morrow.**.contact.**" type="IncludeTypePattern"/>
+                <element type="VerticalSlice" name="Contact">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="com.hello2morrow.**.contact.**"/>
                     </element>
                     <stereotype name="Unrestricted"/>
                 </element>
-                <dependency type="AllowedDependency" toName="Project|CRM-Example Project::LayerGroup|Foundation"/>
+                <dependency toName="Project|CRM-Example Project::LayerGroup|Foundation" type="AllowedDependency"/>
             </element>
         </architecture>
         <workspace>
-            <element name="../src/java" type="JavaRootDirectory"/>
-            <element name="../target/cls" type="JavaRootDirectory"/>
-            <element name="../src/java-test" type="JavaRootDirectory"/>
+            <element type="JavaRootDirectory" name="../src/java"/>
+            <element type="JavaRootDirectory" name="../target/cls"/>
+            <element type="JavaRootDirectory" name="../src/java-test"/>
         </workspace>
         <itemDefinition>
-            <item type="CutTypeDependencyItem">
-                <property name="AssignedTo" value=""/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-06-25 16:14:12"/>
-                <property name="FromType" value="com.hello2morrow.ddaexample.business.request.controller.RequestController"/>
-                <property name="Priority" value="Medium"/>
-                <property name="ToType" value="com.hello2morrow.ddaexample.business.user.controller.UserController"/>
-            </item>
-            <item type="MoveTypeItem">
-                <property name="AssignedTo" value=""/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-06-25 16:16:04"/>
-                <property name="Priority" value="Medium"/>
-                <property name="TargetNamespace" value="com.hello2morrow.ddaexample.business.request.service.test"/>
-                <property name="TargetScope" value="CRM-Example Project"/>
-                <property name="Type" value="com.hello2morrow.ddaexample.business.request.service.RequestControllerServiceTest"/>
-            </item>
-            <item type="MoveTypeItem">
-                <property name="AssignedTo" value=""/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-06-25 16:16:33"/>
-                <property name="Priority" value="Medium"/>
-                <property name="TargetNamespace" value="com.hello2morrow.ddaexample.business.distributionpartner.service.test"/>
-                <property name="TargetScope" value="CRM-Example Project"/>
-                <property name="Type" value="com.hello2morrow.ddaexample.business.distributionpartner.service.DistributionPartnerControllerServiceTest"/>
-            </item>
-            <item type="MoveTypeItem">
-                <property name="AssignedTo" value=""/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-06-25 16:16:45"/>
-                <property name="Priority" value="Medium"/>
-                <property name="TargetNamespace" value="com.hello2morrow.ddaexample.business.customer.service.test"/>
-                <property name="TargetScope" value="CRM-Example Project"/>
-                <property name="Type" value="com.hello2morrow.ddaexample.business.customer.service.CustomerControllerServiceTest"/>
-            </item>
-            <item type="MoveTypeItem">
-                <property name="AssignedTo" value=""/>
-                <property name="Comment" value=""/>
-                <property name="Date" value="2010-06-25 16:16:56"/>
-                <property name="Priority" value="Medium"/>
-                <property name="TargetNamespace" value="com.hello2morrow.ddaexample.business.user.service.test"/>
-                <property name="TargetScope" value="CRM-Example Project"/>
-                <property name="Type" value="com.hello2morrow.ddaexample.business.user.service.UserControllerServiceTest"/>
+            <item type="IgnoreViolationFilterItem">
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.request.controller.StateNewDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.StateNew" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.request.controller.StateNewDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.StateNew"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.request.controller.RequestDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.Request" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.request.controller.RequestDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.Request"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.UserDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.User" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.UserDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.User"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Person" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Person"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.SalesAssistant" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.SalesAssistant"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForTestDriveDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.Request" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForTestDriveDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.Request"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.controller.PersonDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Person" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.contact.controller.PersonDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Person"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForTestDrive" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForTestDrive"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.VipCustomerDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.Customer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.VipCustomerDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.Customer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.request.controller.StateNewDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.State" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.request.controller.StateNewDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.State"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.CustomerDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.Customer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.CustomerDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.Customer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.UserController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.Role" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.UserController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.Role"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForInformation" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForInformation"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.request.controller.RequestController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.Request" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.request.controller.RequestController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.Request"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForOfferDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.Request" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForOfferDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.Request"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.request.controller.StateDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.State" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.request.controller.StateDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.State"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.UserController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.User" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.UserController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.User"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForInformationDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.request.domain.Request" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForInformationDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.request.domain.Request"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Address" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Address"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.LoginEventDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.LoginEvent" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.LoginEventDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.LoginEvent"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.controller.AddressDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Address" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.contact.controller.AddressDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Address"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.CustomerDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Person" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.CustomerDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Person"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.UserDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.Role" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.UserDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.Role"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.SalesAssistant" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.SalesAssistant"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.controller.PersonDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Address" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.contact.controller.PersonDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Address"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.UserController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.UserController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForOfferDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForOfferDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForOffer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.RoleDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.RoleDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.Customer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.Customer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.Customer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.Customer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForTestDriveDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForTestDrive" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForTestDriveDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForTestDrive"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.ServerCommandDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.ServerCommandDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.ServerCommand"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.contact.domain.Address" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.DistributionPartnerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.contact.domain.Address"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.Customer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.SalesAssistantDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.Customer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.VipCustomerDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.VipCustomer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.VipCustomerDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.VipCustomer"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForInformationDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForInformation" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.controller.RequestForInformationDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestForInformation"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.customer.domain.VipCustomer" name="ToPattern"/>
             </item>
             <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.customer.controller.CustomerController"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.customer.domain.VipCustomer"/>
-            </item>
-            <item type="IgnoreViolationFilterItem">
-                <property name="Comment" value="Ignored in tutorial"/>
-                <property name="Date" value="2010-06-25 16:22:24"/>
-                <property name="FromPattern" value="com.hello2morrow.ddaexample.business.user.controller.RoleDtoMapper"/>
-                <property name="ToPattern" value="com.hello2morrow.ddaexample.business.user.domain.Role"/>
+                <property value="Ignored in tutorial" name="Comment"/>
+                <property value="2010-06-25 16:22:24" name="Date"/>
+                <property value="com.hello2morrow.ddaexample.business.user.controller.RoleDtoMapper" name="FromPattern"/>
+                <property value="com.hello2morrow.ddaexample.business.user.domain.Role" name="ToPattern"/>
             </item>
         </itemDefinition>
     </scope>
-    <scope name="External" type="External">
-        <element name="Filter" type="TypeFilter">
-            <element name="**" type="IncludeTypePattern"/>
-            <element name="java.io.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.annotation.*" type="ExcludeTypePattern"/>
-            <element name="java.lang.ref.*" type="ExcludeTypePattern"/>
-            <element name="java.math.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.channels.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.channels.spi.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.charset.*" type="ExcludeTypePattern"/>
-            <element name="java.nio.charset.spi.*" type="ExcludeTypePattern"/>
-            <element name="java.text.*" type="ExcludeTypePattern"/>
-            <element name="java.util.*" type="ExcludeTypePattern"/>
-            <element name="java.util.jar.*" type="ExcludeTypePattern"/>
-            <element name="java.util.prefs.*" type="ExcludeTypePattern"/>
-            <element name="java.util.regex.*" type="ExcludeTypePattern"/>
-            <element name="java.util.zip.*" type="ExcludeTypePattern"/>
+    <scope type="External" name="External">
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="java.io.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.annotation.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.ref.*"/>
+            <element type="ExcludeTypePattern" name="java.math.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.channels.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.channels.spi.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.charset.*"/>
+            <element type="ExcludeTypePattern" name="java.nio.charset.spi.*"/>
+            <element type="ExcludeTypePattern" name="java.text.*"/>
+            <element type="ExcludeTypePattern" name="java.util.*"/>
+            <element type="ExcludeTypePattern" name="java.util.jar.*"/>
+            <element type="ExcludeTypePattern" name="java.util.prefs.*"/>
+            <element type="ExcludeTypePattern" name="java.util.regex.*"/>
+            <element type="ExcludeTypePattern" name="java.util.zip.*"/>
         </element>
         <architecture>
-            <element name="JUnit" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="junit.framework.**" type="StrongTypePattern"/>
+            <element type="Subsystem" name="JUnit">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="StrongTypePattern" name="junit.framework.**"/>
                 </element>
                 <stereotype name="Hidden"/>
             </element>
-            <element name="Reflection" type="Subsystem">
-                <element name="Assignment" type="TypeFilter">
-                    <element name="java.lang.reflect.**" type="StrongTypePattern"/>
+            <element type="Subsystem" name="Reflection">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="StrongTypePattern" name="java.lang.reflect.**"/>
                 </element>
             </element>
         </architecture>
     </scope>
-    <scope name="Global" type="Global">
-        <element name="Configuration" type="Configuration"/>
-        <element name="Filter" type="TypeFilter">
-            <element name="**" type="IncludeTypePattern"/>
+    <scope type="Global" name="Global">
+        <element type="Configuration" name="Configuration"/>
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
         </element>
     </scope>
+    <itemDefinition>
+        <item type="CutTypeDependencyItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2010-06-25 16:14:12" name="Date"/>
+            <property value="com.hello2morrow.ddaexample.business.request.controller.RequestController" name="FromType"/>
+            <property value="Medium" name="Priority"/>
+            <property value="CRM-Example Project" name="SourceScope"/>
+            <property value="com.hello2morrow.ddaexample.business.user.controller.UserController" name="ToType"/>
+        </item>
+        <item type="MoveTypeItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2010-06-25 16:16:04" name="Date"/>
+            <property value="Medium" name="Priority"/>
+            <property value="CRM-Example Project" name="SourceScope"/>
+            <property value="com.hello2morrow.ddaexample.business.request.service.test" name="TargetNamespace"/>
+            <property value="CRM-Example Project" name="TargetScope"/>
+            <property value="com.hello2morrow.ddaexample.business.request.service.RequestControllerServiceTest" name="Type"/>
+        </item>
+        <item type="MoveTypeItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2010-06-25 16:16:33" name="Date"/>
+            <property value="Medium" name="Priority"/>
+            <property value="CRM-Example Project" name="SourceScope"/>
+            <property value="com.hello2morrow.ddaexample.business.distributionpartner.service.test" name="TargetNamespace"/>
+            <property value="CRM-Example Project" name="TargetScope"/>
+            <property value="com.hello2morrow.ddaexample.business.distributionpartner.service.DistributionPartnerControllerServiceTest" name="Type"/>
+        </item>
+        <item type="MoveTypeItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2010-06-25 16:16:45" name="Date"/>
+            <property value="Medium" name="Priority"/>
+            <property value="CRM-Example Project" name="SourceScope"/>
+            <property value="com.hello2morrow.ddaexample.business.customer.service.test" name="TargetNamespace"/>
+            <property value="CRM-Example Project" name="TargetScope"/>
+            <property value="com.hello2morrow.ddaexample.business.customer.service.CustomerControllerServiceTest" name="Type"/>
+        </item>
+        <item type="MoveTypeItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2010-06-25 16:16:56" name="Date"/>
+            <property value="Medium" name="Priority"/>
+            <property value="CRM-Example Project" name="SourceScope"/>
+            <property value="com.hello2morrow.ddaexample.business.user.service.test" name="TargetNamespace"/>
+            <property value="CRM-Example Project" name="TargetScope"/>
+            <property value="com.hello2morrow.ddaexample.business.user.service.UserControllerServiceTest" name="Type"/>
+        </item>
+    </itemDefinition>
     <attributeConfiguration type="AttributeConfiguration">
-        <property name="ExtendedCyclomaticComplexity" value="disabled"/>
-        <property name="MaxExtendedCyclomaticComplexityPerMethod" value="disabled"/>
-        <property name="AverageCyclomaticComplexityPerMethod" value="disabled"/>
-        <property name="NumberOfAbstractTypes" value="disabled"/>
-        <property name="JdkVersion" value="disabled"/>
-        <property name="NumberOfCyclicDirectories" value="disabled"/>
-        <property name="CyclomaticComplexity" value="disabled"/>
-        <property name="NumberOfMethodsWithImplementation" value="disabled"/>
-        <property name="NumberOfNamedInterfaces" value="disabled"/>
-        <property name="NumberOfCyclicProjects" value="disabled"/>
-        <property name="DependsUpon" value="disabled"/>
-        <property name="NumberOfVerticalSliceGroups" value="disabled"/>
-        <property name="DistributedOverPathContainers" value="disabled"/>
-        <property name="AverageExtendedCyclomaticComplexityPerMethod" value="disabled"/>
-        <property name="AverageTypeDependency" value="disabled"/>
-        <property name="RelativeAverageTypeDependency" value="disabled"/>
-        <property name="AverageAccumulatedExtendedCyclomaticComplexityPerType" value="disabled"/>
-        <property name="NumberOfLayerGroups" value="disabled"/>
-        <property name="NumberOfExcludedSourceFiles" value="disabled"/>
-        <property name="NumberOfVerticalSlices" value="disabled"/>
-        <property name="AverageAccumulatedCyclomaticComplexityPerType" value="disabled"/>
-        <property name="Timestamp" value="disabled"/>
-        <property name="AverageAssertionUsage" value="disabled"/>
-        <property name="NumberOfCyclicSubsystems" value="disabled"/>
-        <property name="NumberOfCyclicNamespaces" value="disabled"/>
-        <property name="NumberOfExcludedTargetFiles" value="disabled"/>
-        <property name="NumberOfCyclicVerticalSliceGroups" value="disabled"/>
-        <property name="AccumulatedExtendedCyclomaticComplexity" value="disabled"/>
-        <property name="NumberOfLayers" value="disabled"/>
-        <property name="NumberOfCyclicSourceFiles" value="disabled"/>
-        <property name="MaxAccumulatedCyclomaticComplexityPerType" value="disabled"/>
-        <property name="MaxAccumulatedExtendedCyclomaticComplexityPerType" value="disabled"/>
-        <property name="NumberOfCyclicLayerGroups" value="disabled"/>
-        <property name="NumberOfAssertions" value="disabled"/>
-        <property name="NumberOfCyclicVerticalSlices" value="disabled"/>
-        <property name="NormalizedCumulativeTypeDependency" value="disabled"/>
-        <property name="AccumulatedCyclomaticComplexity" value="disabled"/>
-        <property name="NumberOfNameParts" value="disabled"/>
-        <property name="NumberOfAbstractMethods" value="disabled"/>
-        <property name="NumberOfTypesWithImplementation" value="disabled"/>
-        <property name="Level" value="disabled"/>
-        <property name="NumberOfCyclicLayers" value="disabled"/>
-        <property name="NumberOfSubsystems" value="disabled"/>
-        <property name="MaxCyclomaticComplexityPerMethod" value="disabled"/>
+        <property value="disabled" name="ExtendedCyclomaticComplexity"/>
+        <property value="disabled" name="MaxExtendedCyclomaticComplexityPerMethod"/>
+        <property value="disabled" name="AverageCyclomaticComplexityPerMethod"/>
+        <property value="disabled" name="NumberOfAbstractTypes"/>
+        <property value="disabled" name="JdkVersion"/>
+        <property value="disabled" name="NumberOfCyclicDirectories"/>
+        <property value="disabled" name="CyclomaticComplexity"/>
+        <property value="disabled" name="NumberOfMethodsWithImplementation"/>
+        <property value="disabled" name="NumberOfNamedInterfaces"/>
+        <property value="disabled" name="NumberOfCyclicProjects"/>
+        <property value="disabled" name="DependsUpon"/>
+        <property value="disabled" name="NumberOfVerticalSliceGroups"/>
+        <property value="disabled" name="DistributedOverPathContainers"/>
+        <property value="disabled" name="AverageExtendedCyclomaticComplexityPerMethod"/>
+        <property value="disabled" name="AverageTypeDependency"/>
+        <property value="disabled" name="RelativeAverageTypeDependency"/>
+        <property value="disabled" name="AverageAccumulatedExtendedCyclomaticComplexityPerType"/>
+        <property value="disabled" name="NumberOfLayerGroups"/>
+        <property value="disabled" name="NumberOfExcludedSourceFiles"/>
+        <property value="disabled" name="NumberOfVerticalSlices"/>
+        <property value="disabled" name="AverageAccumulatedCyclomaticComplexityPerType"/>
+        <property value="disabled" name="Timestamp"/>
+        <property value="disabled" name="AverageAssertionUsage"/>
+        <property value="disabled" name="NumberOfCyclicSubsystems"/>
+        <property value="disabled" name="NumberOfCyclicNamespaces"/>
+        <property value="disabled" name="NumberOfExcludedTargetFiles"/>
+        <property value="disabled" name="NumberOfCyclicVerticalSliceGroups"/>
+        <property value="disabled" name="AccumulatedExtendedCyclomaticComplexity"/>
+        <property value="disabled" name="NumberOfLayers"/>
+        <property value="disabled" name="NumberOfCyclicSourceFiles"/>
+        <property value="disabled" name="MaxAccumulatedCyclomaticComplexityPerType"/>
+        <property value="disabled" name="MaxAccumulatedExtendedCyclomaticComplexityPerType"/>
+        <property value="disabled" name="NumberOfCyclicLayerGroups"/>
+        <property value="disabled" name="NumberOfAssertions"/>
+        <property value="disabled" name="NumberOfCyclicVerticalSlices"/>
+        <property value="disabled" name="NormalizedCumulativeTypeDependency"/>
+        <property value="disabled" name="AccumulatedCyclomaticComplexity"/>
+        <property value="disabled" name="NumberOfNameParts"/>
+        <property value="disabled" name="NumberOfAbstractMethods"/>
+        <property value="disabled" name="NumberOfTypesWithImplementation"/>
+        <property value="disabled" name="Level"/>
+        <property value="disabled" name="NumberOfCyclicLayers"/>
+        <property value="disabled" name="NumberOfSubsystems"/>
+        <property value="disabled" name="MaxCyclomaticComplexityPerMethod"/>
     </attributeConfiguration>
 </context>

@@ -73,7 +73,7 @@ public final class DistributionPartnerControllerServiceAdapter implements com.he
         return result;
 	}
 	
-	public com.hello2morrow.dda.foundation.common.ObjectIdIf createRequestForOffer(com.hello2morrow.ddaexample.business.user.service.ContextDto contextDto, com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto requestDto) throws BusinessException, TechnicalException
+	public com.hello2morrow.dda.foundation.common.ObjectIdIf createRequestForOffer(com.hello2morrow.ddaexample.business.user.service.ContextDto contextDto, com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto requestDto) throws BusinessException, TechnicalException
 	{
 		com.hello2morrow.dda.foundation.common.ObjectIdIf result = m_Controller.createRequestForOffer(contextDto, requestDto);
         DomainObjectIf[] all = DomainObjectFactory.getInstance().getDomainObjects();

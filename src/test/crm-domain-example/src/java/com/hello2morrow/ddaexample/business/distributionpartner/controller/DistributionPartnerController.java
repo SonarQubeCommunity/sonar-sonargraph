@@ -1,7 +1,8 @@
 package com.hello2morrow.ddaexample.business.distributionpartner.controller;
 
-import org.apache.log4j.Logger;
+import com.hello2morrow.ddaexample.business.request.service.RequestForOfferDto;
 
+import org.apache.log4j.Logger;
 import com.hello2morrow.dda.business.common.dsi.DomainObjectWithDataSupplier;
 import com.hello2morrow.dda.foundation.common.ObjectIdIf;
 import com.hello2morrow.dda.foundation.common.exception.AssertionUtility;
@@ -19,7 +20,6 @@ import com.hello2morrow.ddaexample.business.distributionpartner.domain.RequestFo
 import com.hello2morrow.ddaexample.business.distributionpartner.domain.SalesAssistant;
 import com.hello2morrow.ddaexample.business.distributionpartner.service.DistributionPartnerControllerServiceIf;
 import com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForInformationDto;
-import com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForOfferDto;
 import com.hello2morrow.ddaexample.business.distributionpartner.service.RequestForTestDriveDto;
 import com.hello2morrow.ddaexample.business.distributionpartner.service.SalesAssistantDto;
 import com.hello2morrow.ddaexample.business.user.controller.UserController;
