@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
@@ -60,20 +59,20 @@ public class SonarQubeUtilities {
     // do not instantiate
   }
 
-  public static double saveMeasure(Resource resource, SensorContext context, Map<String, Number> metrics, String sonargraphMetricName, Metric<Serializable> sonarQubeMetric) {
+  public static double saveMeasure(final Resource resource, final SensorContext context, final Map<String, Number> metrics, final String sonargraphMetricName,
+    final Metric<Serializable> sonarQubeMetric) {
     final double value = SonargraphUtilities.getBuildUnitMetricValue(metrics, sonargraphMetricName, true).doubleValue();
     return saveMeasure(resource, context, sonarQubeMetric, value);
   }
 
-  public static double saveMeasure(Resource resource, SensorContext context, Metric<Serializable> sonarQubeMetric, double value) {
+  public static double saveMeasure(final Resource resource, final SensorContext context, final Metric<Serializable> sonarQubeMetric, final double value) {
     return saveMeasure(resource, context, sonarQubeMetric, value, null, -1);
   }
 
-  public static double saveMeasure(Resource resource, SensorContext context, Metric<Serializable> sonarQubeMetric, double value, Metric<Serializable> connectedThresholdMetric,
-    double thresholdMetricValue) {
+  public static double saveMeasure(final Resource resource, final SensorContext context, final Metric<Serializable> sonarQubeMetric, final double value,
+    final AlertThreshold threshold, final double thresholdMetricValue) {
     final Measure<Serializable> measure = new Measure<>(sonarQubeMetric, value, sonarQubeMetric.getType() == ValueType.INT ? NO_DECIMAL : DECIMAL);
-    final Metric<Serializable> metricForThreshold = connectedThresholdMetric != null ? connectedThresholdMetric : sonarQubeMetric;
-    final AlertThreshold threshold = SonargraphAlertThresholds.getThreshold(metricForThreshold);
+
     if (threshold != null && thresholdMetricValue >= 0) {
       measure.setAlertStatus(threshold.getLevel(value));
       measure.setAlertText(sonarQubeMetric.getKey());
@@ -82,18 +81,20 @@ public class SonarQubeUtilities {
     return value;
   }
 
-  public static void saveViolation(org.sonar.api.batch.SensorContext context, InputFile file, org.sonar.api.batch.rule.ActiveRule rule, String priority, int line, String msg) {
-    NewIssue newIssue = context.newIssue();
-    TextRange textRange = file.newRange(line, 0, line + 1, 0);
-    NewIssueLocation location = newIssue.newLocation().on(file).at(textRange).message(msg);
+  public static void saveViolation(final org.sonar.api.batch.SensorContext context, final InputFile file, final org.sonar.api.batch.rule.ActiveRule rule, final String priority,
+    final int line, final String msg) {
+    final NewIssue newIssue = context.newIssue();
+    final TextRange textRange = file.newRange(line, 0, line + 1, 0);
+    final NewIssueLocation location = newIssue.newLocation().on(file).at(textRange).message(msg);
     newIssue.at(location).forRule(rule.ruleKey());
     // TODO: Handle severity
     newIssue.save();
   }
 
-  public static void saveViolation(org.sonar.api.batch.sensor.SensorContext context, InputDir dir, org.sonar.api.batch.rule.ActiveRule rule, String priority, String msg) {
-    NewIssue newIssue = context.newIssue();
-    NewIssueLocation location = newIssue.newLocation().on(dir).message(msg);
+  public static void saveViolation(final org.sonar.api.batch.sensor.SensorContext context, final InputDir dir, final org.sonar.api.batch.rule.ActiveRule rule,
+    final String priority, final String msg) {
+    final NewIssue newIssue = context.newIssue();
+    final NewIssueLocation location = newIssue.newLocation().on(dir).message(msg);
     newIssue.at(location).forRule(rule.ruleKey());
     // TODO: Handle severity
     newIssue.save();
@@ -106,9 +107,9 @@ public class SonarQubeUtilities {
   public static InputPath getInputPath(final FileSystem fileSystem, final String fqName, final boolean useAbsolutePath) {
     final boolean isSourceFile = fqName.endsWith(".java");
     if (isSourceFile) {
-      InputFile file = fileSystem.inputFile(new FilePredicate() {
+      final InputFile file = fileSystem.inputFile(new FilePredicate() {
         @Override
-        public boolean apply(InputFile file) {
+        public boolean apply(final InputFile file) {
           return useAbsolutePath ? file.absolutePath().endsWith(fqName) : file.relativePath().endsWith(fqName);
         }
       });
@@ -131,10 +132,10 @@ public class SonarQubeUtilities {
     return fileSystem.inputDir(dir);
   }
 
-  public static ActiveRule findActiveSonargraphRule(SensorContext sensorContext, String ruleKey) {
-    Collection<ActiveRule> rules = sensorContext.activeRules().findByRepository(SonargraphPluginBase.PLUGIN_KEY);
+  public static ActiveRule findActiveSonargraphRule(final SensorContext sensorContext, final String ruleKey) {
+    final Collection<ActiveRule> rules = sensorContext.activeRules().findByRepository(SonargraphPluginBase.PLUGIN_KEY);
     ActiveRule rule = null;
-    for (ActiveRule next : rules) {
+    for (final ActiveRule next : rules) {
       if (next.ruleKey().rule().equals(ruleKey)) {
         rule = next;
         break;
@@ -155,7 +156,7 @@ public class SonarQubeUtilities {
     if (project == null) {
       return false;
     }
-    List<Project> modules = project.getModules();
+    final List<Project> modules = project.getModules();
     if (project.getParent() == null && modules != null && !modules.isEmpty()) {
       isRootParentProject = true;
     }
@@ -173,16 +174,16 @@ public class SonarQubeUtilities {
     return false;
   }
 
-  public static boolean isSonargraphProject(SensorContext context) {
+  public static boolean isSonargraphProject(final SensorContext context) {
     // Removed check for alert on sonargraph rule, since that API changed drastically
     return areSonargraphRulesActive(context);
   }
 
-  public static boolean areSonargraphRulesActive(SensorContext context) {
+  public static boolean areSonargraphRulesActive(final SensorContext context) {
     return !context.activeRules().findByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
   }
 
-  public static boolean buildUnitMatchesAnalyzedProject(String buName, Project project) {
+  public static boolean buildUnitMatchesAnalyzedProject(final String buName, final Project project) {
     final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
     final String[] elements = project.key().split(GROUP_ARTIFACT_SEPARATOR);
     assert elements.length >= 1 : "project.getKey() must not return an empty string";
@@ -219,9 +220,9 @@ public class SonarQubeUtilities {
     return result;
   }
 
-  public static List<String> convertMetricListToKeyList(List<Metric<Serializable>> metrics) {
-    List<String> keys = new ArrayList<>();
-    for (Metric<Serializable> next : metrics) {
+  public static List<String> convertMetricListToKeyList(final List<Metric<Serializable>> metrics) {
+    final List<String> keys = new ArrayList<>();
+    for (final Metric<Serializable> next : metrics) {
       keys.add(next.getKey());
     }
     return keys;

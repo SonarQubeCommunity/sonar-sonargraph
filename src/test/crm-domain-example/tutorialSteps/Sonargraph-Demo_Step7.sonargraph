@@ -134,8 +134,8 @@
         </architecture>
         <workspace>
             <element type="JavaRootDirectory" name="../src/java"/>
-            <element type="JavaRootDirectory" name="../target/cls"/>
             <element type="JavaRootDirectory" name="../src/java-test"/>
+            <element type="JavaRootDirectory" name="../target.maven/cls"/>
         </workspace>
         <itemDefinition>
             <item type="IgnoreViolationFilterItem">
@@ -372,6 +372,15 @@
                 <property value="com.hello2morrow.ddaexample.business.user.controller.RoleDtoMapper" name="FromPattern"/>
                 <property value="com.hello2morrow.ddaexample.business.user.domain.Role" name="ToPattern"/>
             </item>
+            <item type="FixWarningFilterItem">
+                <property value="" name="AssignedTo"/>
+                <property value="DuplicateCodeBlocks" name="AttributeId"/>
+                <property value="" name="Comment"/>
+                <property value="2016-01-21 11:14:01" name="Date"/>
+                <property value="JavaSourceFile" name="ElementType"/>
+                <property value="com/hello2morrow/ddaexample/business/customer/controller/CustomerController.java # com/hello2morrow/ddaexample/business/customer/controller/CustomerController.java" name="Pattern"/>
+                <property value="Medium" name="Priority"/>
+            </item>
         </itemDefinition>
     </scope>
     <scope type="External" name="External">
@@ -413,6 +422,14 @@
         <element type="TypeFilter" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
         </element>
+        <itemDefinition>
+            <item type="ThresholdItem">
+                <property value="LinesOfCode" name="AttributeId"/>
+                <property value="" name="LowerValue"/>
+                <property value="SourceFile" name="NamedElementGroup"/>
+                <property value="200" name="UpperValue"/>
+            </item>
+        </itemDefinition>
     </scope>
     <itemDefinition>
         <item type="CutTypeDependencyItem">
@@ -511,4 +528,7 @@
         <property value="disabled" name="NumberOfSubsystems"/>
         <property value="disabled" name="MaxCyclomaticComplexityPerMethod"/>
     </attributeConfiguration>
+    <duplicateSearchConfiguration type="DuplicateSearchConfiguration">
+        <property value="20" name="MinimalBlockLength"/>
+    </duplicateSearchConfiguration>
 </context>

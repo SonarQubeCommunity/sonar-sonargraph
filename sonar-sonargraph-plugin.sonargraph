@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.2.1.228">
+<context version="7.2.3.235">
     <scope type="Project" name="sonar-sonargraph-plugin">
         <element type="TypeFilterReferenceOverridden" name="Filter">
             <element type="IncludeTypePattern" name="**"/>
@@ -17,15 +17,15 @@
                 <dependency toName="External|External::Layer|JAXB" type="AllowedDependency"/>
                 <dependency toName="External|External::Layer|Sonar" type="AllowedDependency"/>
             </element>
-            <element type="Layer" name="Facade">
+            <element type="Layer" name="API">
                 <element type="TypeFilter" name="Assignment">
                     <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.api.**"/>
                 </element>
                 <stereotype name="Unrestricted"/>
             </element>
-            <element type="Layer" name="Decorator">
+            <element type="Layer" name="MeasureComputer">
                 <element type="TypeFilter" name="Assignment">
-                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.decorator.**"/>
+                    <element type="IncludeTypePattern" name="com.hello2morrow.sonarplugin.measurecomputer.**"/>
                 </element>
                 <dependency toName="Project|sonar-sonargraph-plugin::Layer|Metric" type="AllowedDependency"/>
             </element>
@@ -133,25 +133,11 @@
             </element>
             <element type="Layer" name="Common">
                 <element type="TypeFilter" name="Assignment"/>
-                <element type="Subsystem" name="apache-commons">
-                    <element type="TypeFilter" name="Assignment">
-                        <element type="IncludeTypePattern" name="org.apache.commons.*"/>
-                        <element type="IncludeTypePattern" name="org.apache.commons.lang.*"/>
-                        <element type="IncludeTypePattern" name="org.apache.commons.configuration.*"/>
-                    </element>
-                    <stereotype name="Hidden"/>
-                </element>
                 <element type="Subsystem" name="logging">
                     <element type="TypeFilter" name="Assignment">
                         <element type="IncludeTypePattern" name="org.slf4j.*"/>
                     </element>
                 </element>
-            </element>
-            <element type="Layer" name="Not to be used">
-                <element type="TypeFilter" name="Assignment">
-                    <element type="WeakTypePattern" name="**"/>
-                </element>
-                <stereotype name="Hidden"/>
             </element>
         </architecture>
     </scope>

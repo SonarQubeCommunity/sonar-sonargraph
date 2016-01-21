@@ -17,6 +17,7 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
+import com.hello2morrow.sonarplugin.foundation.AlertThreshold;
 import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
@@ -53,7 +54,7 @@ public class TaskProcessor implements IProcessor {
   private final Resource project;
   private final int tasks;
 
-  public TaskProcessor(Project project, final SensorContext sensorContext, int tasks) {
+  public TaskProcessor(final Project project, final SensorContext sensorContext, final int tasks) {
     this.project = project;
     this.sensorContext = sensorContext;
     this.tasks = tasks;
@@ -66,12 +67,12 @@ public class TaskProcessor implements IProcessor {
    * com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot)
    */
   @Override
-  public void process(ReportContext report, XsdAttributeRoot buildUnit) {
+  public void process(final ReportContext report, final XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
     final XsdTasks tasks = report.getTasks();
 
-    ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.TASK_RULE_KEY);
+    final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.TASK_RULE_KEY);
     int taskReferenceCount = 0;
 
     if (rule == null) {
@@ -79,26 +80,28 @@ public class TaskProcessor implements IProcessor {
       return;
     }
 
-    for (XsdTask task : tasks.getTask()) {
+    for (final XsdTask task : tasks.getTask()) {
       final String buildUnitFromTask = SonargraphUtilities.getBuildUnitName(PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit"));
       if (buildUnitFromTask.equals(SonargraphUtilities.getBuildUnitName(buildUnit.getName()))) {
         taskReferenceCount += handleTask(rule, task);
       }
     }
 
-    Metric<Serializable> connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
-    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, connectedMetric, this.tasks);
+    final Metric<Serializable> connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
+    final AlertThreshold threshold = SonargraphAlertThresholds.getThreshold(connectedMetric != null ? connectedMetric : SonargraphSimpleMetrics.TASK_REFS);
+
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, threshold, this.tasks);
   }
 
-  private int handleTask(ActiveRule rule, final XsdTask task) {
-    String severity = SonargraphUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
+  private int handleTask(final ActiveRule rule, final XsdTask task) {
+    final String severity = SonargraphUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
     String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
 
     // This should not be needed, but the current description sucks
     description = handleDescription(description);
 
-    int index = description.indexOf(PACKAGE);
+    final int index = description.indexOf(PACKAGE);
     int counter = 0;
 
     if (index > 0 && index < PACKAGE.length()) {
@@ -112,15 +115,15 @@ public class TaskProcessor implements IProcessor {
           description += ' ' + assignedTo;
         }
       }
-      for (XsdPosition pos : task.getPosition()) {
-        String relFileName = pos.getFile();
+      for (final XsdPosition pos : task.getPosition()) {
+        final String relFileName = pos.getFile();
 
         if (relFileName != null) {
           int line = Integer.valueOf(pos.getLine());
           if (line == 0) {
             line = 1;
           }
-          InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
+          final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
           if (path != null) {
             if (path.isFile()) {
               SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, severity, line, description);
@@ -135,17 +138,17 @@ public class TaskProcessor implements IProcessor {
     return counter;
   }
 
-  private String handleDescription(String descr) {
+  private String handleDescription(final String descr) {
     if (descr.startsWith("Fix warning")) {
       // TODO: handle ascending metrics correctly (99% are descending)
       return "Reduce" + descr.substring(descr.indexOf(':') + 1).toLowerCase();
     }
     if (descr.startsWith("Cut type")) {
-      String toType = descr.substring(descr.indexOf("to "));
+      final String toType = descr.substring(descr.indexOf("to "));
       return "Cut dependency " + toType;
     }
     if (descr.startsWith("Move type")) {
-      String to = descr.substring(descr.indexOf("to "));
+      final String to = descr.substring(descr.indexOf("to "));
       return "Move " + to;
     }
     return descr;
