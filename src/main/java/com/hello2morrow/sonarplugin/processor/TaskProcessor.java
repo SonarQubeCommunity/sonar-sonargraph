@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -52,12 +53,12 @@ public class TaskProcessor implements IProcessor {
   private static final String PACKAGE = " package";
   private final SensorContext sensorContext;
   private final Resource project;
-  private final int tasks;
+  private final int numberOfTasks;
 
   public TaskProcessor(final Project project, final SensorContext sensorContext, final int tasks) {
     this.project = project;
     this.sensorContext = sensorContext;
-    this.tasks = tasks;
+    this.numberOfTasks = tasks;
   }
 
   /*
@@ -71,7 +72,6 @@ public class TaskProcessor implements IProcessor {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
     final XsdTasks tasks = report.getTasks();
-
     final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.TASK_RULE_KEY);
     int taskReferenceCount = 0;
 
@@ -90,11 +90,11 @@ public class TaskProcessor implements IProcessor {
     final Metric<Serializable> connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
     final AlertThreshold threshold = SonargraphAlertThresholds.getThreshold(connectedMetric != null ? connectedMetric : SonargraphSimpleMetrics.TASK_REFS);
 
-    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, threshold, this.tasks);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, threshold, this.numberOfTasks);
   }
 
   private int handleTask(final ActiveRule rule, final XsdTask task) {
-    final String severity = SonargraphUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
+    final Severity severity = SonarQubeUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
     String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
     String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
 
@@ -116,31 +116,34 @@ public class TaskProcessor implements IProcessor {
         }
       }
       for (final XsdPosition pos : task.getPosition()) {
-        final String relFileName = pos.getFile();
-
-        if (relFileName != null) {
-          int line = Integer.valueOf(pos.getLine());
-          if (line == 0) {
-            line = 1;
-          }
-          final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
-          if (path != null) {
-            if (path.isFile()) {
-              SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, severity, line, description);
-            } else {
-              SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, severity, description);
-            }
-          }
-        }
+        processTaskPosition(rule, severity, description, pos);
         counter++;
       }
     }
     return counter;
   }
 
-  private String handleDescription(final String descr) {
+  private void processTaskPosition(final ActiveRule rule, final Severity severity, final String description, final XsdPosition pos) {
+    final String relFileName = pos.getFile();
+
+    if (relFileName != null) {
+      int line = Integer.parseInt(pos.getLine());
+      if (line == 0) {
+        line = 1;
+      }
+      final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
+      if (path != null) {
+        if (path.isFile()) {
+          SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, severity, line, description);
+        } else {
+          SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, severity, description);
+        }
+      }
+    }
+  }
+
+  private static String handleDescription(final String descr) {
     if (descr.startsWith("Fix warning")) {
-      // TODO: handle ascending metrics correctly (99% are descending)
       return "Reduce" + descr.substring(descr.indexOf(':') + 1).toLowerCase();
     }
     if (descr.startsWith("Cut type")) {

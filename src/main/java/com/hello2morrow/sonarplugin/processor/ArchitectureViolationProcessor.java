@@ -39,37 +39,37 @@ public class ArchitectureViolationProcessor implements IProcessor {
   private final SensorContext sensorContext;
   private static final Logger LOG = LoggerFactory.getLogger(ArchitectureViolationProcessor.class);
 
-  public ArchitectureViolationProcessor(SensorContext context) {
+  public ArchitectureViolationProcessor(final SensorContext context) {
     this.sensorContext = context;
   }
 
   @Override
-  public void process(ReportContext report, XsdAttributeRoot buildUnit) {
+  public void process(final ReportContext report, final XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing architecture violation of buildUnit: " + buildUnit.getName());
 
-    ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.ARCH_RULE_KEY);
+    final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.ARCH_RULE_KEY);
     if (rule == null) {
       LOG.info("Sonargraph architecture rule not active in current profile");
       return;
     }
 
-    XsdViolations violations = report.getViolations();
-    String uses = "Uses ";
-    for (XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
+    final XsdViolations violations = report.getViolations();
+    final String uses = "Uses ";
+    for (final XsdArchitectureViolation violation : violations.getArchitectureViolations()) {
 
-      for (XsdTypeRelation rel : violation.getTypeRelation()) {
-        String toType = PersistenceUtilities.getAttribute(rel.getAttribute(), "To");
+      for (final XsdTypeRelation rel : violation.getTypeRelation()) {
+        final String toType = PersistenceUtilities.getAttribute(rel.getAttribute(), "To");
         String fromBuildUnit = PersistenceUtilities.getAttribute(rel.getAttribute(), "From build unit");
 
-        String dimension = violation.getDimension();
-        String message = "";
+        final String dimension = violation.getDimension();
+        String message;
         if (null != dimension) {
           message = dimension + " architecture violation: ";
         } else {
           message = "Architecture violation: ";
         }
         message = message + uses + toType;
-        String explanation = "\nExplanation: " + PersistenceUtilities.getAttribute(rel.getAttribute(), "Explanation");
+        final String explanation = "\nExplanation: " + PersistenceUtilities.getAttribute(rel.getAttribute(), "Explanation");
 
         fromBuildUnit = SonargraphUtilities.getBuildUnitName(fromBuildUnit);
         if (fromBuildUnit.equals(SonargraphUtilities.getBuildUnitName(buildUnit.getName()))) {
@@ -79,22 +79,23 @@ public class ArchitectureViolationProcessor implements IProcessor {
     }
   }
 
-  private void processPosition(SensorContext context, org.sonar.api.batch.rule.ActiveRule rule, XsdTypeRelation rel, String message, String explanation) {
-    for (XsdPosition pos : rel.getPosition()) {
-      String relFileName = pos.getFile();
+  private static void processPosition(final SensorContext context, final org.sonar.api.batch.rule.ActiveRule rule, final XsdTypeRelation rel, final String message,
+    final String explanation) {
+    for (final XsdPosition pos : rel.getPosition()) {
+      final String relFileName = pos.getFile();
       int line = 0;
       try {
         line = Integer.parseInt(pos.getLine());
-      } catch (NumberFormatException ex) {
+      } catch (final NumberFormatException ex) {
         LOG.error("Attribute \"line\" of element \"position\" is not a valid integer value: " + pos.getLine() + ". Exception: " + ex.getMessage());
         continue;
       }
       if (relFileName != null && (pos.getType() != null) && (line > 0)) {
-        String msg = message + ". Usage type: " + pos.getType() + explanation;
+        final String msg = message + ". Usage type: " + pos.getType() + explanation;
         LOG.debug(msg);
-        InputComponent component = SonarQubeUtilities.getInputPath(context.fileSystem(), relFileName);
+        final InputComponent component = SonarQubeUtilities.getInputPath(context.fileSystem(), relFileName);
         if (component != null && component.isFile()) {
-          SonarQubeUtilities.saveViolation(context, (InputFile) component, rule, "", Integer.parseInt(pos.getLine()), msg);
+          SonarQubeUtilities.saveViolation(context, (InputFile) component, rule, null, Integer.parseInt(pos.getLine()), msg);
         }
       }
     }

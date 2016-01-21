@@ -32,14 +32,14 @@ abstract class SonargraphMeasureComputer implements MeasureComputer {
   }
 
   @Override
-  final public MeasureComputerDefinition define(final MeasureComputerDefinitionContext defContext) {
+  public final MeasureComputerDefinition define(final MeasureComputerDefinitionContext defContext) {
     final List<String> inputMetrics = new ArrayList<>(getInputMetrics());
     inputMetrics.add(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED.key());
     return defContext.newDefinitionBuilder().setInputMetrics(inputMetrics.toArray(new String[] {})).setOutputMetrics(getOutputMetrics().toArray(new String[] {})).build();
   }
 
   @Override
-  final public void compute(final MeasureComputerContext context) {
+  public final void compute(final MeasureComputerContext context) {
     if (context.getComponent().getType() != Component.Type.PROJECT) {
       return;
     }

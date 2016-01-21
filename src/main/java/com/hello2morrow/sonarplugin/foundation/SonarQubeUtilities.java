@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.Measure;
@@ -81,23 +82,43 @@ public class SonarQubeUtilities {
     return value;
   }
 
-  public static void saveViolation(final org.sonar.api.batch.SensorContext context, final InputFile file, final org.sonar.api.batch.rule.ActiveRule rule, final String priority,
-    final int line, final String msg) {
+  public static void saveViolation(final SensorContext context, final InputFile file, final ActiveRule rule, final Severity severity, final int line, final String msg) {
     final NewIssue newIssue = context.newIssue();
+    final NewIssueLocation location = createIssueLocation(file, rule, severity, msg, newIssue);
     final TextRange textRange = file.newRange(line, 0, line + 1, 0);
-    final NewIssueLocation location = newIssue.newLocation().on(file).at(textRange).message(msg);
-    newIssue.at(location).forRule(rule.ruleKey());
-    // TODO: Handle severity
+    location.at(textRange);
     newIssue.save();
   }
 
-  public static void saveViolation(final org.sonar.api.batch.sensor.SensorContext context, final InputDir dir, final org.sonar.api.batch.rule.ActiveRule rule,
-    final String priority, final String msg) {
+  public static void saveViolation(final SensorContext context, final InputDir dir, final ActiveRule rule, final Severity severity, final String msg) {
     final NewIssue newIssue = context.newIssue();
-    final NewIssueLocation location = newIssue.newLocation().on(dir).message(msg);
-    newIssue.at(location).forRule(rule.ruleKey());
-    // TODO: Handle severity
+    createIssueLocation(dir, rule, severity, msg, newIssue);
     newIssue.save();
+  }
+
+  private static NewIssueLocation createIssueLocation(final InputPath path, final ActiveRule rule, final Severity severity, final String msg, final NewIssue newIssue) {
+    final NewIssueLocation location = newIssue.newLocation().on(path).message(msg);
+    newIssue.at(location).forRule(rule.ruleKey());
+    if (severity != null) {
+      newIssue.overrideSeverity(severity);
+    }
+    return location;
+  }
+
+  public static Severity convertToSeverity(final String priority) {
+    if (priority == null || priority.trim().length() == 0) {
+      return null;
+    }
+
+    final String prio = priority.trim();
+    if ("HIGH".equalsIgnoreCase(prio)) {
+      return Severity.MAJOR;
+    } else if ("MEDIUM".equalsIgnoreCase(prio)) {
+      return Severity.MINOR;
+    } else if ("LOW".equalsIgnoreCase(prio)) {
+      return Severity.INFO;
+    }
+    return null;
   }
 
   public static InputPath getInputPath(final FileSystem fileSystem, final String fqName) {
@@ -107,19 +128,12 @@ public class SonarQubeUtilities {
   public static InputPath getInputPath(final FileSystem fileSystem, final String fqName, final boolean useAbsolutePath) {
     final boolean isSourceFile = fqName.endsWith(".java");
     if (isSourceFile) {
-      final InputFile file = fileSystem.inputFile(new FilePredicate() {
-        @Override
-        public boolean apply(final InputFile file) {
-          return useAbsolutePath ? file.absolutePath().endsWith(fqName) : file.relativePath().endsWith(fqName);
-        }
-      });
-      if (file == null) {
-        LOG.error((isSourceFile ? SOURCE_FILE_NOT_FOUND_MESSAGE : DIRECTORY_NOT_FOUND_MESSAGE) + fqName);
-        return null;
-      }
-      return file;
+      return getSourceFile(fileSystem, fqName, useAbsolutePath, isSourceFile);
     }
+    return getSourceDirectory(fileSystem, fqName, useAbsolutePath);
+  }
 
+  private static InputPath getSourceDirectory(final FileSystem fileSystem, final String fqName, final boolean useAbsolutePath) {
     File dir;
     if (useAbsolutePath) {
       dir = new File(fqName);
@@ -130,6 +144,20 @@ public class SonarQubeUtilities {
       return null;
     }
     return fileSystem.inputDir(dir);
+  }
+
+  private static InputPath getSourceFile(final FileSystem fileSystem, final String fqName, final boolean useAbsolutePath, final boolean isSourceFile) {
+    final InputFile file = fileSystem.inputFile(new FilePredicate() {
+      @Override
+      public boolean apply(final InputFile file) {
+        return useAbsolutePath ? file.absolutePath().endsWith(fqName) : file.relativePath().endsWith(fqName);
+      }
+    });
+    if (file == null) {
+      LOG.error((isSourceFile ? SOURCE_FILE_NOT_FOUND_MESSAGE : DIRECTORY_NOT_FOUND_MESSAGE) + fqName);
+      return null;
+    }
+    return file;
   }
 
   public static ActiveRule findActiveSonargraphRule(final SensorContext sensorContext, final String ruleKey) {

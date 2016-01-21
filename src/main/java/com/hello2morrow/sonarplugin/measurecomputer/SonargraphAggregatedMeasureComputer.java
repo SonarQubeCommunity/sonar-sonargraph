@@ -47,21 +47,19 @@ public class SonargraphAggregatedMeasureComputer extends SonargraphMeasureComput
     return getMetricKeys();
   }
 
-  private List<String> getMetricKeys() {
+  private static List<String> getMetricKeys() {
     final List<Metric<Serializable>> metrics = Arrays.asList(
-      // FIXME [IK] Use "internal metrics" instead, since not all warnings are present in modules
-      /* Warnings */
-      SonargraphSimpleMetrics.ALL_WARNINGS, SonargraphSimpleMetrics.CYCLE_WARNINGS, SonargraphSimpleMetrics.THRESHOLD_WARNINGS, SonargraphSimpleMetrics.WORKSPACE_WARNINGS,
-      SonargraphSimpleMetrics.IGNORED_WARNINGS, SonargraphSimpleMetrics.DUPLICATE_WARNINGS,
+    /* Warnings */
+    SonargraphSimpleMetrics.DUPLICATE_WARNINGS,
 
-      /* Size metrics */
-      SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES, SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
+    /* Size metrics */
+    SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.JAVA_FILES, SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.TYPE_DEPENDENCIES,
 
-      /* structural debt metrics */
-      SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, SonargraphSimpleMetrics.TASK_REFS, SonargraphSimpleMetrics.TASKS,
+    /* structural debt metrics */
+    SonargraphSimpleMetrics.STRUCTURAL_DEBT_INDEX, SonargraphSimpleMetrics.STRUCTURAL_DEBT_COST, SonargraphSimpleMetrics.TASK_REFS,
 
-      /* structure metrics */
-      SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES, SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
+    /* structure metrics */
+    SonargraphSimpleMetrics.CYCLICITY, SonargraphSimpleMetrics.CYCLIC_PACKAGES, SonargraphSimpleMetrics.REFERENCES_TO_REMOVE, SonargraphSimpleMetrics.TYPE_DEPENDENCIES_TO_CUT,
       SonargraphSimpleMetrics.INSTRUCTIONS,
 
       /* architecture metrics */

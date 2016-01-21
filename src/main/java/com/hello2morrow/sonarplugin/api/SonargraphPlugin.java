@@ -22,6 +22,7 @@ import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.measurecomputer.SonargraphAggregatedMeasureComputer;
 import com.hello2morrow.sonarplugin.measurecomputer.SonargraphDerivedMeasureComputer;
 import com.hello2morrow.sonarplugin.measurecomputer.SonargraphHighestMeasureComputer;
+import com.hello2morrow.sonarplugin.measurecomputer.SonargraphTransferInternalMeasureComputer;
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
@@ -51,7 +52,7 @@ public final class SonargraphPlugin extends SonarPlugin {
   @SuppressWarnings("rawtypes")
   @Override
   public List getExtensions() {
-    List<Class<?>> list = new ArrayList<Class<?>>();
+    final List<Class<?>> list = new ArrayList<>();
     list.add(SonargraphRulesRepository.class);
 
     list.add(SonargraphSimpleMetrics.class);
@@ -59,13 +60,10 @@ public final class SonargraphPlugin extends SonarPlugin {
     list.add(SonargraphInternalMetrics.class);
     list.add(SonargraphSensor.class);
 
+    list.add(SonargraphTransferInternalMeasureComputer.class);
     list.add(SonargraphAggregatedMeasureComputer.class);
     list.add(SonargraphDerivedMeasureComputer.class);
     list.add(SonargraphHighestMeasureComputer.class);
-    // list.add(SonargraphMetricAggregator.class);
-    // list.add(SonargraphAggregatingModuleMetricAggregator.class);
-    // list.add(SonargraphDerivedMetricsDecorator.class);
-    // list.add(SonargraphSystemDashBoardDecorator.class);
 
     list.add(SonargraphStructuralDebtDashboard.class);
     list.add(SonargraphCyclicityDashboard.class);

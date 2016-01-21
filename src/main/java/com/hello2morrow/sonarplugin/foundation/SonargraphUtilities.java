@@ -20,7 +20,6 @@ package com.hello2morrow.sonarplugin.foundation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.rule.Severity;
 
 import java.util.List;
 import java.util.Map;
@@ -45,12 +44,12 @@ public class SonargraphUtilities {
     // do not instantiate
   }
 
-  public static String getBuildUnitName(String fqName) {
+  public static String getBuildUnitName(final String fqName) {
     if (fqName == null) {
       return UNKNOWN;
     }
 
-    int projectSeparatorPos = fqName.indexOf(PROJECT_BUILDUNIT_SEPARATOR);
+    final int projectSeparatorPos = fqName.indexOf(PROJECT_BUILDUNIT_SEPARATOR);
     if (projectSeparatorPos == -1) {
       return UNKNOWN;
     }
@@ -75,8 +74,8 @@ public class SonargraphUtilities {
    *          indicates if a logging statement should be generated if metric cannot be found
    * @return
    */
-  public static Number getBuildUnitMetricValue(Map<String, Number> metrics, String key, boolean flagMissingMetric) {
-    Number num = metrics.get(key);
+  public static Number getBuildUnitMetricValue(final Map<String, Number> metrics, final String key, final boolean flagMissingMetric) {
+    final Number num = metrics.get(key);
 
     if (flagMissingMetric && num == null) {
       LOG.error("Cannot find metric <" + key + "> in generated report");
@@ -91,61 +90,35 @@ public class SonargraphUtilities {
     return num;
   }
 
-  public static String getSourceFilePath(String groupParentPath, String sourceFilePath) {
-    int lastIndexOf = sourceFilePath.lastIndexOf('/');
-    String dirOfSourceFile = sourceFilePath.substring(0, lastIndexOf);
+  public static String getSourceFilePath(final String groupParentPath, final String sourceFilePath) {
+    final int lastIndexOf = sourceFilePath.lastIndexOf('/');
+    final String dirOfSourceFile = sourceFilePath.substring(0, lastIndexOf);
     if (groupParentPath.endsWith(dirOfSourceFile)) {
       return groupParentPath + sourceFilePath.substring(lastIndexOf);
     }
     return null;
   }
 
-  public static String convertToSeverity(String priority) {
-    if (priority == null || priority.trim().length() == 0) {
-      return null;
-    }
-
-    String prio = priority.trim();
-    if (prio.equalsIgnoreCase("HIGH")) {
-      return Severity.MAJOR;
-    } else if (prio.equalsIgnoreCase("MEDIUM")) {
-      return Severity.MINOR;
-    } else if (prio.equalsIgnoreCase("LOW")) {
-      return Severity.INFO;
-    }
-
-    return null;
-  }
-
-  public static String generateDuplicateCodeBlockMessage(DuplicateCodeBlock block, List<DuplicateCodeBlock> blocks) {
+  public static String generateDuplicateCodeBlockMessage(final DuplicateCodeBlock block, final List<DuplicateCodeBlock> blocks) {
     final int endLine = block.getBlockLength() + block.getStartLine() - 1;
 
     final StringBuilder message = new StringBuilder();
     message.append("Line ").append(block.getStartLine()).append(" to ").append(endLine).append(" is a duplicate of\n");
-    int toBeDescribed = blocks.size() - 1;
+    final int toBeDescribed = blocks.size();
     boolean isFirst = true;
 
     for (int i = 0; i < blocks.size(); i++) {
-      DuplicateCodeBlock duplicate = blocks.get(i);
-      if (duplicate == block) {
-        continue;
-      }
-      int remaining = toBeDescribed - i;
+      final DuplicateCodeBlock duplicate = blocks.get(i);
+      final int remaining = toBeDescribed - i;
 
       // No connection for first described element.
-      if (!isFirst && blocks.size() > 2) {
+      if (!isFirst && blocks.size() > 1) {
         if (remaining > 0) {
           // Not last, and not first: enumerate.
           message.append(",\n");
         } else {
           // Last.
-          if (toBeDescribed == 2) {
-            // Just two parts.
-            message.append(" and\n");
-          } else {
-            // More than two parts: Enumeration.
-            message.append(", and\n");
-          }
+          message.append(" and\n");
         }
       }
       isFirst = false;
@@ -156,8 +129,7 @@ public class SonargraphUtilities {
     return message.toString();
   }
 
-  public static String getConfiguredReportPath(Settings settings) {
+  public static String getConfiguredReportPath(final Settings settings) {
     return settings.getString(SonargraphPluginBase.REPORT_PATH);
   }
-
 }

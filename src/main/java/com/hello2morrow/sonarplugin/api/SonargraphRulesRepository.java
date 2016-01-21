@@ -18,11 +18,11 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.plugins.java.Java;
 
 @BatchSide
 public final class SonargraphRulesRepository implements RulesDefinition {
@@ -35,34 +35,34 @@ public final class SonargraphRulesRepository implements RulesDefinition {
   }
 
   @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(SonargraphPluginBase.PLUGIN_KEY, new Java().getKey()).setName("Sonargraph Rules");
-    NewRule archViolationRule = repository.createRule(SonargraphPluginBase.ARCH_RULE_KEY);
+  public void define(final Context context) {
+    final NewRepository repository = context.createRepository(SonargraphPluginBase.PLUGIN_KEY, Java.KEY).setName("Sonargraph Rules");
+    final NewRule archViolationRule = repository.createRule(SonargraphPluginBase.ARCH_RULE_KEY);
     archViolationRule.setName("Sonargraph Architecture Violation");
     archViolationRule.setHtmlDescription("Violation of the architecture defined using Sonargraph");
     archViolationRule.setSeverity(Severity.MAJOR);
 
-    NewRule duplicatesRule = repository.createRule(SonargraphPluginBase.DUPLICATE_RULE_KEY);
+    final NewRule duplicatesRule = repository.createRule(SonargraphPluginBase.DUPLICATE_RULE_KEY);
     duplicatesRule.setName("Sonargraph Duplicate Code Block");
     duplicatesRule.setHtmlDescription("Duplicate code block detected by Sonargraph");
     duplicatesRule.setSeverity(Severity.MAJOR);
 
-    NewRule cycleGroups = repository.createRule(SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
+    final NewRule cycleGroups = repository.createRule(SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
     cycleGroups.setName("Sonargraph Cycle Group");
     cycleGroups.setHtmlDescription("Cycle group detected by Sonargraph");
     cycleGroups.setSeverity(Severity.MAJOR);
 
-    NewRule workspace = repository.createRule(SonargraphPluginBase.WORKSPACE_RULE_KEY);
+    final NewRule workspace = repository.createRule(SonargraphPluginBase.WORKSPACE_RULE_KEY);
     workspace.setName(SONARGRAPH_WORKSPACE_WARNING);
     workspace.setHtmlDescription(SONARGRAPH_WORKSPACE_WARNING);
     workspace.setSeverity(Severity.MAJOR);
 
-    NewRule task = repository.createRule(SonargraphPluginBase.TASK_RULE_KEY);
+    final NewRule task = repository.createRule(SonargraphPluginBase.TASK_RULE_KEY);
     task.setName(SONARGRAPH_TASK);
     task.setHtmlDescription(SONARGRAPH_TASK);
     task.setSeverity(Severity.MAJOR);
 
-    NewRule thresholdRule = repository.createRule(SonargraphPluginBase.THRESHOLD_RULE_KEY);
+    final NewRule thresholdRule = repository.createRule(SonargraphPluginBase.THRESHOLD_RULE_KEY);
     thresholdRule.setName("Sonargraph Threshold Violation");
     thresholdRule.setHtmlDescription("Violation of a threshold defined using Sonargraph");
     thresholdRule.setSeverity(Severity.MAJOR);

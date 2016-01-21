@@ -71,10 +71,6 @@ public final class SonargraphSimpleMetrics implements Metrics {
   public static final Metric<Serializable> INSTRUCTIONS = new Metric.Builder("sonargraph_instructions", "Byte Code Instructions", Metric.ValueType.INT)
     .setDescription("Number of Byte Code Instructions").setDirection(Metric.DIRECTION_NONE).setQualitative(false).setDomain(DOMAIN_SONARGRAPH).create();
 
-  /** TODO: Relevant metric? Seems unused at the moment */
-  public static final Metric<Serializable> CYCLE_GROUP_SIZE = new Metric.Builder("sonargraph_cycle_group_size", "Cycle Group Size", Metric.ValueType.INT)
-    .setDescription("Number of Packages in Same Cycle Group").setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
-
   /** Architecture Dashbox metrics */
   public static final Metric<Serializable> VIOLATING_TYPE_DEPENDENCIES = new Metric.Builder("sonargraph_violating_dependencies", "Violating Dependencies", Metric.ValueType.INT)
     .setDescription("Number of Violating Type Dependencies").setDirection(Metric.DIRECTION_WORST).setQualitative(true).setDomain(DOMAIN_SONARGRAPH).create();
@@ -125,11 +121,10 @@ public final class SonargraphSimpleMetrics implements Metrics {
 
   @Override
   public List<Metric> getMetrics() {
-    List<Metric<Serializable>> metrics = Arrays.asList(STRUCTURAL_DEBT_INDEX, STRUCTURAL_DEBT_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, TYPE_DEPENDENCIES_TO_CUT,
-      REFERENCES_TO_REMOVE, ACD, RELATIVE_ACD, NCCD, INSTRUCTIONS, CYCLE_GROUP_SIZE, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES, VIOLATING_REFERENCES, IGNORED_VIOLATONS,
-      UNASSIGNED_TYPES, ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS, THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS, INTERNAL_PACKAGES, INTERNAL_TYPES,
-      TYPE_DEPENDENCIES, JAVA_FILES);
-    List<Metric> newMetrics = new ArrayList<>();
+    final List<Metric<Serializable>> metrics = Arrays.asList(STRUCTURAL_DEBT_INDEX, STRUCTURAL_DEBT_COST, TASKS, TASK_REFS, CYCLICITY, CYCLIC_PACKAGES, TYPE_DEPENDENCIES_TO_CUT,
+      REFERENCES_TO_REMOVE, ACD, RELATIVE_ACD, NCCD, INSTRUCTIONS, VIOLATING_TYPE_DEPENDENCIES, VIOLATING_TYPES, VIOLATING_REFERENCES, IGNORED_VIOLATONS, UNASSIGNED_TYPES,
+      ALL_WARNINGS, CYCLE_WARNINGS, DUPLICATE_WARNINGS, THRESHOLD_WARNINGS, WORKSPACE_WARNINGS, IGNORED_WARNINGS, INTERNAL_PACKAGES, INTERNAL_TYPES, TYPE_DEPENDENCIES, JAVA_FILES);
+    final List<Metric> newMetrics = new ArrayList<>();
     newMetrics.addAll(metrics);
     return newMetrics;
   }

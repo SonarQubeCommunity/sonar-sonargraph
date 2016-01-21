@@ -40,40 +40,40 @@ public class SonargraphDerivedMeasureComputer extends SonargraphMeasureComputer 
 
   @Override
   List<String> getInputMetrics() {
-    List<Metric<Serializable>> metrics = Arrays.asList(SonargraphSimpleMetrics.VIOLATING_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES, SonargraphSimpleMetrics.UNASSIGNED_TYPES,
-      SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.CYCLIC_PACKAGES, SonargraphSimpleMetrics.CYCLICITY);
+    final List<Metric<Serializable>> metrics = Arrays.asList(SonargraphSimpleMetrics.VIOLATING_TYPES, SonargraphSimpleMetrics.INTERNAL_TYPES,
+      SonargraphSimpleMetrics.UNASSIGNED_TYPES, SonargraphSimpleMetrics.INTERNAL_PACKAGES, SonargraphSimpleMetrics.CYCLIC_PACKAGES, SonargraphSimpleMetrics.CYCLICITY);
     return SonarQubeUtilities.convertMetricListToKeyList(metrics);
   }
 
   @Override
   List<String> getOutputMetrics() {
-    List<Metric<Serializable>> metrics = Arrays.asList(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
+    final List<Metric<Serializable>> metrics = Arrays.asList(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
       SonargraphDerivedMetrics.RELATIVE_CYCLICITY, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT);
     return SonarQubeUtilities.convertMetricListToKeyList(metrics);
   }
 
   @Override
-  void internalCompute(MeasureComputerContext context) {
+  void internalCompute(final MeasureComputerContext context) {
     saveViolationMeasures(context);
     saveCyclicityMeasures(context);
   }
 
-  private void saveViolationMeasures(MeasureComputerContext context) {
-    Measure violatingTypes = context.getMeasure(SonargraphSimpleMetrics.VIOLATING_TYPES.key());
+  private void saveViolationMeasures(final MeasureComputerContext context) {
+    final Measure violatingTypes = context.getMeasure(SonargraphSimpleMetrics.VIOLATING_TYPES.key());
     if (null != violatingTypes) {
-      LOGGER.warn("Number of violating types: " + violatingTypes.getIntValue());
+      LOGGER.debug("Number of violating types: " + violatingTypes.getIntValue());
     } else {
       LOGGER.error("Measure for violating types not detected");
     }
 
-    Measure internalTypes = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_TYPES.key());
+    final Measure internalTypes = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_TYPES.key());
     if (null != internalTypes) {
-      LOGGER.warn("Number of internal types: " + internalTypes.getIntValue());
+      LOGGER.debug("Number of internal types: " + internalTypes.getIntValue());
     } else {
       LOGGER.error("Measure for internalTypes not detected");
     }
 
-    Measure unassignedTypes = context.getMeasure(SonargraphSimpleMetrics.UNASSIGNED_TYPES.key());
+    final Measure unassignedTypes = context.getMeasure(SonargraphSimpleMetrics.UNASSIGNED_TYPES.key());
 
     if (internalTypes != null && internalTypes.getIntValue() > 0) {
       if (violatingTypes != null) {
@@ -85,18 +85,18 @@ public class SonargraphDerivedMeasureComputer extends SonargraphMeasureComputer 
     }
   }
 
-  private void saveCyclicityMeasures(MeasureComputerContext context) {
-    Measure cyclicity = context.getMeasure(SonargraphSimpleMetrics.CYCLICITY.key());
-    Measure packages = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES.key());
-    Measure cyclicPackages = context.getMeasure(SonargraphSimpleMetrics.CYCLIC_PACKAGES.key());
+  private void saveCyclicityMeasures(final MeasureComputerContext context) {
+    final Measure cyclicity = context.getMeasure(SonargraphSimpleMetrics.CYCLICITY.key());
+    final Measure packages = context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES.key());
+    final Measure cyclicPackages = context.getMeasure(SonargraphSimpleMetrics.CYCLIC_PACKAGES.key());
 
     if (cyclicity == null || packages == null || cyclicPackages == null) {
       LOGGER.error("Problem in aggregator (cannot calculate relative cyclicity values) on project: " + context.getComponent().getKey());
     } else {
-      double numberOfPackages = packages.getIntValue();
+      final double numberOfPackages = packages.getIntValue();
       if (numberOfPackages > 0.0) {
-        double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getIntValue()) / numberOfPackages;
-        double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getIntValue() / numberOfPackages;
+        final double relCyclicity = HUNDRET_PERCENT * Math.sqrt(cyclicity.getIntValue()) / numberOfPackages;
+        final double relCyclicPackages = HUNDRET_PERCENT * cyclicPackages.getIntValue() / numberOfPackages;
         context.addMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY.key(), relCyclicity);
         context.addMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT.key(), relCyclicPackages);
       }

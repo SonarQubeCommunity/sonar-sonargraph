@@ -44,14 +44,13 @@ public class SonargraphHighestMeasureComputer extends SonargraphMeasureComputer 
     return SonarQubeUtilities.convertMetricListToKeyList(getMetrics());
   }
 
-  private List<Metric<Serializable>> getMetrics() {
-    final List<Metric<Serializable>> metrics = Arrays.asList(
+  private static List<Metric<Serializable>> getMetrics() {
+    return Arrays.asList(
     /* Simple metrics */
     SonargraphSimpleMetrics.ACD, SonargraphSimpleMetrics.NCCD, SonargraphSimpleMetrics.RELATIVE_ACD,
 
     /* Highest metrics */
     SonargraphDerivedMetrics.BIGGEST_CYCLE_GROUP, SonargraphDerivedMetrics.HIGHEST_ACD, SonargraphDerivedMetrics.HIGHEST_NCCD, SonargraphDerivedMetrics.HIGHEST_RELATIVE_ACD);
-    return metrics;
   }
 
   @Override
@@ -66,11 +65,9 @@ public class SonargraphHighestMeasureComputer extends SonargraphMeasureComputer 
     double highest = -1.0;
     final boolean isSimpleMetricDouble = simpleMetric.getType() == ValueType.FLOAT;
 
-    LOGGER.warn("calculating " + highestMetric.key());
     for (final Iterator<Measure> iter = context.getChildrenMeasures(simpleMetric.key()).iterator(); iter.hasNext();) {
       final double value = isSimpleMetricDouble ? iter.next().getDoubleValue() : iter.next().getIntValue();
       highest = value > highest ? value : highest;
-      LOGGER.warn("highest value: " + highest);
     }
 
     final boolean isHighestMetricDouble = highestMetric.getType() == ValueType.FLOAT;
@@ -80,9 +77,9 @@ public class SonargraphHighestMeasureComputer extends SonargraphMeasureComputer 
     }
 
     if (highest < 0) {
-      highest = context.getMeasure(simpleMetric.key()).getDoubleValue();
+      LOGGER.warn("No highest value detected for component '" + context.getComponent().getKey() + "', metric '" + highestMetric.key() + "'");
+      return;
     }
-    LOGGER.warn("Saving highest value: " + highest);
     if (isHighestMetricDouble) {
       context.addMeasure(highestMetric.key(), highest);
     } else {

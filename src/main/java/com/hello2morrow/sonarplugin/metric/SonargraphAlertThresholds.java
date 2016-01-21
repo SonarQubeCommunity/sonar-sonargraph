@@ -33,7 +33,7 @@ import java.util.Map;
 public final class SonargraphAlertThresholds {
 
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphAlertThresholds.class);
-  private static final Map<Metric, AlertThreshold> THRESHOLDS = new HashMap<Metric, AlertThreshold>();
+  private static final Map<Metric, AlertThreshold> THRESHOLDS = new HashMap<>();
   private static final Map<Metric<Serializable>, Metric<Serializable>> CONNECTED_THRESHOLDS = new HashMap<>();
 
   private static final int STRUCTURAL_DEBT_WARNING = 400;
@@ -114,9 +114,9 @@ public final class SonargraphAlertThresholds {
       return;
     }
 
-    Metric<? extends Serializable> copyAlertFromMetric = CONNECTED_THRESHOLDS.get(measure.getMetric());
+    final Metric<? extends Serializable> copyAlertFromMetric = CONNECTED_THRESHOLDS.get(measure.getMetric());
     if (copyAlertFromMetric != null) {
-      Measure fromMeasure = context.getMeasure(copyAlertFromMetric);
+      final Measure fromMeasure = context.getMeasure(copyAlertFromMetric);
       if (fromMeasure != null) {
         measure.setAlertStatus(fromMeasure.getAlertStatus());
         measure.setAlertText(fromMeasure.getMetricKey());
@@ -126,11 +126,11 @@ public final class SonargraphAlertThresholds {
     }
   }
 
-  public static AlertThreshold getThreshold(Metric metric) {
+  public static AlertThreshold getThreshold(final Metric metric) {
     return THRESHOLDS.get(metric);
   }
 
-  public static Metric<Serializable> getConnectedMetric(Metric connectedMetric) {
+  public static Metric<Serializable> getConnectedMetric(final Metric connectedMetric) {
     return CONNECTED_THRESHOLDS.get(connectedMetric);
   }
 }
