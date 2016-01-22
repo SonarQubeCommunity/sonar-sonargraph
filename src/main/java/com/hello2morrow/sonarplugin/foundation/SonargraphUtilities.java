@@ -104,7 +104,7 @@ public class SonargraphUtilities {
 
     final StringBuilder message = new StringBuilder();
     message.append("Line ").append(block.getStartLine()).append(" to ").append(endLine).append(" is a duplicate of\n");
-    final int toBeDescribed = blocks.size();
+    final int toBeDescribed = blocks.size() - 1;
     boolean isFirst = true;
 
     for (int i = 0; i < blocks.size(); i++) {

@@ -24,46 +24,22 @@ import com.hello2morrow.sonarplugin.persistence.IReportReader;
 import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import junit.framework.TestCase;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.SensorContext;
+import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ReadTest extends TestCase {
 
-  @SuppressWarnings("rawtypes")
+  @Test
   public void testAnalyse() {
-    Project project1 = new Project("test");
-    Settings settings = TestHelper.initSettings();
+    final Project project1 = new Project("test");
+    final Settings settings = TestHelper.initSettings();
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/infoglue21-report.xml");
-    IReportReader reader = new ReportFileReader();
+    final IReportReader reader = new ReportFileReader();
     reader.readSonargraphReport(project1, null, settings);
 
-    assertNotNull(reader.getReport());
-
-    final RulesProfile profile = TestHelper.initRulesProfile();
-    final SensorContext sensorContext = mock(SensorContext.class);
-
-    when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
-
-      @Override
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
-        return args[0];
-      }
-    });
-    SonargraphSensor sensor = new SonargraphSensor(profile, TestHelper.initSettings(), sensorContext, TestHelper.initModuleFileSystem(), TestHelper.initPerspectives());
-
-    Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
-    XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
+    final Project project = new Project("org.codehaus.sonar-plugins:infoglue21", null, "infoglue");
+    final XsdAttributeRoot buildUnit = reader.retrieveBuildUnit(project);
     assertNotNull(buildUnit);
-    sensor.analyseBuildUnit(buildUnit, project);
   }
 }

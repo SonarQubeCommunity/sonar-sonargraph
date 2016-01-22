@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="AlarmClockMain_Ant" basedir=".">
 	<!-- Replace version if necessary -->
-	<property name="sonargraph.version" value="7.2.0" />
+	<property name="sonargraph.version" value="7.2.3" />
 	<!-- Replace installation root directory if necessary -->
-	<property name="sonargraph.installation.dir" location="D:/Programs/Sonargraph-Architect/Sonargraph-Architect-7.2.0" />
+	<property name="sonargraph.installation.dir" location="D:/02_programs/SGA7/7.2.3" />
 	<property name="sonargraph.lib.dir" location="${sonargraph.installation.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${sonargraph.version}" />
 
 

@@ -49,37 +49,39 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
 
   @Test
   public void test() {
-    File baseDir = new File("src/test/resources");
-    File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
+    final File baseDir = new File("src/test/resources");
+    final File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
 
-    Project project = mock(Project.class);
+    final Project project = mock(Project.class);
     when(project.key()).thenReturn("hello2morrow:AlarmClock");
     when(project.name()).thenReturn("AlarmClock");
 
-    DefaultFileSystem projectFileSystem = new DefaultFileSystem(baseDir);
+    final DefaultFileSystem projectFileSystem = new DefaultFileSystem(baseDir);
 
     initProjectFileSystem(baseDir, project);
 
-    FileSystem fileSystem = mock(FileSystem.class);
+    final FileSystem fileSystem = mock(FileSystem.class);
     when(getModuleFileSystem().baseDir()).thenReturn(baseDir);
     when(fileSystem.baseDir()).thenReturn(baseDir);
-    InputFile inputFile = mock(InputFile.class);
+    final InputFile inputFile = mock(InputFile.class);
     when(inputFile.file()).thenReturn(sourceFile);
     when(fileSystem.inputFile(any(FilePredicate.class))).thenReturn(inputFile);
 
-    Issuable issuable1 = mock(Issuable.class);
-    IssueBuilder issueBuilder1 = mock(IssueBuilder.class);
+    final Issuable issuable1 = mock(Issuable.class);
+
+    // FIXME: IssueBuilder is no longer used.
+    final IssueBuilder issueBuilder1 = mock(IssueBuilder.class);
     initIssuableAndBuilder(issuable1, issueBuilder1);
 
-    Issuable issuable2 = mock(Issuable.class);
-    IssueBuilder issueBuilder2 = mock(IssueBuilder.class);
+    final Issuable issuable2 = mock(Issuable.class);
+    final IssueBuilder issueBuilder2 = mock(IssueBuilder.class);
     initIssuableAndBuilder(issuable2, issueBuilder2);
 
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    final ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     // when(perspectives.as(any(Class.class), any(Resource.class))).thenReturn(issuable1).thenReturn(issuable2);
 
-    TaskProcessor processor = new TaskProcessor(project, fileSystem, getRulesProfile(), getSensorContext(), perspectives);
-    ReportFileReader reader = new ReportFileReader();
+    final TaskProcessor processor = new TaskProcessor(project, getSensorContext(), 2);
+    final ReportFileReader reader = new ReportFileReader();
     reader.readSonargraphReport(project, fileSystem, getSettings());
     processor.process(reader.getReport(), reader.retrieveBuildUnit(project));
 
@@ -92,7 +94,7 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
     verify(issueBuilder1).severity(Severity.MINOR);
   }
 
-  private void initIssuableAndBuilder(Issuable issuable, IssueBuilder issueBuilder) {
+  private void initIssuableAndBuilder(final Issuable issuable, final IssueBuilder issueBuilder) {
     when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
 
     when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);

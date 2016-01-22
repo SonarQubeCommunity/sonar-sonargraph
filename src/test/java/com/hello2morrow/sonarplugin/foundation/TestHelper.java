@@ -47,6 +47,7 @@ import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -62,7 +63,7 @@ public class TestHelper {
 
   private static class InMemorySensorStorage implements SensorStorage {
 
-    private final Map<String, org.sonar.api.batch.sensor.measure.Measure> measures = new HashMap<>();
+    private final Map<String, org.sonar.api.batch.sensor.measure.Measure<Serializable>> measures = new HashMap<>();
 
     private final Collection<Issue> allIssues = new ArrayList<>();
 
@@ -72,28 +73,28 @@ public class TestHelper {
     private final List<Duplication> duplications = new ArrayList<>();
 
     @Override
-    public void store(org.sonar.api.batch.sensor.measure.Measure measure) {
+    public void store(final org.sonar.api.batch.sensor.measure.Measure measure) {
       measures.put(measure.metric().key(), measure);
     }
 
     @Override
-    public void store(Issue issue) {
+    public void store(final Issue issue) {
       allIssues.add(issue);
     }
 
     @Override
-    public void store(Duplication duplication) {
+    public void store(final Duplication duplication) {
       duplications.add(duplication);
     }
 
     @Override
-    public void store(DefaultHighlighting highlighting) {
+    public void store(final DefaultHighlighting highlighting) {
       highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
     }
 
     @Override
-    public void store(DefaultCoverage defaultCoverage) {
-      String key = defaultCoverage.inputFile().key();
+    public void store(final DefaultCoverage defaultCoverage) {
+      final String key = defaultCoverage.inputFile().key();
       if (!coverageByComponent.containsKey(key)) {
         coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
       }
@@ -103,12 +104,12 @@ public class TestHelper {
   }
 
   public static RulesProfile initRulesProfile() {
-    RulesDefinition rulesDefinition = new SonargraphRulesRepository();
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    final RulesDefinition rulesDefinition = new SonargraphRulesRepository();
+    final RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
 
-    Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
-    RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
+    final Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
+    final RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
 
     activateRule(repository, profile, SonargraphPluginBase.TASK_RULE_KEY);
     activateRule(repository, profile, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
@@ -119,13 +120,13 @@ public class TestHelper {
     return profile;
   }
 
-  private static void activateRule(Repository repository, RulesProfile profile, String ruleKey) {
-    Rule rule = repository.rule(ruleKey);
+  private static void activateRule(final Repository repository, final RulesProfile profile, final String ruleKey) {
+    final Rule rule = repository.rule(ruleKey);
     profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
   }
 
   public static Settings initSettings() {
-    Settings settings = new Settings();
+    final Settings settings = new Settings();
     settings.setProperty(SonargraphPluginBase.COST_PER_INDEX_POINT, 7.0);
     return settings;
   }
@@ -133,35 +134,35 @@ public class TestHelper {
   @SuppressWarnings("rawtypes")
   public static SensorContext initSensorContext(final FileSystem moduleFileSystem) {
     final InMemorySensorStorage sensorStorage = new InMemorySensorStorage();
-    SensorContext sensorContext = mock(SensorContext.class);
+    final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.activeRules()).thenAnswer(new Answer() {
 
       @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ActiveRulesBuilder builder = new ActiveRulesBuilder();
+      public Object answer(final InvocationOnMock invocation) throws Throwable {
+        final ActiveRulesBuilder builder = new ActiveRulesBuilder();
         return builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate().build();
       }
     });
 
     when(sensorContext.fileSystem()).thenAnswer(new Answer() {
       @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
+      public Object answer(final InvocationOnMock invocation) throws Throwable {
         return moduleFileSystem;
       }
     });
 
     when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer() {
       @Override
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
+      public Object answer(final InvocationOnMock invocation) {
+        final Object[] args = invocation.getArguments();
         return args[0];
       }
     });
 
     when(sensorContext.newMeasure()).thenAnswer(new Answer() {
       @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
+      public Object answer(final InvocationOnMock invocation) throws Throwable {
         return new DefaultMeasure(sensorStorage);
       }
     });
@@ -169,9 +170,9 @@ public class TestHelper {
     when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
 
       @Override
-      public Object answer(InvocationOnMock invocation) {
-        Object arg = invocation.getArguments()[0];
-        Measure result = new Measure((Metric) arg);
+      public Object answer(final InvocationOnMock invocation) {
+        final Object arg = invocation.getArguments()[0];
+        final Measure result = new Measure((Metric) arg);
         result.setValue(0.0);
         return result;
       }
@@ -181,19 +182,19 @@ public class TestHelper {
   }
 
   public static FileSystem initModuleFileSystem() {
-    FileSystem fileSystem = mock(FileSystem.class);
+    final FileSystem fileSystem = mock(FileSystem.class);
 
     when(fileSystem.hasFiles(any(FilePredicate.class))).thenAnswer(new Answer<Boolean>() {
       @Override
-      public Boolean answer(InvocationOnMock invocation) throws Throwable {
+      public Boolean answer(final InvocationOnMock invocation) throws Throwable {
         return true;
       }
     });
 
     when(fileSystem.files(any(FilePredicate.class))).thenAnswer(new Answer<Iterable<File>>() {
       @Override
-      public List<File> answer(InvocationOnMock invocation) throws Throwable {
-        List<File> fileList = new ArrayList<File>();
+      public List<File> answer(final InvocationOnMock invocation) throws Throwable {
+        final List<File> fileList = new ArrayList<File>();
         fileList.add(new File("com/h2m/alarm/model/AlarmClock.java"));
         return fileList;
       }
@@ -201,26 +202,26 @@ public class TestHelper {
 
     when(fileSystem.predicates()).thenAnswer(new Answer<FilePredicates>() {
       @Override
-      public FilePredicates answer(InvocationOnMock invocation) throws Throwable {
+      public FilePredicates answer(final InvocationOnMock invocation) throws Throwable {
         return new FilePredicates() {
 
           @Override
-          public FilePredicate or(FilePredicate first, FilePredicate second) {
+          public FilePredicate or(final FilePredicate first, final FilePredicate second) {
             return null;
           }
 
           @Override
-          public FilePredicate or(FilePredicate... or) {
+          public FilePredicate or(final FilePredicate... or) {
             return null;
           }
 
           @Override
-          public FilePredicate or(Collection<FilePredicate> or) {
+          public FilePredicate or(final Collection<FilePredicate> or) {
             return null;
           }
 
           @Override
-          public FilePredicate not(FilePredicate p) {
+          public FilePredicate not(final FilePredicate p) {
             return null;
           }
 
@@ -230,82 +231,82 @@ public class TestHelper {
           }
 
           @Override
-          public FilePredicate matchesPathPatterns(String[] inclusionPatterns) {
+          public FilePredicate matchesPathPatterns(final String[] inclusionPatterns) {
             return null;
           }
 
           @Override
-          public FilePredicate matchesPathPattern(String inclusionPattern) {
+          public FilePredicate matchesPathPattern(final String inclusionPattern) {
             return null;
           }
 
           @Override
-          public FilePredicate is(File ioFile) {
+          public FilePredicate is(final File ioFile) {
             return null;
           }
 
           @Override
-          public FilePredicate hasType(Type type) {
+          public FilePredicate hasType(final Type type) {
             return null;
           }
 
           @Override
-          public FilePredicate hasStatus(Status status) {
+          public FilePredicate hasStatus(final Status status) {
             return null;
           }
 
           @Override
-          public FilePredicate hasRelativePath(String s) {
+          public FilePredicate hasRelativePath(final String s) {
             return null;
           }
 
           @Override
-          public FilePredicate hasPath(String s) {
+          public FilePredicate hasPath(final String s) {
             return null;
           }
 
           @Override
-          public FilePredicate hasLanguages(Collection<String> languages) {
+          public FilePredicate hasLanguages(final Collection<String> languages) {
             return null;
           }
 
           @Override
-          public FilePredicate hasLanguage(String language) {
+          public FilePredicate hasLanguage(final String language) {
             return null;
           }
 
           @Override
-          public FilePredicate hasAbsolutePath(String s) {
+          public FilePredicate hasAbsolutePath(final String s) {
             return null;
           }
 
           @Override
-          public FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns) {
+          public FilePredicate doesNotMatchPathPatterns(final String[] exclusionPatterns) {
             return null;
           }
 
           @Override
-          public FilePredicate doesNotMatchPathPattern(String exclusionPattern) {
+          public FilePredicate doesNotMatchPathPattern(final String exclusionPattern) {
             return null;
           }
 
           @Override
-          public FilePredicate and(FilePredicate first, FilePredicate second) {
+          public FilePredicate and(final FilePredicate first, final FilePredicate second) {
             return first;
           }
 
           @Override
-          public FilePredicate and(FilePredicate... and) {
+          public FilePredicate and(final FilePredicate... and) {
             return new FilePredicate() {
               @Override
-              public boolean apply(InputFile inputFile) {
+              public boolean apply(final InputFile inputFile) {
                 return true;
               }
             };
           }
 
           @Override
-          public FilePredicate and(Collection<FilePredicate> and) {
+          public FilePredicate and(final Collection<FilePredicate> and) {
             return null;
           }
 
@@ -315,7 +316,7 @@ public class TestHelper {
           }
 
           @Override
-          public FilePredicate hasLanguages(String... arg0) {
+          public FilePredicate hasLanguages(final String... arg0) {
             return null;
           }
         };
@@ -325,7 +326,7 @@ public class TestHelper {
   }
 
   public static ResourcePerspectives initPerspectives() {
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    final ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     // when(perspectives.as(perspectiveClass, resource))
     return perspectives;
   }
