@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
+
 package com.hello2morrow.sonarplugin.processor;
 
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
@@ -33,12 +32,11 @@ import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdWarningsByAttributeGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.rule.ActiveRule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,117 +50,94 @@ import java.util.Map.Entry;
  */
 public class WarningProcessor implements IProcessor {
 
-  private final FileSystem fileSystem;
-  private final RulesProfile rulesProfile;
-  private final ResourcePerspectives resourcePerspectives;
-  private final Project project;
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
+  private final SensorContext sensorContext;
 
-  public WarningProcessor(final Project project, final RulesProfile rulesProfile, final FileSystem fileSystem, ResourcePerspectives perspectives) {
-    this.project = project;
-    this.fileSystem = fileSystem;
-    this.rulesProfile = rulesProfile;
-    this.resourcePerspectives = perspectives;
+  public WarningProcessor(final SensorContext sensorContext) {
+    this.sensorContext = sensorContext;
   }
 
   @Override
-  public void process(ReportContext report, XsdAttributeRoot buildUnit) {
-    LOG.debug("Analysing warnings of buildUnit: " + buildUnit.getName());
+  public void process(final ReportContext report, final XsdAttributeRoot processedBuildUnit) {
+    LOG.debug("Analysing warnings of buildUnit: " + processedBuildUnit.getName());
 
-    XsdWarnings warnings = report.getWarnings();
-    for (XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
+    final XsdWarnings warnings = report.getWarnings();
+    for (final XsdWarningsByAttributeGroup warningGroup : warnings.getWarningsByAttributeGroup()) {
 
-      String key = SonargraphPluginBase.getRuleKey(warningGroup.getAttributeGroup());
-      if (key == null) {
-        continue;
-      }
-
-      ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, key);
-      if (rule == null) {
-        LOG.info("Sonargraph threshold not active in current profile");
-      } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
-        handleDuplicateCodeBlocks(warningGroup, rule, buildUnit);
-      } else {
-        handleWarnings(buildUnit, warningGroup, rule);
-      }
-    }
-  }
-
-  private void handleWarnings(XsdAttributeRoot buildUnit, XsdWarningsByAttributeGroup warningGroup, ActiveRule rule) {
-    for (XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
-      String attrName = warningByAttribute.getAttributeName();
-      for (XsdWarning warning : warningByAttribute.getWarning()) {
-        String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
-        String bu = PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit");
-        bu = Utilities.getBuildUnitName(bu);
-        if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-          processPositions(rule, warning, msg);
+      final String key = SonargraphPluginBase.getRuleKey(warningGroup.getAttributeGroup());
+      if (key != null) {
+        final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, key);
+        if (rule == null) {
+          LOG.info("Sonargraph rule '" + key + "' not active in current profile");
+        } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
+          handleDuplicateCodeBlocks(warningGroup, rule, processedBuildUnit);
+        } else {
+          processWarning(processedBuildUnit, warningGroup, rule);
         }
       }
     }
   }
 
-  private void processPositions(ActiveRule rule, XsdWarning warning, String msg) {
+  private void processWarning(final XsdAttributeRoot processedBuildUnit, final XsdWarningsByAttributeGroup warningGroup, final ActiveRule rule) {
+    for (final XsdWarningsByAttribute warningByAttribute : warningGroup.getWarningsByAttribute()) {
+      final String attrName = warningByAttribute.getAttributeName();
+      for (final XsdWarning warning : warningByAttribute.getWarning()) {
+        final String msg = attrName + "=" + PersistenceUtilities.getAttribute(warning.getAttribute(), "Attribute value");
+        final String warningBuildUnit = SonargraphUtilities.getBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), "Build unit"));
+        if (warningBuildUnit.equals(SonargraphUtilities.getBuildUnitName(processedBuildUnit.getName()))) {
+          processPosition(rule, warning, msg);
+        }
+      }
+    }
+  }
+
+  private void processPosition(final ActiveRule rule, final XsdWarning warning, final String msg) {
     if (!warning.getPosition().isEmpty()) {
-      for (XsdPosition pos : warning.getPosition()) {
-        processPosition(rule, msg, pos);
+      for (final XsdPosition pos : warning.getPosition()) {
+        saveViolation(rule, msg, pos);
       }
     } else {
-      processWarningWithoutPosition(rule, warning, msg);
-    }
-  }
+      final String elemType = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element type");
 
-  private void processWarningWithoutPosition(ActiveRule rule, XsdWarning warning, String msg) {
-    String elemType = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element type");
-    if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
-      // Attach a violation at line 1
-      String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
-      String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
-      Resource resource = Utilities.getResource(project, fileSystem, fqName);
-      if (resource != null) {
-        Utilities.saveViolation(resource, resourcePerspectives, rule, null, 1, msg);
-      }
-    }
-  }
-
-  private void processPosition(ActiveRule rule, String msg, XsdPosition pos) {
-    String relFileName = pos.getFile();
-
-    if (relFileName != null) {
-      Resource resource = Utilities.getResource(project, fileSystem, relFileName);
-      if (resource != null) {
-        Utilities.saveViolation(resource, resourcePerspectives, rule, null, Integer.valueOf(pos.getLine()), msg);
-      }
-    }
-  }
-
-  private void handleDuplicateCodeBlocks(XsdWarningsByAttributeGroup warningGroup, ActiveRule rule, XsdAttributeRoot buildUnit) {
-    LOG.debug("Analysing duplicate code blocks");
-    Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = extractDuplicateWarningsToMap(warningGroup);
-    for (Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
-      saveDuplicateViolation(rule, buildUnit, entry);
-    }
-  }
-
-  private void saveDuplicateViolation(ActiveRule rule, XsdAttributeRoot buildUnit, Entry<Integer, List<DuplicateCodeBlock>> entry) {
-    for (DuplicateCodeBlock block : entry.getValue()) {
-      String message = Utilities.generateDuplicateCodeBlockMessage(block, entry.getValue());
-      String fqName = block.getElementName();
-      if (Utilities.getBuildUnitName(buildUnit.getName()).equals(Utilities.getBuildUnitName(block.getBuildUnitName()))) {
-        Resource resource = Utilities.getResource(project, fileSystem, fqName);
-        if (resource != null) {
-          Utilities.saveViolation(resource, resourcePerspectives, rule, null, block.getStartLine(), message);
+      if ("Class file".equals(elemType) || "Source file".equals(elemType)) {
+        // Attach a violation at line 1
+        final String fileName = PersistenceUtilities.getAttribute(warning.getAttribute(), "Element");
+        final String fqName = fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
+        final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), fqName);
+        if (path != null) {
+          SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, 1, msg);
         }
       }
     }
   }
 
-  private Map<Integer, List<DuplicateCodeBlock>> extractDuplicateWarningsToMap(XsdWarningsByAttributeGroup warningGroup) {
-    Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<Integer, List<DuplicateCodeBlock>>();
+  private void saveViolation(final ActiveRule rule, final String msg, final XsdPosition pos) {
+    final String relFileName = pos.getFile();
+    if (relFileName != null) {
+      final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
+      if (path != null) {
+        saveViolationToPath(rule, msg, pos, path);
+      }
+    }
+  }
 
-    for (XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
-      for (XsdWarning warning : warnings.getWarning()) {
-        DuplicateCodeBlock block = PersistenceUtilities.createDuplicateCodeBlock(warning);
+  private void saveViolationToPath(final ActiveRule rule, final String msg, final XsdPosition pos, final InputPath path) {
+    if (path.isFile()) {
+      final int line = Integer.parseInt(pos.getLine());
+      SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, line > 0 ? line : 1, msg);
+    } else {
+      SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, null, msg);
+    }
+  }
+
+  private void handleDuplicateCodeBlocks(final XsdWarningsByAttributeGroup warningGroup, final ActiveRule rule, final XsdAttributeRoot processedBuildUnit) {
+    LOG.debug("Analysing duplicate code blocks");
+
+    final Map<Integer, List<DuplicateCodeBlock>> duplicateCodeBlocks = new HashMap<>();
+
+    for (final XsdWarningsByAttribute warnings : warningGroup.getWarningsByAttribute()) {
+      for (final XsdWarning warning : warnings.getWarning()) {
+        final DuplicateCodeBlock block = PersistenceUtilities.createDuplicateCodeBlock(warning);
         if (null == block) {
           continue;
         }
@@ -172,6 +147,25 @@ public class WarningProcessor implements IProcessor {
         duplicateCodeBlocks.get(block.getBlockId()).add(block);
       }
     }
-    return duplicateCodeBlocks;
+
+    for (final Entry<Integer, List<DuplicateCodeBlock>> entry : duplicateCodeBlocks.entrySet()) {
+      for (final DuplicateCodeBlock block : entry.getValue()) {
+        saveDuplicateBlockIssue(rule, processedBuildUnit, entry, block);
+      }
+    }
+  }
+
+  private void saveDuplicateBlockIssue(final ActiveRule rule, final XsdAttributeRoot processedBuildUnit, final Entry<Integer, List<DuplicateCodeBlock>> entry,
+    final DuplicateCodeBlock block) {
+    final List<DuplicateCodeBlock> otherBlocks = new ArrayList<>(entry.getValue());
+    otherBlocks.remove(block);
+    final String message = SonargraphUtilities.generateDuplicateCodeBlockMessage(block, otherBlocks);
+    final String fqName = block.getElementName();
+    if (SonargraphUtilities.getBuildUnitName(processedBuildUnit.getName()).equals(SonargraphUtilities.getBuildUnitName(block.getBuildUnitName()))) {
+      final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), fqName);
+      if (path != null) {
+        SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, block.getStartLine(), message);
+      }
+    }
   }
 }

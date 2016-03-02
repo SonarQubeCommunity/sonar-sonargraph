@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="crm-domain-example-test" default="complete" basedir="..">
+	
+	<!-- Properties -->
+	<property name="version.sonargraph" value="7.2.4"/>
+    <property name="sonargraph.base.dir" location="../sonarj/target/dist/java"/>
+
+	<property name="src" location="src" />
+	<property name="src.config" value="${src}/config" />
+	<property name="src.java" value="${src}/java" />
+	<property name="src.java-test" value="${src}/java-test" />
+	<property name="target" location="target" />
+	<property name="target.cls" location="${target}/cls" />
+	
+	<!-- Paths --> 
+	<path id="classpath">
+		<fileset dir="lib" includes="*.jar"/>
+		<fileset dir="../shared/log4j/lib" includes="*.jar"/>
+		<fileset dir="../shared/junit/lib" includes="*.jar"/>
+	</path>
+
+	<!--
+	-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+	-->
+	<target name="complete">
+		<ant antfile="build/sgq-distribution-build.xml" target="complete" inheritall="false">
+			<property name="version.sonargraph" value="7.2.4"/>
+		    <property name="sonargraph.base.dir" location="../sonarj/target/dist/java"/>
+			<reference refid="classpath"/>
+		</ant>
+	</target>
+</project>

@@ -26,12 +26,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public abstract class AbstractSonargraphTest {
 
@@ -47,8 +43,8 @@ public abstract class AbstractSonargraphTest {
   @Before
   public void setup() {
     rulesProfile = TestHelper.initRulesProfile();
-    sensorContext = TestHelper.initSensorContext();
     moduleFileSystem = TestHelper.initModuleFileSystem();
+    sensorContext = TestHelper.initSensorContext(moduleFileSystem);
     settings = TestHelper.initSettings();
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, getReport());
   }
@@ -72,8 +68,6 @@ public abstract class AbstractSonargraphTest {
   protected abstract String getReport();
 
   protected void initProjectFileSystem(File baseDir, Project project) {
-    ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
-    when(project.getFileSystem()).thenReturn(projectFileSystem);
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
+
   }
 }

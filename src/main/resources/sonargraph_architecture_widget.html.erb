@@ -42,28 +42,16 @@ if measure('sonargraph_architecture_violations')
     	<td>
               <%= format_measure('sonargraph_ignored_violations', :suffix => ' ignored violations') -%> <%= tendency_icon(measure('sonargraph_ignored_violations')) %>
         </td>
-        <%
-		if measure('sonargraph_duplicate_warnings')
-		%>
         <td>
               <%= format_measure('sonargraph_threshold_warnings', :suffix => ' threshold warnings', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.threshold") -%> <%= tendency_icon(measure('sonargraph_threshold_warnings')) %>
         </td>
-        <%
-		end
-		%>  
     </tr>
     <tr>
         <td>
         </td>
-        <%
-		if measure('sonargraph_threshold_warnings')
-		%>
         <td>
               <%= format_measure('sonargraph_workspace_warnings', :suffix => ' workspace warnings', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=Sonargraph%3Asonargraph.workspace") -%> <%= tendency_icon(measure('sonargraph_workspace_warnings')) %>
         </td>
-        <%
-		end
-		%> 
     </tr>
     <tr>
     	<td>

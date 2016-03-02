@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context version="7.0.0.400">
+    <database name="CRM-Domain-Example" port="3308" host="localhost"/>
+    <scope name="CRM-Example Project" type="Project">
+        <workspace>
+            <element name="../src/java" type="JavaRootDirectory"/>
+            <element name="../target/cls" type="JavaRootDirectory"/>
+            <element name="../src/java-test" type="JavaRootDirectory"/>
+        </workspace>
+    </scope>
+    <scope name="External" type="External">
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="java.io.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.annotation.*" type="ExcludeTypePattern"/>
+            <element name="java.lang.ref.*" type="ExcludeTypePattern"/>
+            <element name="java.math.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.channels.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.channels.spi.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.charset.*" type="ExcludeTypePattern"/>
+            <element name="java.nio.charset.spi.*" type="ExcludeTypePattern"/>
+            <element name="java.text.*" type="ExcludeTypePattern"/>
+            <element name="java.util.*" type="ExcludeTypePattern"/>
+            <element name="java.util.jar.*" type="ExcludeTypePattern"/>
+            <element name="java.util.prefs.*" type="ExcludeTypePattern"/>
+            <element name="java.util.regex.*" type="ExcludeTypePattern"/>
+            <element name="java.util.zip.*" type="ExcludeTypePattern"/>
+        </element>
+    </scope>
+    <scope name="Global" type="Global">
+        <element name="Configuration" type="Configuration"/>
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+        </element>
+    </scope>
+    <attributeConfiguration type="AttributeConfiguration">
+        <property name="ExtendedCyclomaticComplexity" value="disabled"/>
+        <property name="MaxExtendedCyclomaticComplexityPerMethod" value="disabled"/>
+        <property name="AverageCyclomaticComplexityPerMethod" value="disabled"/>
+        <property name="NumberOfAbstractTypes" value="disabled"/>
+        <property name="JdkVersion" value="disabled"/>
+        <property name="NumberOfCyclicDirectories" value="disabled"/>
+        <property name="CyclomaticComplexity" value="disabled"/>
+        <property name="NumberOfMethodsWithImplementation" value="disabled"/>
+        <property name="NumberOfNamedInterfaces" value="disabled"/>
+        <property name="NumberOfCyclicProjects" value="disabled"/>
+        <property name="DependsUpon" value="disabled"/>
+        <property name="NumberOfVerticalSliceGroups" value="disabled"/>
+        <property name="DistributedOverPathContainers" value="disabled"/>
+        <property name="AverageExtendedCyclomaticComplexityPerMethod" value="disabled"/>
+        <property name="AverageTypeDependency" value="disabled"/>
+        <property name="RelativeAverageTypeDependency" value="disabled"/>
+        <property name="AverageAccumulatedExtendedCyclomaticComplexityPerType" value="disabled"/>
+        <property name="NumberOfLayerGroups" value="disabled"/>
+        <property name="NumberOfExcludedSourceFiles" value="disabled"/>
+        <property name="NumberOfVerticalSlices" value="disabled"/>
+        <property name="AverageAccumulatedCyclomaticComplexityPerType" value="disabled"/>
+        <property name="Timestamp" value="disabled"/>
+        <property name="AverageAssertionUsage" value="disabled"/>
+        <property name="NumberOfCyclicSubsystems" value="disabled"/>
+        <property name="NumberOfCyclicNamespaces" value="disabled"/>
+        <property name="NumberOfExcludedTargetFiles" value="disabled"/>
+        <property name="NumberOfCyclicVerticalSliceGroups" value="disabled"/>
+        <property name="AccumulatedExtendedCyclomaticComplexity" value="disabled"/>
+        <property name="NumberOfLayers" value="disabled"/>
+        <property name="NumberOfCyclicSourceFiles" value="disabled"/>
+        <property name="MaxAccumulatedCyclomaticComplexityPerType" value="disabled"/>
+        <property name="MaxAccumulatedExtendedCyclomaticComplexityPerType" value="disabled"/>
+        <property name="NumberOfCyclicLayerGroups" value="disabled"/>
+        <property name="NumberOfAssertions" value="disabled"/>
+        <property name="NumberOfCyclicVerticalSlices" value="disabled"/>
+        <property name="NormalizedCumulativeTypeDependency" value="disabled"/>
+        <property name="AccumulatedCyclomaticComplexity" value="disabled"/>
+        <property name="NumberOfNameParts" value="disabled"/>
+        <property name="NumberOfAbstractMethods" value="disabled"/>
+        <property name="NumberOfTypesWithImplementation" value="disabled"/>
+        <property name="Level" value="disabled"/>
+        <property name="NumberOfCyclicLayers" value="disabled"/>
+        <property name="NumberOfSubsystems" value="disabled"/>
+        <property name="MaxCyclomaticComplexityPerMethod" value="disabled"/>
+    </attributeConfiguration>
+</context>

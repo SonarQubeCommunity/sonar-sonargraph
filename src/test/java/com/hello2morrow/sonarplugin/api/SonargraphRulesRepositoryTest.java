@@ -17,11 +17,11 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.Java;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.plugins.java.Java;
 
 import java.util.List;
 
@@ -32,14 +32,14 @@ public class SonargraphRulesRepositoryTest {
 
   @Test
   public void testCreateRules() {
-    RulesDefinition rulesDefinition = new SonargraphRulesRepository();
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    final RulesDefinition rulesDefinition = new SonargraphRulesRepository();
+    final RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
 
-    Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
+    final Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
     assertNotNull(SonargraphPluginBase.PLUGIN_KEY, repository);
-    assertEquals(new Java().getKey(), repository.language());
-    List<RulesDefinition.Rule> rules = repository.rules();
+    assertEquals(Java.KEY, repository.language());
+    final List<RulesDefinition.Rule> rules = repository.rules();
     assertEquals(6, rules.size());
 
     assertNotNull(repository.rule(SonargraphPluginBase.ARCH_RULE_KEY));

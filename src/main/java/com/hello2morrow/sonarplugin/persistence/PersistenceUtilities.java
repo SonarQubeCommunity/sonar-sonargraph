@@ -19,7 +19,7 @@ package com.hello2morrow.sonarplugin.persistence;
 
 import com.hello2morrow.sonarplugin.foundation.DuplicateCodeBlock;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttribute;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeCategory;
@@ -42,39 +42,39 @@ public class PersistenceUtilities {
   private PersistenceUtilities() {
   }
 
-  public static void addAttributeToList(List<XsdAttribute> attributeList, String name, String value) {
-    XsdAttribute attribute = new XsdAttribute();
+  public static void addAttributeToList(final List<XsdAttribute> attributeList, final String name, final String value) {
+    final XsdAttribute attribute = new XsdAttribute();
     attribute.setName(name);
     attribute.setValue(value);
     attributeList.add(attribute);
   }
 
-  public static DuplicateCodeBlock createDuplicateCodeBlock(XsdWarning warning) {
-    DuplicateCodeBlock block = new DuplicateCodeBlock();
-    String attribute = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BLOCK_ID);
+  public static DuplicateCodeBlock createDuplicateCodeBlock(final XsdWarning warning) {
+    final DuplicateCodeBlock block = new DuplicateCodeBlock();
+    final String attribute = PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.BLOCK_ID);
     if (null == attribute) {
       LOG.error("Duplicate code block warning does not contain the required attribute \"Block id\"");
       return null;
     }
     block.setBlockId(Integer.parseInt(attribute));
-    block.setProjectName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.PROJECT));
-    block.setBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.BUILD_UNIT));
-    block.setElementType(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT_TYPE));
+    block.setProjectName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.PROJECT));
+    block.setBuildUnitName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.BUILD_UNIT));
+    block.setElementType(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ELEMENT_TYPE));
 
-    String blockLength = PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ATTRIBUTE_VALUE);
-    int pos = blockLength.indexOf(" lines");
+    final String blockLength = PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ATTRIBUTE_VALUE);
+    final int pos = blockLength.indexOf(" lines");
     block.setBlockLength(Integer.parseInt(blockLength.substring(0, pos)));
 
-    block.setElementName(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.ELEMENT));
-    block.setStartLine(Integer.parseInt(PersistenceUtilities.getAttribute(warning.getAttribute(), Utilities.START_LINE)));
+    block.setElementName(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.ELEMENT));
+    block.setStartLine(Integer.parseInt(PersistenceUtilities.getAttribute(warning.getAttribute(), SonargraphUtilities.START_LINE)));
     return block;
   }
 
-  public static String getBuildUnitName(XsdCycleGroup group) {
-    String buildUnitName = group.getElementScope();
+  public static String getBuildUnitName(final XsdCycleGroup group) {
+    final String buildUnitName = group.getElementScope();
 
     // special handling for reports produced with free SonarQube license or without Sonargraph system file
-    if (DEFAULT_PROJECT_NAME.equals(buildUnitName) && group.getParent() != null) {
+    if ("My Project".equals(buildUnitName) && group.getParent() != null) {
       return group.getParent();
     }
 
@@ -82,42 +82,38 @@ public class PersistenceUtilities {
     return group.getElementScope();
   }
 
-  public static void readAttributesToMap(XsdAttributeRoot root, final Map<String, Number> attributeMap) {
+  public static void readAttributesToMap(final XsdAttributeRoot root, final Map<String, Number> attributeMap) {
     attributeMap.clear();
-
-    for (XsdAttributeCategory cat : root.getAttributeCategory()) {
-      for (XsdAttribute attr : cat.getAttribute()) {
-        String attrName = attr.getStandardName();
-        String value = attr.getValue();
-        processAttribute(attributeMap, attrName, value);
+    for (final XsdAttributeCategory cat : root.getAttributeCategory()) {
+      for (final XsdAttribute attr : cat.getAttribute()) {
+        final String attrName = attr.getStandardName();
+        addValueToMap(attributeMap, attr, attrName);
       }
     }
   }
 
-  private static void processAttribute(final Map<String, Number> attributeMap, final String attrName, final String value) {
-    String adjustedValue;
-    if (value.startsWith("< 0.01")) {
-      adjustedValue = "0.0";
-    } else {
-      adjustedValue = value;
-    }
+  private static void addValueToMap(final Map<String, Number> attributeMap, final XsdAttribute attr, final String attrName) {
+    String value = attr.getValue();
 
     try {
-      if (adjustedValue.contains(".")) {
-        attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(adjustedValue));
-      } else {
-        attributeMap.put(attrName, SonargraphPluginBase.INTEGER_FORMAT.parse(adjustedValue));
+      if (value.startsWith("< 0.01")) {
+        value = "0.0";
       }
-    } catch (ParseException e) {
+      if (value.contains(".")) {
+        attributeMap.put(attrName, SonargraphPluginBase.FLOAT_FORMAT.parse(value));
+      } else {
+        attributeMap.put(attrName, SonargraphPluginBase.INTEGER_FORMAT.parse(value));
+      }
+    } catch (final ParseException e) {
       // Ignore this value
-      LOG.error("Failed to parse value : " + adjustedValue + ", " + e.getMessage());
+      LOG.error("Failed to parse value : " + value + ", " + e.getMessage());
     }
   }
 
-  public static String getAttribute(List<XsdAttribute> list, String name) {
+  public static String getAttribute(final List<XsdAttribute> list, final String name) {
     String value = null;
 
-    for (XsdAttribute attr : list) {
+    for (final XsdAttribute attr : list) {
       if (attr.getName().equals(name)) {
         value = attr.getValue();
         break;
@@ -126,8 +122,11 @@ public class PersistenceUtilities {
     return value;
   }
 
-  public static String getSonargraphBasePath(ReportContext report) {
-    for (XsdAttribute next : report.getGeneral().getAttribute()) {
+  public static String getSonargraphBasePath(final ReportContext report) {
+    if (report == null) {
+      return null;
+    }
+    for (final XsdAttribute next : report.getGeneral().getAttribute()) {
       if (BASE_PATH_ATTRIBUTE.equals(next.getName())) {
         return next.getValue();
       }

@@ -17,16 +17,12 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.Java;
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
@@ -34,7 +30,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -54,15 +49,15 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
 
   @Before
   public void initSensor() {
-    sensor = new SonargraphSensor(getRulesProfile(), getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
+    sensor = new SonargraphSensor(getSettings());
   }
 
   @Test
   public void testAnalyseRootParentProject() {
-    Project rootProject = new Project("hello2morrow:AlarmClock");
-    Project module = new Project("module");
+    final Project rootProject = new Project("hello2morrow:AlarmClock");
+    final Project module = new Project("module");
     module.setParent(rootProject);
-    SensorContext context = mock(SensorContext.class);
+    final SensorContext context = mock(SensorContext.class);
     when(context.getMeasure(SonargraphSimpleMetrics.INTERNAL_PACKAGES)).thenReturn(null);
 
     sensor.analyse(null, context);
@@ -71,63 +66,32 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
 
   @Test
   public void testAnalyse() {
-    Project project = mock(Project.class); // ("hello2morrow:AlarmClock", "", "AlarmClock");
+    final Project project = mock(Project.class); // ("hello2morrow:AlarmClock", "", "AlarmClock");
     doReturn("hello2morrow:AlarmClock").when(project).key();
     doReturn("AlarmClock").when(project).name();
     doReturn(Qualifiers.MODULE).when(project).getQualifier();
 
-    FileSystem projectFileSystem = mock(FileSystem.class);
-    File baseDir = new File("src/test/resources");
+    final FileSystem projectFileSystem = mock(FileSystem.class);
+    final File baseDir = new File("src/test/resources");
     when(getModuleFileSystem().baseDir()).thenReturn(baseDir);
-    File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
+    final File sourceFile = new File(baseDir, "com/hello2morrow/sonarplugin/Test.java");
     when(projectFileSystem.baseDir()).thenReturn(baseDir);
 
     when(getModuleFileSystem().files(any(FilePredicate.class))).thenReturn(Arrays.asList(sourceFile));
 
     sensor.analyse(project, getSensorContext());
-    double value = getSensorContext().getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
+    final double value = getSensorContext().getMeasure(SonargraphSimpleMetrics.WORKSPACE_WARNINGS).getValue().doubleValue();
     assertEquals(0.0, value, 0.01);
   }
 
   @Test
   public void testShouldExecuteOnProject() {
-    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(new Java());
+    final Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
     assertTrue(sensor.shouldExecuteOnProject(project));
 
-    Project module = new Project("hello2morrow:Foundation", "", "Foundation");
+    final Project module = new Project("hello2morrow:Foundation", "", "Foundation");
     module.setParent(project);
-    module.setLanguage(new Java());
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertTrue(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
-  }
-
-  @Test
-  public void testShouldNotExecuteOnProject() {
-    RulesProfile rulesProfile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
-    this.sensor = new SonargraphSensor(rulesProfile, getSettings(), getSensorContext(), getModuleFileSystem(), TestHelper.initPerspectives());
-    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(new Java());
-    assertFalse("Sensor should not execute because neither sonargraph rules are active, nor alerts are defined for sonargraph rules", this.sensor.shouldExecuteOnProject(project));
-  }
-
-  @Test
-  public void testShouldNotExecuteOnProjectWithoutReport() {
-    Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    project.setLanguage(new Java());
-    Project module = new Project("hello2morrow:Foundation", "", "Foundation");
-    module.setParent(project);
-    module.setLanguage(new Java());
-    getSettings().setProperty(SonargraphPluginBase.REPORT_PATH, "c:/fantasyPath");
-    assertFalse("Sensor must not execute on aggregating project", sensor.shouldExecuteOnProject(project));
-    assertFalse("Sensor must not execute on module without report", sensor.shouldExecuteOnProject(module));
-  }
-
-  @Test
-  public void testToString() {
-    SonargraphSensor sensor = new SonargraphSensor(RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA"), getSettings(), getSensorContext(), getModuleFileSystem(),
-      TestHelper.initPerspectives());
-    assertTrue("Does not start with plugin name", sensor.toString().startsWith(SonargraphSensor.PLUGIN_NAME));
-    assertTrue("Does not contain version info", sensor.toString().length() > (SonargraphSensor.PLUGIN_NAME.length() + 2));
   }
 }

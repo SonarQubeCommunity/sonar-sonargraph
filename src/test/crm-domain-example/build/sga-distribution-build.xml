@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="crm-domain-example" default="create-html-report" basedir="..">
+
+	<property name="version.sonargraph" value="@VERSION@"/>
+    <property name="sonargraph.base.dir" location="@INSTALLATION_DIRECTORY@"/>
+    <property name="sonargraph.library.dir" location="${sonargraph.base.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${version.sonargraph}"/>
+	
+    <taskdef name="createReportTask" classname="com.hello2morrow.sonargraph.ant.architect.SonargraphArchitectAntTask">
+        <classpath>
+	        <fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar"/>
+	        <fileset dir="${sonargraph.library.dir}/lib" includes="*.jar"/>
+	    </classpath>
+    </taskdef>
+
+	<property name="license.file" location="${user.home}/.hello2morrow/SonargraphArchitect/SonargraphArchitect.license"/>
+    <property name="system.file" value="tutorialSteps/Sonargraph-Demo_Step7.sonargraph"/>
+    <property name="target.report" location="report"/>
+    <property name="src.html" location="${sonargraph.base.dir}/html"/>
+    <property name="maxmemory-forked" value="64m"/>
+
+	<property name="src" location="src" />
+	<property name="src.config" value="${src}/config" />
+	<property name="src.java" value="${src}/java" />
+	<property name="src.java-test" value="${src}/java-test" />
+	
+	<property name="target" location="target" />
+	<property name="target.cls" location="${target}/cls" />
+	
+	<path id="classpath">
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+	
+	<target name="clean">
+		<delete dir="${target}"/>
+	</target>
+		
+	<target name="compile">
+		<mkdir dir="${target.cls}"/>
+		<javac destdir="${target.cls}" debug="on" source="1.4" failonerror="true">
+			<src path="${src.java}" />
+			<src path="${src.java-test}" />
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	
+	<target name="create-xml-report">
+        <mkdir dir="${target.report}"/>
+	    <createReportTask
+	    	 reportType="xml"
+		     license="${license.file}"
+		     file="${system.file}"
+		     reportDirectory="${target.report}"
+	    	 reportName="sonargraph-report"
+
+			 failOnArchitectureViolationsExist = "false"
+			 failOnArchitectureWarningsExist = "false"
+			 failOnCyclicElementsExist = "false"
+			 failOnThresholdViolationsExist = "false"
+			 failOnWorkItemsExist = "false"
+			 failOnEmptyWorkspace = "false"
+			 failOnWorkspaceWarningsExist = "false"
+
+			 propertyArchitectureViolationsExist = "architectureViolationsExist"
+			 propertyArchitectureWarningsExist = "architectureWarningsExist"
+			 propertyCyclicElementsExist = "cyclicElementsExist"
+			 propertyThresholdViolationsExist = "thresholdViolationsExist"
+			 propertyWorkItemsExist="workItemsExist"
+			 propertyEmptyWorkspace="emptyWorkspace"
+			 propertyWorkspaceWarningsExist = "workspaceWarningsExist"
+
+	    />
+		<fail message="Architecture violations exist" if="architectureViolationsExist"/>
+		<fail message="Architecture warnings exist" if="architectureWarningsExist"/>
+		<fail message="Cyclic elements exist" if="cyclicElementsExist"/>
+		<fail message="Threshold violations exist" if="thresholdViolationsExist"/>
+		<fail message="Work items exist" if="workItemsExist"/>
+		<fail message="Workspace warnings exist" if="workspaceWarningsExist"/>
+		<fail message="Workspace is empty" if="emptyWorkspace"/>
+	</target>
+	
+	<target name="create-html-report" description="Runs Sonargraph-Architect and creates the HTML report">
+        <mkdir dir="${target.report}"/>
+	    <createReportTask
+	    	 reportType="html"
+		     license="${license.file}"
+		     file="${system.file}"
+		     reportDirectory="${target.report}"
+	    	 reportName="sonargraph-report"
+
+			 failOnArchitectureViolationsExist = "false"
+			 failOnArchitectureWarningsExist = "false"
+			 failOnCyclicElementsExist = "false"
+			 failOnThresholdViolationsExist = "false"
+			 failOnWorkItemsExist = "false"
+			 failOnEmptyWorkspace = "false"
+			 failOnWorkspaceWarningsExist = "false"
+
+			 propertyArchitectureViolationsExist = "architectureViolationsExist"
+			 propertyArchitectureWarningsExist = "architectureWarningsExist"
+			 propertyCyclicElementsExist = "cyclicElementsExist"
+			 propertyThresholdViolationsExist = "thresholdViolationsExist"
+			 propertyWorkItemsExist="workItemsExist"
+			 propertyEmptyWorkspace="emptyWorkspace"
+			 propertyWorkspaceWarningsExist = "workspaceWarningsExist"
+
+	    />
+		<fail message="Architecture violations exist" if="architectureViolationsExist"/>
+		<fail message="Architecture warnings exist" if="architectureWarningsExist"/>
+		<fail message="Cyclic elements exist" if="cyclicElementsExist"/>
+		<fail message="Threshold violations exist" if="thresholdViolationsExist"/>
+		<fail message="Work items exist" if="workItemsExist"/>
+		<fail message="Workspace warnings exist" if="workspaceWarningsExist"/>
+		<fail message="Workspace is empty" if="emptyWorkspace"/>
+	</target>	
+	
+	<target name="create-xml-report-from-paths">
+        <mkdir dir="${target.report}"/>
+	    <createReportTask
+	    	 reportType="xml"
+		     license="${license.file}"
+		     file="${system.file}"
+		     reportDirectory="${target.report}"
+	    	 reportName="sonargraph-report"
+
+			 failOnArchitectureViolationsExist = "false"
+			 failOnArchitectureWarningsExist = "false"
+			 failOnCyclicElementsExist = "false"
+			 failOnThresholdViolationsExist = "false"
+			 failOnWorkItemsExist = "false"
+			 failOnEmptyWorkspace = "false"
+			 failOnWorkspaceWarningsExist = "false"
+
+			 propertyArchitectureViolationsExist = "architectureViolationsExist"
+			 propertyArchitectureWarningsExist = "architectureWarningsExist"
+			 propertyCyclicElementsExist = "cyclicElementsExist"
+			 propertyThresholdViolationsExist = "thresholdViolationsExist"
+			 propertyWorkItemsExist="workItemsExist"
+			 propertyEmptyWorkspace="emptyWorkspace"
+			 propertyWorkspaceWarningsExist = "workspaceWarningsExist"
+	    >
+	    	<workspacePath>
+	    		<pathelement location="${src.java}" />
+	    		<pathelement location="${target.cls}" />
+	    	</workspacePath>
+    	</createReportTask>		
+		<fail message="Architecture violations exist" if="architectureViolationsExist"/>
+		<fail message="Architecture warnings exist" if="architectureWarningsExist"/>
+		<fail message="Cyclic elements exist" if="cyclicElementsExist"/>
+		<fail message="Threshold violations exist" if="thresholdViolationsExist"/>
+		<fail message="Work items exist" if="workItemsExist"/>
+		<fail message="Workspace warnings exist" if="workspaceWarningsExist"/>
+		<fail message="Workspace is empty" if="emptyWorkspace"/>
+	</target>
+
+	<target name="create-html-report-forked" description="Runs Sonargraph-Architect and creates the HTML report in its own VM using the specified maxmemory setting">
+		<java fork="true" maxmemory="${maxmemory-forked}" classname="org.apache.tools.ant.Main">
+			<arg line="-buildfile ${ant.file} create-html-report"/>
+			<classpath>
+				<fileset dir="${ant.home}/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</java>
+ 	</target>
+		
+</project>

@@ -46,6 +46,4 @@ public interface IReportReader {
    */
   XsdAttributeRoot retrieveBuildUnit(Project project);
 
-  boolean hasSonargraphReport(FileSystem fileSystem, Settings settings);
-
 }

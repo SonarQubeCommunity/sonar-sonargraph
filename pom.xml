@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.4.3-SNAPSHOT</version>
-
+  <version>3.5-SNAPSHOT</version>
+  
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
   <url>http://docs.codehaus.org/display/SONAR/Sonargraph+Plugin</url>
@@ -22,30 +23,42 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
+  
+  <pluginRepositories>
+    <pluginRepository>
+      <id>hello2morrow.maven.repository</id>
+      <url>http://maven.hello2morrow.com/repository</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <scm>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</developerConnection>
+    <url>https://github.com/SonarQubeCommunity/sonar-sonargraph</url>
+    <tag>HEAD</tag>
+  </scm>
+  
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/SonarQubeCommunity/sonar-sonargraph/issues</url>
+  </issueManagement>
 
   <developers>
-    <developer>
-      <id>hello2morrow</id>
-      <name>Alexander von Zitzewitz</name>
-    </developer>
     <developer>
       <id>ingmarkellner</id>
       <name>Ingmar Kellner</name>
     </developer>
     <developer>
-      <id>nwe_h2m</id>
-      <name>Norman Wenzel</name>
+      <id>hello2morrow</id>
+      <name>Alexander von Zitzewitz</name>
     </developer>
   </developers>
 
-  <issueManagement>
-  <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14758</url>
-  </issueManagement>
-
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
-    <sonar.version>4.3.2</sonar.version>
+    <sonar.version>5.2</sonar.version>
+    <sonar.plugin.version>5.2</sonar.plugin.version>
+    <sonar.sources>src/main/java</sonar.sources>
+    <sonar.exclusions>**/sonarplugin/view/**</sonar.exclusions>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>
@@ -53,29 +66,15 @@
 
   <dependencies>
     <dependency>
-	  <groupId>org.codehaus.sonar-plugins</groupId>
-	  <artifactId>parent</artifactId>
-      <version>18</version>
-	  <type>pom</type>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
-	  <scope>provided</scope>
+      <version>${sonar.plugin.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
+      <groupId>org.sonarsource.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
-      <version>2.1</version>
-      <type>sonar-plugin</type>
+      <version>3.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -114,19 +113,6 @@
     </dependency>
   </dependencies>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>hello2morrow.maven.repository</id>
-      <url>http://maven.hello2morrow.com/repository</url>
-    </pluginRepository>
-  </pluginRepositories>
-  <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</developerConnection>
-    <url>https://github.com/SonarCommunity/sonar-sonargraph</url>
-    <tag>HEAD</tag>
-  </scm>
-
   <build>
     <resources>
       <resource>
@@ -136,8 +122,9 @@
     </resources>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
           <pluginKey>Sonargraph</pluginKey>
@@ -145,7 +132,6 @@
           <pluginClass>${sonar.plugin.class}</pluginClass>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jaxb2-maven-plugin</artifactId>
@@ -161,10 +147,57 @@
           <packageName>com.hello2morrow.sonarplugin.xsd</packageName>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.5.201505241946</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-prepare-agent-integration</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report-integration</id>
+            <goals>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="crm-domain-example" default="complete" basedir="..">
+
+	<!-- Properties -->
+	<property name="version.sonargraph" value="@VERSION@" />
+	<property name="sonargraph.base.dir" location="@INSTALLATION_DIRECTORY@" />
+	<property name="sonargraph.library.dir" location="${sonargraph.base.dir}/eclipse/plugins/com.hello2morrow.sonarclipse_${version.sonargraph}" />
+
+	<property name="license.file" location="${user.home}/.hello2morrow/SonargraphQuality/SonargraphQuality.license" />
+	<property name="system.file" value="tutorialSteps/Sonargraph-Demo_Step7.sonargraph" />
+	<property name="data.directory" location="${user.home}/.hello2morrow/pgdata" />
+	<property name="port" value="3308" />
+	<property name="host" value="localhost" />
+
+	<property name="src" location="src" />
+	<property name="src.config" value="${src}/config" />
+	<property name="src.java" value="${src}/java" />
+	<property name="src.java-test" value="${src}/java-test" />
+	<property name="target" location="target" />
+	<property name="target.cls" location="${target}/cls" />
+	<property name="target.report" location="${target}/report" />
+
+    <property name="maxmemory-forked" value="256m"/>
+
+	<!-- Paths -->
+	<path id="classpath">
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+
+	<!-- Task definition -->
+	<taskdef name="createSnapshotAntTask" classname="com.hello2morrow.sonargraph.ant.quality.CreateSnapshotAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="deleteOlderSnapshotsAntTask" classname="com.hello2morrow.sonargraph.ant.quality.DeleteOlderSnapshotsAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="createReportAntTask" classname="com.hello2morrow.sonargraph.ant.quality.CreateReportAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="startLocalDatabaseServerAntTask" classname="com.hello2morrow.sonargraph.ant.quality.StartLocalDatabaseServerAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="stopLocalDatabaseServerAntTask" classname="com.hello2morrow.sonargraph.ant.quality.StopLocalDatabaseServerAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="createDirectParsingModeReportAntTask" classname="com.hello2morrow.sonargraph.ant.quality.CreateDirectParsingModeReportAntTask">
+		<classpath>
+			<fileset dir="${sonargraph.library.dir}" includes="Sonargraph-${version.sonargraph}.jar" />
+			<fileset dir="${sonargraph.library.dir}/lib" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<!-- Clean/compile-->
+	<target name="clean">
+		<delete dir="${target}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${target.cls}"/>
+		<javac destdir="${target.cls}" debug="on" source="1.4" failonerror="true">
+			<src path="${src.java}" />
+			<src path="${src.java-test}" />
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<!-- Complete snapshot management cycle -->
+	<target name="startLocalDatabaseServer">
+		<startLocalDatabaseServerAntTask dataDirectory="${data.directory}" port="${port}" verbose="true" />
+	</target>
+
+	<target name="stopLocalDatabaseServer">
+		<stopLocalDatabaseServerAntTask dataDirectory="${data.directory}" verbose="true" />
+	</target>
+
+	<target name="createSnapshot">
+		<createSnapshotAntTask 
+			systemFile="${system.file}" 
+			licenseFile="${license.file}" 
+			port="${port}" 
+			host="${host}" 
+			verbose="true" />
+	</target>
+
+	<target name="deleteOldSnapshots">
+		<deleteOlderSnapshotsAntTask 
+			systemFile="${system.file}" 
+			licenseFile="${license.file}" 
+			port="${port}" 
+			host="${host}" 
+			daysToKeep="0" 
+			verbose="true" />
+	</target>
+
+	<target name="createReport">
+		<mkdir dir="${target.report}"/>
+		<createReportAntTask 
+			systemFile="${system.file}" 
+			licenseFile="${license.file}" 
+			port="${port}" 
+			host="${host}" 
+			reportName="CRM-Report" 
+			reportDirectory="${target.report}" 
+			reportType="HTML" 
+			verbose="true"
+		/>
+	</target>
+
+	<target name="complete" description="Complete cycle: start database server, create snapshot, create report, delete snapshot, stop database server">
+		<antcall target="startLocalDatabaseServer"/>
+		<antcall target="createSnapshot" />
+		<antcall target="createReport" />
+		<antcall target="deleteOldSnapshots" />
+		<antcall target="stopLocalDatabaseServer"/>
+	</target>
+
+	<!-- Direct mode report -->
+	<target name="directParsingModeReport" description="Create a report in direct parsing mode (i.e. without database server interaction)">
+        <mkdir dir="${target.report}"/>
+		<createDirectParsingModeReportAntTask
+	    	 reportType="xml"
+		     license="${license.file}"
+		     file="${system.file}"
+		     reportDirectory="${target.report}"
+	    	 reportName="sonargraph-quality-direct-parsing-mode-report"
+
+			 failOnArchitectureViolationsExist = "false"
+			 failOnArchitectureWarningsExist = "false"
+			 failOnCyclicElementsExist = "false"
+			 failOnThresholdViolationsExist = "false"
+			 failOnWorkItemsExist = "false"
+			 failOnEmptyWorkspace = "false"
+			 failOnWorkspaceWarningsExist = "false"
+
+			 propertyArchitectureViolationsExist = "architectureViolationsExist"
+			 propertyArchitectureWarningsExist = "architectureWarningsExist"
+			 propertyCyclicElementsExist = "cyclicElementsExist"
+			 propertyThresholdViolationsExist = "thresholdViolationsExist"
+			 propertyWorkItemsExist="workItemsExist"
+			 propertyEmptyWorkspace="emptyWorkspace"
+			 propertyWorkspaceWarningsExist = "workspaceWarningsExist"
+	    />
+		<fail message="Architecture violations exist" if="architectureViolationsExist"/>
+		<fail message="Architecture warnings exist" if="architectureWarningsExist"/>
+		<fail message="Cyclic elements exist" if="cyclicElementsExist"/>
+		<fail message="Threshold violations exist" if="thresholdViolationsExist"/>
+		<fail message="Work items exist" if="workItemsExist"/>
+		<fail message="Workspace warnings exist" if="workspaceWarningsExist"/>
+		<fail message="Workspace is empty" if="emptyWorkspace"/>
+	</target>
+
+	<target name="directParsingModeReportForked" description="Create a report in direct parsing mode (i.e. without database server interaction) in its own VM using the specified maxmemory setting">
+		<java fork="true" maxmemory="${maxmemory-forked}" classname="org.apache.tools.ant.Main">
+			<arg line="-buildfile ${ant.file} directParsingModeReport"/>
+			<classpath>
+				<fileset dir="${ant.home}/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</java>
+ 	</target>
+
+</project>

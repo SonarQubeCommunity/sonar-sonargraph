@@ -17,7 +17,8 @@
  */
 package com.hello2morrow.sonarplugin.persistence;
 
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.xsd.ReportContext;
 import com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot;
 import com.hello2morrow.sonarplugin.xsd.XsdBuildUnits;
@@ -51,33 +52,29 @@ public class ReportFileReader implements IReportReader {
   private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
   private ReportContext report;
 
-  public ReportFileReader() {
-    super();
-  }
-
   @Override
-  public void readSonargraphReport(final Project project, FileSystem moduleFileSystem, Settings settings) {
+  public void readSonargraphReport(final Project project, final FileSystem moduleFileSystem, final Settings settings) {
     if (project == null) {
       LOG.error("No project provided for reading sonargraph report");
       return;
     }
 
-    String reportFileName = determineReportFileName(moduleFileSystem, settings);
+    final String reportFileName = determineReportFileName(moduleFileSystem, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
     InputStream input = null;
-    ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
+    final ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
 
     try {
       input = new FileInputStream(reportFileName);
 
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
-      JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
-      Unmarshaller u = context.createUnmarshaller();
+      final JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
+      final Unmarshaller u = context.createUnmarshaller();
       report = (ReportContext) u.unmarshal(input);
-    } catch (JAXBException e) {
+    } catch (final JAXBException e) {
       LOG.error("JAXB Problem in " + reportFileName, e);
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       if (project.isRoot()) {
         LOG.error("Cannot open Sonargraph report: " + reportFileName + ".");
         LOG.error("  Maven: Did you run the maven sonargraph goal before with the POM option <prepareForSonar>true</prepareForSonar> "
@@ -93,7 +90,7 @@ public class ReportFileReader implements IReportReader {
       if (input != null) {
         try {
           input.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
           LOG.error("Cannot close " + reportFileName, e);
         }
       }
@@ -110,8 +107,8 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  private String determineReportFileName(FileSystem moduleFileSystem, Settings settings) {
-    String configuredReportPath = Utilities.getConfiguredReportPath(settings);
+  private static String determineReportFileName(final FileSystem moduleFileSystem, final Settings settings) {
+    final String configuredReportPath = SonargraphUtilities.getConfiguredReportPath(settings);
 
     if (moduleFileSystem == null) {
       return configuredReportPath;
@@ -130,26 +127,28 @@ public class ReportFileReader implements IReportReader {
    * @see com.hello2morrow.sonarplugin.foundation.IReportReader#retrieveBuildUnit(java.lang.String)
    */
   @Override
-  public XsdAttributeRoot retrieveBuildUnit(Project project) {
+  public XsdAttributeRoot retrieveBuildUnit(final Project project) {
     if (null == report) {
       return null;
     }
 
-    XsdBuildUnits buildUnits = report.getBuildUnits();
-    List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
+    final XsdBuildUnits buildUnits = report.getBuildUnits();
+    final List<XsdAttributeRoot> buildUnitList = buildUnits.getBuildUnit();
 
     if (buildUnitList.size() == 1) {
-      return getBuildUnitForSingleBuildUnitProject(project, buildUnitList);
+      return projectMatchesBuildUnit(project, buildUnitList.get(0));
     } else if (buildUnitList.size() > 1) {
-      return getBuildUnitForMultipleBuildUnitProject(project, buildUnitList);
+      return findBuildUnit(project, buildUnitList);
+    } else {
+      LOG.error("No build units fond in report");
     }
     return null;
   }
 
-  private XsdAttributeRoot getBuildUnitForMultipleBuildUnitProject(Project project, List<XsdAttributeRoot> buildUnitList) {
-    for (XsdAttributeRoot sonarBuildUnit : buildUnitList) {
-      String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-      if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+  private static XsdAttributeRoot findBuildUnit(final Project project, final List<XsdAttributeRoot> buildUnitList) {
+    for (final XsdAttributeRoot sonarBuildUnit : buildUnitList) {
+      final String buName = SonargraphUtilities.getBuildUnitName(sonarBuildUnit.getName());
+      if (SonarQubeUtilities.buildUnitMatchesAnalyzedProject(buName, project)) {
         return sonarBuildUnit;
       }
     }
@@ -159,23 +158,21 @@ public class ReportFileReader implements IReportReader {
     return null;
   }
 
-  private XsdAttributeRoot getBuildUnitForSingleBuildUnitProject(Project project, List<XsdAttributeRoot> buildUnitList) {
+  private static XsdAttributeRoot projectMatchesBuildUnit(final Project project, final XsdAttributeRoot buildUnit) {
     if (project.isRoot()) {
-      return buildUnitList.get(0);
+      return buildUnit;
     }
 
-    XsdAttributeRoot sonarBuildUnit = buildUnitList.get(0);
-    String buName = Utilities.getBuildUnitName(sonarBuildUnit.getName());
-    if (Utilities.buildUnitMatchesAnalyzedProject(buName, project)) {
-      return sonarBuildUnit;
+    final String buName = SonargraphUtilities.getBuildUnitName(buildUnit.getName());
+    if (SonarQubeUtilities.buildUnitMatchesAnalyzedProject(buName, project)) {
+      return buildUnit;
     }
 
     return null;
   }
 
-  @Override
-  public boolean hasSonargraphReport(FileSystem fileSystem, Settings settings) {
-    String reportFileName = determineReportFileName(fileSystem, settings);
+  public static boolean hasSonargraphReport(final FileSystem fileSystem, final Settings settings) {
+    final String reportFileName = determineReportFileName(fileSystem, settings);
     if (reportFileName == null || !(new File(reportFileName).exists())) {
       return false;
     }

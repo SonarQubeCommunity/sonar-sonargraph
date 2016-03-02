@@ -30,9 +30,11 @@ public class SonargraphInternalMetricsTest {
 
   @Test
   public void testGetMetrics() {
-    Metrics sonargraphMetrics = new SonargraphInternalMetrics();
-    List<Metric> metrics = sonargraphMetrics.getMetrics();
-    assertTrue(metrics.contains(SonargraphInternalMetrics.MODULE_NOT_PART_OF_SONARGRAPH_WORKSPACE));
+    final Metrics sonargraphMetrics = new SonargraphInternalMetrics();
+    @SuppressWarnings("rawtypes")
+    final List<Metric> metrics = sonargraphMetrics.getMetrics();
+    assertTrue(metrics.contains(SonargraphInternalMetrics.MODULE_PROCESSED_BY_SENSOR));
+    assertTrue(metrics.contains(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS));
     assertTrue(metrics.contains(SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS));

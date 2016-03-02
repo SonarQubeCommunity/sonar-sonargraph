@@ -33,18 +33,20 @@ public class PluginVersionReader {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PluginVersionReader.class);
 
+  public static final String UNKNOWN = null;
+
   private String version = "unknown";
 
   private PluginVersionReader() {
-    InputStream is = getClass().getResourceAsStream("/com/hello2morrow/sonarplugin/sonargraph/version.properties");
-    Properties props = new Properties();
+    final InputStream is = getClass().getResourceAsStream("/com/hello2morrow/sonarplugin/sonargraph/version.properties");
+    final Properties props = new Properties();
     try {
       props.load(is);
-      Object versionProperty = props.get("version");
+      final Object versionProperty = props.get("version");
       if (versionProperty != null) {
         version = versionProperty.toString();
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       LOGGER.error("Failed to determine version of plugin", ex);
     }
   }

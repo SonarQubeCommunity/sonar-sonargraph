@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context>
+    <description></description>
+    <scope name="Project" type="Project">
+        <element name="Configuration" type="Configuration"/>
+        <element name="Filter" type="TypeFilterReferenceOverridden">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="**Test**" type="ExcludeTypePattern"/>
+        </element>
+        <stereotype name="Bottom"/>
+        <architecture>
+            <element name="Controller" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.controller.**" type="IncludeTypePattern"/>
+                    <element name="**.startup.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Service" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.service.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Domain" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.domain.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Data-Supplier-Interface" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.dsi.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Data" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.data.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Common" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.common.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Contact" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.contact.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Customer" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.customer.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Request" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.request.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="User" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.user.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Distribution Partner" type="VerticalSlice">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.distributionpartner.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Integration" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.integration.**" type="IncludeTypePattern"/>
+                    <element name="**.esi.**" type="ExcludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+            <element name="Foundation" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.foundation.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Bottom"/>
+                <stereotype name="Public"/>
+            </element>
+            <element name="External-System-Interface" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.esi.**" type="IncludeTypePattern"/>
+                </element>
+                <stereotype name="Unrestricted"/>
+            </element>
+        </architecture>
+        <workspace>
+            <element name="src/java" type="JavaRootDirectory"/>
+            <element name="src/java-test" type="JavaRootDirectory"/>
+            <element name="target.eclipse/cls" type="JavaRootDirectory"/>
+        </workspace>
+        <itemDefinition>
+            <item type="RenameTypeItem">
+                <property name="Date" value="2008-11-05 08:18:20"/>
+                <property name="New name" value="PersonDto2"/>
+                <property name="Priority" value="Medium"/>
+                <property name="Comment" value=""/>
+                <property name="AssignedTo" value=""/>
+                <property name="Old name" value="com.hello2morrow.ddaexample.business.contact.service.PersonDto"/>
+            </item>
+        </itemDefinition>
+    </scope>
+    <scope name="External" type="External">
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="junit.framework.*" type="ExcludeTypePattern"/>
+            <element name="org.apache.log4j.*" type="ExcludeTypePattern"/>
+        </element>
+        <architecture>
+            <element name="Java" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="sun.misc.*" type="IncludeTypePattern"/>
+                    <element name="java.*" type="IncludeTypePattern"/>
+                    <element name="java.lang.*" type="IncludeTypePattern"/>
+                    <element name="java.io.*" type="IncludeTypePattern"/>
+                    <element name="java.util.*" type="IncludeTypePattern"/>
+                    <element name="java.security.*" type="IncludeTypePattern"/>
+                    <element name="java.text.*" type="IncludeTypePattern"/>
+                    <element name="java.lang.reflect.*" type="IncludeTypePattern"/>
+                </element>
+            </element>
+        </architecture>
+    </scope>
+    <scope name="Global" type="Global">
+        <element name="Configuration" type="Configuration">
+            <element name="Cycle and level analysis for source files" type="ConfigurationSwitchDisabled"/>
+        </element>
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+        </element>
+    </scope>
+</context>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <reportContext productFamily="Sonargraph-Architect" name="AlarmClockMain">
     <general>
-        <attribute value="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClockMain.sonargraph" name="Path"/>
-        <attribute value="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain" name="Base Path"/>
+        <attribute value="./src/test/AlarmClockMain/AlarmClockMain.sonargraph" name="Path"/>
+        <attribute value="./src/test/AlarmClockMain" name="Base Path"/>
         <attribute value="" name="System Description"/>
         <attribute value="Sonargraph 7.2.0 [Build Number 217; Build Date 2014-10-02]" name="Sonargraph Product"/>
         <attribute value="Hudson Ltd." name="Sonargraph Licensee"/>
@@ -564,7 +564,7 @@
                 <attribute value="com.h2m.alarm.presentation.AlarmHandler" name="From"/>
                 <attribute value="com.h2m.common.observer.Observable$IObserver" name="To"/>
                 <attribute value="Project 'AlarmClock' may not access Project 'Foundation' - there are no allowing definitions (Physical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/AlarmHandler.java" line="9" type="Implementation"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/AlarmHandler.java" line="9" type="Implementation"/>
             </typeRelation>
         </architectureViolations>
         <architectureViolations explanation="No allowing definitions" numberOfViolatingTypeRelations="2" dimension="Logical">
@@ -582,15 +582,15 @@
                 <attribute value="com.h2m.alarm.model.AlarmClock" name="From"/>
                 <attribute value="com.h2m.alarm.presentation.AlarmToFile" name="To"/>
                 <attribute value="Layer 'Model' may not access Layer 'Presentation' - there are no allowing definitions (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Uses new"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Special call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Uses new"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Special call"/>
             </typeRelation>
             <typeRelation>
                 <attribute value="AlarmClock::AlarmClock" name="From build unit"/>
                 <attribute value="com.h2m.alarm.model.AlarmClock" name="From"/>
                 <attribute value="com.h2m.alarm.presentation.AlarmHandler" name="To"/>
                 <attribute value="Layer 'Model' may not access Layer 'Presentation' - there are no allowing definitions (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="14" type="Uses"/>
             </typeRelation>
         </architectureViolations>
         <architectureViolations explanation="No allowing definitions" numberOfViolatingTypeRelations="2" dimension="Logical">
@@ -608,20 +608,20 @@
                 <attribute value="com.h2m.alarm.presentation.Main" name="From"/>
                 <attribute value="com.h2m.alarm.presentation.AlarmToConsole" name="To"/>
                 <attribute value="Layer 'Main' may not access Layer 'Presentation' - there are no allowing definitions (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Uses new"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Special call"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Uses new"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Special call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="9" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses"/>
             </typeRelation>
             <typeRelation>
                 <attribute value="AlarmClock::AlarmClock" name="From build unit"/>
                 <attribute value="com.h2m.alarm.presentation.Main" name="From"/>
                 <attribute value="com.h2m.alarm.presentation.AlarmToFile" name="To"/>
                 <attribute value="Layer 'Main' may not access Layer 'Presentation' - there are no allowing definitions (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Uses new"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Special call"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Uses new"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Special call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="10" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses"/>
             </typeRelation>
         </architectureViolations>
         <architectureViolations explanation="No allowing definitions" numberOfViolatingTypeRelations="1" dimension="Logical">
@@ -639,16 +639,16 @@
                 <attribute value="com.h2m.alarm.presentation.Main" name="From"/>
                 <attribute value="com.h2m.alarm.model.AlarmClock" name="To"/>
                 <attribute value="Layer 'Main' may not access Layer 'Model' - there are no allowing definitions (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Uses new"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Special call"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Virtual call"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Virtual call"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="14" type="Uses"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses inline"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses inline"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Uses new"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Special call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Virtual call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Virtual call"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="11" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="14" type="Uses"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="12" type="Uses inline"/>
+                <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="13" type="Uses inline"/>
             </typeRelation>
         </architectureViolations>
         <architectureViolations explanation="Not in a named interface that may be accessed" numberOfViolatingTypeRelations="1" dimension="Logical">
@@ -666,7 +666,7 @@
                 <attribute value="com.h2m.common.test.C1" name="From"/>
                 <attribute value="com.h2m.common.observer.Observable" name="To"/>
                 <attribute value="Type 'com.h2m.common.test.C1' may not access Type 'com.h2m.common.observer.Observable' which it is not contained in one of the possible named interface(s) (Logical)" name="Explanation"/>
-                <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/Foundation/src/main/java" file="com/h2m/common/test/C1.java" line="7" type="Field type"/>
+                <position dir="./src/test/AlarmClockMain/Foundation/src/main/java" file="com/h2m/common/test/C1.java" line="7" type="Field type"/>
             </typeRelation>
         </architectureViolations>
     </violations>
@@ -703,7 +703,7 @@
                     <attribute value="52 lines" name="Attribute value"/>
                     <attribute value="17" name="Start line"/>
                     <attribute value="0" name="Block id"/>
-                    <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="17"/>
+                    <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/presentation/Main.java" line="17"/>
                 </warning>
                 <warning>
                     <attribute value="AlarmClock" name="Project"/>
@@ -713,7 +713,7 @@
                     <attribute value="52 lines" name="Attribute value"/>
                     <attribute value="35" name="Start line"/>
                     <attribute value="0" name="Block id"/>
-                    <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="35"/>
+                    <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="35"/>
                 </warning>
             </warningsByAttribute>
         </warningsByAttributeGroup>
@@ -725,7 +725,7 @@
                     <attribute value="Source file" name="Element type"/>
                     <attribute value="com/h2m/alarm/model/AlarmClock.java" name="Element"/>
                     <attribute value="82 (Threshold violation -  upper threshold = 80)" name="Attribute value"/>
-                    <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="0" offset="0"/>
+                    <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="0" offset="0"/>
                 </warning>
             </warningsByAttribute>
         </warningsByAttributeGroup>
@@ -740,8 +740,8 @@
             <attribute value="Cut type dependency from 'com.h2m.alarm.model.AlarmClock' to 'com.h2m.common.observer.Observable'" name="Description"/>
             <attribute value="Medium" name="Priority"/>
             <attribute value="Tester" name="Assigned to"/>
-            <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="7"/>
-            <position dir="C:/Users/Ingmar/Documents/GitHub/sonar-sonargraph/src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="13"/>
+            <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="7"/>
+            <position dir="./src/test/AlarmClockMain/AlarmClock/src/main/java" file="com/h2m/alarm/model/AlarmClock.java" line="13"/>
         </task>
     </tasks>
     <exclusions name="Internal" numberOf="0"/>

@@ -12,6 +12,8 @@ target/
 .project
 .settings
 .sonar4clipse
+.sonar
+*.sonar4clipseExternals
 
 # ---- Mac OS X
 .DS_Store

@@ -17,8 +17,10 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
+import com.hello2morrow.sonarplugin.foundation.AlertThreshold;
+import com.hello2morrow.sonarplugin.foundation.SonarQubeUtilities;
 import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonarplugin.foundation.Utilities;
+import com.hello2morrow.sonarplugin.foundation.SonargraphUtilities;
 import com.hello2morrow.sonarplugin.metric.SonargraphAlertThresholds;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import com.hello2morrow.sonarplugin.persistence.PersistenceUtilities;
@@ -30,18 +32,16 @@ import com.hello2morrow.sonarplugin.xsd.XsdTasks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.measures.Measure;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.ActiveRule;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * @author Ingmar
@@ -52,17 +52,13 @@ public class TaskProcessor implements IProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
   private static final String PACKAGE = " package";
   private final SensorContext sensorContext;
-  private final RulesProfile rulesProfile;
-  private final ResourcePerspectives resourcePerspectives;
-  private final Project project;
-  private final FileSystem fileSystem;
+  private final Resource project;
+  private final int numberOfTasks;
 
-  public TaskProcessor(Project project, FileSystem fileSystem, final RulesProfile rulesProfile, final SensorContext sensorContext, ResourcePerspectives perspectives) {
+  public TaskProcessor(final Project project, final SensorContext sensorContext, final int tasks) {
     this.project = project;
-    this.fileSystem = fileSystem;
-    this.rulesProfile = rulesProfile;
     this.sensorContext = sensorContext;
-    this.resourcePerspectives = perspectives;
+    this.numberOfTasks = tasks;
   }
 
   /*
@@ -72,52 +68,41 @@ public class TaskProcessor implements IProcessor {
    * com.hello2morrow.sonarplugin.xsd.XsdAttributeRoot)
    */
   @Override
-  public void process(ReportContext report, XsdAttributeRoot buildUnit) {
+  public void process(final ReportContext report, final XsdAttributeRoot buildUnit) {
     LOG.debug("Analysing tasks of buildUnit: " + buildUnit.getName());
 
-    XsdTasks tasks = report.getTasks();
-    Map<String, String> priorityMap = new HashMap<String, String>();
-
-    ActiveRule rule = rulesProfile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY);
-    int count = 0;
+    final XsdTasks tasks = report.getTasks();
+    final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, SonargraphPluginBase.TASK_RULE_KEY);
+    int taskReferenceCount = 0;
 
     if (rule == null) {
       LOG.info("Sonargraph task rule not active in current profile");
       return;
     }
 
-    priorityMap.put("Low", Severity.INFO);
-    priorityMap.put("Medium", Severity.MINOR);
-    priorityMap.put("High", Severity.MAJOR);
-
-    for (XsdTask task : tasks.getTask()) {
-      String bu = PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit");
-
-      bu = Utilities.getBuildUnitName(bu);
-      if (bu.equals(Utilities.getBuildUnitName(buildUnit.getName()))) {
-        count = handleTask(priorityMap, rule, count, task);
+    for (final XsdTask task : tasks.getTask()) {
+      final String buildUnitFromTask = SonargraphUtilities.getBuildUnitName(PersistenceUtilities.getAttribute(task.getAttribute(), "Build unit"));
+      if (buildUnitFromTask.equals(SonargraphUtilities.getBuildUnitName(buildUnit.getName()))) {
+        taskReferenceCount += handleTask(rule, task);
       }
     }
-    Metric connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
-    Measure measureToCopyThreshold = sensorContext.getMeasure(connectedMetric);
 
-    Measure measureToSave = new Measure(SonargraphSimpleMetrics.TASK_REFS, new Double(count), 0);
-    measureToSave.setAlertStatus(measureToCopyThreshold.getAlertStatus());
-    measureToSave.setAlertText(SonargraphSimpleMetrics.TASK_REFS.getKey());
+    final Metric<Serializable> connectedMetric = SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.TASK_REFS);
+    final AlertThreshold threshold = SonargraphAlertThresholds.getThreshold(connectedMetric != null ? connectedMetric : SonargraphSimpleMetrics.TASK_REFS);
 
-    sensorContext.saveMeasure(measureToSave);
+    SonarQubeUtilities.saveMeasure(project, sensorContext, SonargraphSimpleMetrics.TASK_REFS, taskReferenceCount, threshold, this.numberOfTasks);
   }
 
-  private int handleTask(Map<String, String> priorityMap, ActiveRule rule, final int count, final XsdTask task) {
-    final String priority = PersistenceUtilities.getAttribute(task.getAttribute(), "Priority");
+  private int handleTask(final ActiveRule rule, final XsdTask task) {
+    final Severity severity = SonarQubeUtilities.convertToSeverity(PersistenceUtilities.getAttribute(task.getAttribute(), "Priority"));
     final String description = PersistenceUtilities.getAttribute(task.getAttribute(), "Description");
     final String assignedTo = PersistenceUtilities.getAttribute(task.getAttribute(), "Assigned to");
 
     // This should not be needed, but the current description sucks
     String descriptionText = handleDescription(description);
 
-    int index = descriptionText.indexOf(PACKAGE);
-    int counter = count;
+    final int index = descriptionText.indexOf(PACKAGE);
+    int counter = 0;
 
     if (index > 0 && index < PACKAGE.length()) {
       // Package refactorings won't get markers - this would
@@ -127,44 +112,43 @@ public class TaskProcessor implements IProcessor {
       if (assignedTo != null && assignedTo.trim().length() > 0) {
         descriptionText += " [" + assignedTo.trim() + "]";
       }
-      for (XsdPosition pos : task.getPosition()) {
-        String relFileName = pos.getFile();
-        if (relFileName != null) {
-          int line = processLinePosition(pos);
-          Resource resource = Utilities.getResource(project, fileSystem, relFileName);
-          Utilities.saveViolation(resource, resourcePerspectives, rule, priorityMap.get(priority), line, descriptionText);
-        }
+      for (final XsdPosition pos : task.getPosition()) {
+        processTaskPosition(rule, severity, descriptionText, pos);
         counter++;
       }
     }
     return counter;
   }
 
-  private int processLinePosition(XsdPosition pos) {
-    int line;
-    try {
-      line = Integer.valueOf(pos.getLine());
+  private void processTaskPosition(final ActiveRule rule, final Severity severity, final String description, final XsdPosition pos) {
+    final String relFileName = pos.getFile();
+
+    if (relFileName != null) {
+      int line = Integer.parseInt(pos.getLine());
       if (line == 0) {
         line = 1;
       }
-    } catch (NumberFormatException ex) {
-      LOG.error("Failed to process position '" + pos.getLine() + "'", ex);
-      line = 1;
+      final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
+      if (path != null) {
+        if (path.isFile()) {
+          SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, severity, line, description);
+        } else {
+          SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, severity, description);
+        }
+      }
     }
-    return line;
   }
 
-  private String handleDescription(String descr) {
+  private static String handleDescription(final String descr) {
     if (descr.startsWith("Fix warning")) {
-      // TODO: handle ascending metrics correctly (99% are descending)
       return "Reduce" + descr.substring(descr.indexOf(':') + 1).toLowerCase();
     }
     if (descr.startsWith("Cut type")) {
-      String toType = descr.substring(descr.indexOf("to "));
+      final String toType = descr.substring(descr.indexOf("to "));
       return "Cut dependency " + toType;
     }
     if (descr.startsWith("Move type")) {
-      String to = descr.substring(descr.indexOf("to "));
+      final String to = descr.substring(descr.indexOf("to "));
       return "Move " + to;
     }
     return descr;

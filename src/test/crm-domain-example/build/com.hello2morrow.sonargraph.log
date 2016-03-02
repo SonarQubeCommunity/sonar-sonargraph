@@ -1,0 +1,98 @@
+2013-04-04 23:17:38,663 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-04 23:17:38,682 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-04 23:17:38,688 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-04 23:17:38,697 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-04 23:17:38,699 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-04 23:17:38,701 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-04 23:17:38,703 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-04 23:21:26,172 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-04 23:21:26,175 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-04 23:21:26,177 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-04 23:21:26,178 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-04 23:21:26,178 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-04 23:21:26,179 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-04 23:21:26,179 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-04 23:31:24,918 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-04 23:31:24,922 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-04 23:31:24,923 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-04 23:31:24,924 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-04 23:31:24,924 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-04 23:31:24,925 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-04 23:31:24,925 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-04 23:32:31,070 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-04 23:32:31,117 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-04 23:32:31,123 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-04 23:32:31,132 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-04 23:32:31,135 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-04 23:32:31,137 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-04 23:32:31,139 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-04 23:38:59,951 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-04 23:38:59,954 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-04 23:38:59,955 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-04 23:38:59,957 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-04 23:38:59,957 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-04 23:38:59,958 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-04 23:38:59,958 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 10:36:59,105 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 10:36:59,121 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 10:36:59,122 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 10:36:59,125 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 10:36:59,125 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 10:36:59,128 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 10:36:59,128 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 11:18:46,923 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 11:18:46,927 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 11:18:46,928 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 11:18:46,929 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 11:18:46,929 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 11:18:46,930 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 11:18:46,930 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 11:21:44,672 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 11:21:44,692 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 11:21:44,698 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 11:21:44,707 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 11:21:44,709 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 11:21:44,712 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 11:21:44,714 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 11:30:50,971 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 11:30:50,975 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 11:30:50,976 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 11:30:50,977 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 11:30:50,977 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 11:30:50,978 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 11:30:50,978 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 11:35:00,100 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 11:35:00,120 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 11:35:00,126 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 11:35:00,135 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 11:35:00,137 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 11:35:00,139 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 11:35:00,141 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 13:40:07,901 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 13:40:07,927 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 13:40:07,927 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 13:40:07,928 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 13:40:07,929 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 13:40:07,929 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 13:40:07,929 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 13:42:08,968 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 13:42:08,970 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 13:42:08,983 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 13:42:08,984 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 13:42:08,984 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 13:42:08,985 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 13:42:08,985 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 14:03:25,739 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 14:03:25,742 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 14:03:25,742 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 14:03:25,743 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 14:03:25,744 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 14:03:25,744 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 14:03:25,744 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2013-04-05 14:04:08,569 INFO main (com.hello2morrow.common.util.Platform:159) - os.name: windows 7
+2013-04-05 14:04:08,570 INFO main (com.hello2morrow.common.util.Platform:160) - os.arch: amd64
+2013-04-05 14:04:08,571 INFO main (com.hello2morrow.common.util.Platform:126) - java.vendor: oracle corporation
+2013-04-05 14:04:08,572 INFO main (com.hello2morrow.common.util.Platform:47) - java.version: 1.7.0_03
+2013-04-05 14:04:08,572 INFO main (com.hello2morrow.common.util.Platform:48) - java.specification.version: 1.7
+2013-04-05 14:04:08,573 INFO main (com.hello2morrow.common.util.Platform:49) - java.vm.vendor: Oracle Corporation
+2013-04-05 14:04:08,573 INFO main (com.hello2morrow.common.util.Platform:50) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM

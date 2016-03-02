@@ -18,12 +18,14 @@
 package com.hello2morrow.sonarplugin.metric;
 
 import com.hello2morrow.sonarplugin.foundation.AlertThreshold;
-import com.hello2morrow.sonarplugin.foundation.IProjectContext;
 import org.junit.Test;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,32 +33,37 @@ import static org.mockito.Mockito.when;
 
 public class SonargraphAlertThresholdsTest {
 
+  @SuppressWarnings("rawtypes")
   @Test
   public void testSimpleMetric() {
-    IProjectContext context = mock(IProjectContext.class);
-    Measure measure0 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 0.0);
+    final DecoratorContext context = mock(DecoratorContext.class);
+    final Measure measure0 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 0.0);
     verify(measure0).setAlertStatus(Metric.Level.OK);
 
-    Measure measure1 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 1.0);
+    final Measure measure1 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 1.0);
     verify(measure1).setAlertStatus(Metric.Level.WARN);
 
-    Measure measure19 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 19.0);
+    final Measure measure19 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 19.0);
     verify(measure19).setAlertStatus(Metric.Level.WARN);
 
-    Measure measure20 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 20.0);
+    final Measure measure20 = createMeasureAndSetValue(context, SonargraphSimpleMetrics.ALL_WARNINGS, 20.0);
     verify(measure20).setAlertStatus(Metric.Level.ERROR);
+
+    assertFalse("measures must not be equal", measure19.equals(measure20));
+    assertTrue("Hashcodes of different measures must be different", measure19.hashCode() != measure20.hashCode());
   }
 
+  @SuppressWarnings("rawtypes")
   @Test
   public void testConnectedMetric() {
-    IProjectContext context = mock(IProjectContext.class);
+    final DecoratorContext context = mock(DecoratorContext.class);
     // SonargraphSimpleMetrics.NCCD, new AlertThreshold(6.5, 10.0
 
-    Measure nccd = setupMetric(SonargraphSimpleMetrics.NCCD);
+    final Measure nccd = setupMetric(SonargraphSimpleMetrics.NCCD);
     when(nccd.getAlertStatus()).thenReturn(Metric.Level.OK);
     when(nccd.getAlertText()).thenReturn(SonargraphSimpleMetrics.ACD.getKey());
 
-    Measure acd = setupMetric(SonargraphSimpleMetrics.ACD);
+    final Measure acd = setupMetric(SonargraphSimpleMetrics.ACD);
     when(context.getMeasure(any(Metric.class))).thenReturn(nccd);
 
     SonargraphAlertThresholds.addAlertToMeasure(context, nccd, 6.0);
@@ -64,11 +71,11 @@ public class SonargraphAlertThresholdsTest {
     SonargraphAlertThresholds.addAlertToMeasure(context, acd, 60.0);
     verify(acd).setAlertStatus(Metric.Level.OK);
 
-    Measure nccd7 = setupMetric(SonargraphSimpleMetrics.NCCD);
+    final Measure nccd7 = setupMetric(SonargraphSimpleMetrics.NCCD);
     when(nccd7.getAlertStatus()).thenReturn(Metric.Level.WARN);
     when(nccd7.getAlertText()).thenReturn(SonargraphSimpleMetrics.ACD.getKey());
 
-    Measure acd60 = setupMetric(SonargraphSimpleMetrics.ACD);
+    final Measure acd60 = setupMetric(SonargraphSimpleMetrics.ACD);
     when(context.getMeasure(any(Metric.class))).thenReturn(nccd7);
 
     SonargraphAlertThresholds.addAlertToMeasure(context, nccd7, 7.0);
@@ -76,11 +83,11 @@ public class SonargraphAlertThresholdsTest {
     SonargraphAlertThresholds.addAlertToMeasure(context, acd60, 60.0);
     verify(acd60).setAlertStatus(Metric.Level.WARN);
 
-    Measure nccd10 = setupMetric(SonargraphSimpleMetrics.NCCD);
+    final Measure nccd10 = setupMetric(SonargraphSimpleMetrics.NCCD);
     when(nccd10.getAlertStatus()).thenReturn(Metric.Level.ERROR);
     when(nccd10.getAlertText()).thenReturn(SonargraphSimpleMetrics.ACD.getKey());
 
-    Measure acd61 = setupMetric(SonargraphSimpleMetrics.ACD);
+    final Measure acd61 = setupMetric(SonargraphSimpleMetrics.ACD);
     when(context.getMeasure(any(Metric.class))).thenReturn(nccd10);
 
     SonargraphAlertThresholds.addAlertToMeasure(context, nccd10, 10.0);
@@ -91,7 +98,7 @@ public class SonargraphAlertThresholdsTest {
 
   @Test
   public void testGetThreshold() {
-    AlertThreshold threshold = new AlertThreshold(6.5, 10.0);
+    final AlertThreshold threshold = new AlertThreshold(6.5, 10.0);
     assertEquals("Threshold values don't match", threshold, SonargraphAlertThresholds.getThreshold(SonargraphSimpleMetrics.NCCD));
   }
 
@@ -100,14 +107,16 @@ public class SonargraphAlertThresholdsTest {
     assertEquals("Connected metric not correct", SonargraphSimpleMetrics.NCCD, SonargraphAlertThresholds.getConnectedMetric(SonargraphSimpleMetrics.ACD));
   }
 
-  private Measure createMeasureAndSetValue(IProjectContext context, Metric metric, double value) {
-    Measure measure = setupMetric(metric);
+  @SuppressWarnings("rawtypes")
+  private Measure createMeasureAndSetValue(final DecoratorContext context, final Metric metric, final double value) {
+    final Measure measure = setupMetric(metric);
     SonargraphAlertThresholds.addAlertToMeasure(context, measure, value);
     return measure;
   }
 
-  private Measure setupMetric(Metric metric) {
-    Measure measure = mock(Measure.class);
+  @SuppressWarnings("rawtypes")
+  private Measure setupMetric(final Metric metric) {
+    final Measure measure = mock(Measure.class);
     when(measure.getMetric()).thenReturn(metric);
     return measure;
   }
