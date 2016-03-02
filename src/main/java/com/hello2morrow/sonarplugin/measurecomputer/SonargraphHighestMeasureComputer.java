@@ -65,7 +65,12 @@ public class SonargraphHighestMeasureComputer extends SonargraphMeasureComputer 
     double highest = -1.0;
     final boolean isSimpleMetricDouble = simpleMetric.getType() == ValueType.FLOAT;
 
-    for (final Iterator<Measure> iter = context.getChildrenMeasures(simpleMetric.key()).iterator(); iter.hasNext();) {
+    final Iterable<Measure> childrenMeasures = context.getChildrenMeasures(simpleMetric.key());
+    if (childrenMeasures == null) {
+      LOGGER.error("No measures found for metric '" + simpleMetric.key() + "'");
+      return;
+    }
+    for (final Iterator<Measure> iter = childrenMeasures.iterator(); iter.hasNext();) {
       final double value = isSimpleMetricDouble ? iter.next().getDoubleValue() : iter.next().getIntValue();
       highest = value > highest ? value : highest;
     }

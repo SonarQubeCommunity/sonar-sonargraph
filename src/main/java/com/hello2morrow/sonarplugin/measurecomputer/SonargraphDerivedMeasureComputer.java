@@ -22,6 +22,8 @@ import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ce.measure.Component;
+import org.sonar.api.ce.measure.Component.Type;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.measures.Metric;
 
@@ -50,6 +52,12 @@ public class SonargraphDerivedMeasureComputer extends SonargraphMeasureComputer 
     final List<Metric<Serializable>> metrics = Arrays.asList(SonargraphDerivedMetrics.VIOLATING_TYPES_PERCENT, SonargraphDerivedMetrics.UNASSIGNED_TYPES_PERCENT,
       SonargraphDerivedMetrics.RELATIVE_CYCLICITY, SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT);
     return SonarQubeUtilities.convertMetricListToKeyList(metrics);
+  }
+
+  @Override
+  boolean needsProcessing(final MeasureComputerContext context) {
+    final Type type = context.getComponent().getType();
+    return type == Component.Type.PROJECT || type == Component.Type.MODULE;
   }
 
   @Override

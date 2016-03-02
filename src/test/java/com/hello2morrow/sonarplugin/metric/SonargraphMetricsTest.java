@@ -25,7 +25,7 @@ public class SonargraphMetricsTest {
 
   @Test
   public void testGetAll() {
-    assertEquals("Wrong number of metrics", 36, SonargraphMetrics.getAll().size());
+    assertEquals("Wrong number of metrics", 35, SonargraphMetrics.getAll().size());
   }
 
 }

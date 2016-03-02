@@ -145,7 +145,7 @@ public class ReportFileReader implements IReportReader {
     return null;
   }
 
-  private XsdAttributeRoot findBuildUnit(final Project project, final List<XsdAttributeRoot> buildUnitList) {
+  private static XsdAttributeRoot findBuildUnit(final Project project, final List<XsdAttributeRoot> buildUnitList) {
     for (final XsdAttributeRoot sonarBuildUnit : buildUnitList) {
       final String buName = SonargraphUtilities.getBuildUnitName(sonarBuildUnit.getName());
       if (SonarQubeUtilities.buildUnitMatchesAnalyzedProject(buName, project)) {

@@ -57,7 +57,7 @@ abstract class SonargraphMeasureComputer implements MeasureComputer {
 
   abstract List<String> getInputMetrics();
 
-  private boolean needsProcessing(final MeasureComputerContext context) {
+  boolean needsProcessing(final MeasureComputerContext context) {
     final Measure measure = context.getMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED.key());
     return measure != null && measure.getBooleanValue();
   }

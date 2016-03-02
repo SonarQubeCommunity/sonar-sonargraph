@@ -106,7 +106,6 @@ public class CycleGroupProcessor implements IProcessor {
   private boolean createCycleGroupIssue(final XsdCycleGroup group, final String namedElementGroup, final ActiveRule rule) {
     if (PHYSICAL_PACKAGE_NAMED_ELEMENT_GROUP.equals(namedElementGroup)) {
       final int groupSize = group.getCyclePath().size();
-      // FIXME: This seems to be wrong. We need to omit duplicates.
       cyclicPackages += groupSize;
       cyclicity += groupSize * groupSize;
       if (groupSize > biggestCycleGroupSize) {

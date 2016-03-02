@@ -12,7 +12,7 @@
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <version>3.5-SNAPSHOT</version>
-
+  
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
   <url>https://github.com/SonarQubeCommunity/sonar-sonargraph/wiki</url>
@@ -62,6 +62,8 @@
     <sonar.plugin.class>com.hello2morrow.sonarplugin.api.SonargraphPlugin</sonar.plugin.class>
     <sonar.version>5.2</sonar.version>
     <sonar.plugin.version>5.2</sonar.plugin.version>
+    <sonar.sources>src/main/java</sonar.sources>
+    <sonar.exclusions>**/sonarplugin/view/**</sonar.exclusions>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: info AT hello2morrow DOT com</license.mailto>

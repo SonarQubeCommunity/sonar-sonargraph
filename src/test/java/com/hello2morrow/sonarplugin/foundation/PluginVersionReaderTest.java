@@ -27,7 +27,7 @@ public class PluginVersionReaderTest {
 
   @Test
   public void test() {
-    String version = PluginVersionReader.INSTANCE.getVersion();
+    final String version = PluginVersionReader.INSTANCE.getVersion();
     assertNotNull("Version must not be null", version);
     assertTrue("Version must not be empty", version.trim().length() > 0);
   }

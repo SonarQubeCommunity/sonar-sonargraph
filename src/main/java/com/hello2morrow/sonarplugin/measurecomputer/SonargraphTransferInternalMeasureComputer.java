@@ -47,7 +47,12 @@ public class SonargraphTransferInternalMeasureComputer extends SonargraphMeasure
   }
 
   private void transferMetricValue(final MeasureComputerContext context, final Metric<Serializable> from, final Metric<Serializable> to) {
-    final Iterator<Measure> iter = context.getChildrenMeasures(from.key()).iterator();
+    final Iterable<Measure> childrenMeasures = context.getChildrenMeasures(from.key());
+    if (childrenMeasures == null) {
+      return;
+    }
+
+    final Iterator<Measure> iter = childrenMeasures.iterator();
     if (!iter.hasNext()) {
       LOGGER.warn("Failed to transfer value for metric '" + to.key() + "'");
     } else {

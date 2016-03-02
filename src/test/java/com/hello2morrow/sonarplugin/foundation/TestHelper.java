@@ -35,7 +35,6 @@ import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -141,7 +140,9 @@ public class TestHelper {
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
         final ActiveRulesBuilder builder = new ActiveRulesBuilder();
-        return builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate().build();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).activate();
+        return builder.build();
       }
     });
 
@@ -325,9 +326,6 @@ public class TestHelper {
     return fileSystem;
   }
 
-  public static ResourcePerspectives initPerspectives() {
-    final ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    // when(perspectives.as(perspectiveClass, resource))
-    return perspectives;
-  }
+  public static final String REPORT_PATH = "./src/test/resources/sonargraph-sonar-report.xml";
+  public static final String REPORT_PATH2 = "./src/test/resources/sonargraph-sonar-report2.xml";
 }

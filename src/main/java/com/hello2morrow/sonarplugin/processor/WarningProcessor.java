@@ -70,7 +70,7 @@ public class WarningProcessor implements IProcessor {
       if (key != null) {
         final ActiveRule rule = SonarQubeUtilities.findActiveSonargraphRule(sensorContext, key);
         if (rule == null) {
-          LOG.info("Sonargraph threshold not active in current profile");
+          LOG.info("Sonargraph rule '" + key + "' not active in current profile");
         } else if ("Duplicate code".equals(warningGroup.getAttributeGroup())) {
           handleDuplicateCodeBlocks(warningGroup, rule, processedBuildUnit);
         } else {

@@ -18,11 +18,19 @@
 package com.hello2morrow.sonarplugin.foundation;
 
 import org.junit.Test;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
+
+import java.io.Serializable;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SonarQubeUtilitiesTest {
 
@@ -43,7 +51,32 @@ public class SonarQubeUtilitiesTest {
     singleProject.setParent(parentRoot);
 
     assertFalse(SonarQubeUtilities.isRootParentProject(singleProject));
+    assertFalse(SonarQubeUtilities.isAggregatingProject(singleProject));
+
     assertTrue(SonarQubeUtilities.isRootParentProject(parentRoot));
+    assertTrue(SonarQubeUtilities.isAggregatingProject(parentProject));
+    assertFalse(SonarQubeUtilities.isAggregatingProject(module));
+  }
+
+  @Test
+  public void testConvertSeverity() {
+    assertNull(SonarQubeUtilities.convertToSeverity(null));
+    assertNull(SonarQubeUtilities.convertToSeverity(""));
+    assertEquals(Severity.MAJOR, SonarQubeUtilities.convertToSeverity("HIGH"));
+    assertEquals(Severity.MINOR, SonarQubeUtilities.convertToSeverity("MEDIUM"));
+    assertEquals(Severity.INFO, SonarQubeUtilities.convertToSeverity("LOW"));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertMetricListToKeys() {
+    final Metric<Serializable> metric1 = mock(Metric.class);
+    when(metric1.getKey()).thenReturn("key1");
+
+    final Metric<Serializable> metric2 = mock(Metric.class);
+    when(metric2.getKey()).thenReturn("key2");
+
+    assertEquals(Arrays.asList("key1", "key2"), SonarQubeUtilities.convertMetricListToKeyList(Arrays.asList(metric1, metric2)));
   }
 
   @Test

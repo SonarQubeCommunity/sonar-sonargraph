@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +30,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -93,16 +91,7 @@ public class SonargraphSensorTest extends AbstractSonargraphTest {
 
     final Project module = new Project("hello2morrow:Foundation", "", "Foundation");
     module.setParent(project);
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertTrue(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(module));
-  }
-
-  @Test
-  public void testShouldNotExecuteOnProjectWithoutReport() {
-    final Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
-    final Project module = new Project("hello2morrow:Foundation", "", "Foundation");
-    module.setParent(project);
-    getSettings().setProperty(SonargraphPluginBase.REPORT_PATH, "c:/fantasyPath");
-    assertFalse("Sensor must not execute on aggregating project", sensor.shouldExecuteOnProject(project));
   }
 }

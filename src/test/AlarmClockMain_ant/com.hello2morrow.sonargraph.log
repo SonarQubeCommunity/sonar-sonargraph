@@ -1,0 +1,42 @@
+2016-01-22 08:40:14,212 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 08:40:14,215 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 08:40:14,216 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 08:40:14,217 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 08:40:14,218 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 08:40:14,218 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 08:40:14,218 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2016-01-22 08:48:10,926 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 08:48:10,930 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 08:48:10,931 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 08:48:10,932 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 08:48:10,933 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 08:48:10,933 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 08:48:10,933 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2016-01-22 08:57:09,448 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 08:57:09,451 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 08:57:09,452 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 08:57:09,454 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 08:57:09,455 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 08:57:09,455 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 08:57:09,455 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2016-01-22 09:03:46,266 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 09:03:46,275 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 09:03:46,277 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 09:03:46,279 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 09:03:46,279 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 09:03:46,280 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 09:03:46,280 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2016-01-22 09:04:08,797 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 09:04:08,801 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 09:04:08,802 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 09:04:08,804 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 09:04:08,804 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 09:04:08,804 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 09:04:08,805 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+2016-01-22 09:06:17,720 INFO main (com.hello2morrow.common.D.T:2029) - os.name: windows 8.1
+2016-01-22 09:06:17,723 INFO main (com.hello2morrow.common.D.T:500) - os.arch: amd64
+2016-01-22 09:06:17,723 INFO main (com.hello2morrow.common.D.T:2791) - java.vendor: oracle corporation
+2016-01-22 09:06:17,725 INFO main (com.hello2morrow.common.D.T:2562) - java.version: 1.8.0_31
+2016-01-22 09:06:17,725 INFO main (com.hello2morrow.common.D.T:1698) - java.specification.version: 1.8
+2016-01-22 09:06:17,725 INFO main (com.hello2morrow.common.D.T:1585) - java.vm.vendor: Oracle Corporation
+2016-01-22 09:06:17,725 INFO main (com.hello2morrow.common.D.T:454) - java.vm.name: Java HotSpot(TM) 64-Bit Server VM
