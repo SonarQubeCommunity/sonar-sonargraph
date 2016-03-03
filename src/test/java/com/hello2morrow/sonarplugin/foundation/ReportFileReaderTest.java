@@ -39,10 +39,9 @@ public class ReportFileReaderTest {
 
   @Test
   public void testReadSonargraphReport() {
-    Project project = new Project("test");
-    IReportReader reader = new ReportFileReader();
-    Settings settings = TestHelper.initSettings();
-    settings.setProperty(SonargraphPluginBase.REPORT_PATH, reportFileName);
+    final Project project = new Project("test");
+    final IReportReader reader = new ReportFileReader();
+    final Settings settings = TestHelper.initSettings(reportFileName);
     reader.readSonargraphReport(project, null, settings);
     assertNotNull(reader.getReport());
 
@@ -54,12 +53,11 @@ public class ReportFileReaderTest {
     reader.readSonargraphReport(project, null, settings);
     assertNull(reader.getReport());
 
-    Project module = new Project("module");
+    final Project module = new Project("module");
     module.setParent(project);
 
     settings.setProperty(SonargraphPluginBase.REPORT_PATH, "fakeDir/ReporFileName.xml");
     reader.readSonargraphReport(project, null, settings);
     assertNull(reader.getReport());
   }
-
 }

@@ -19,6 +19,7 @@ package com.hello2morrow.sonarplugin.measurecomputer;
 
 import com.hello2morrow.sonarplugin.metric.SonargraphDerivedMetrics;
 import com.hello2morrow.sonarplugin.metric.SonargraphSimpleMetrics;
+import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
 import org.junit.Test;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Measure;
@@ -48,7 +49,7 @@ public class SonargraphDerivedMeasureComputerTest {
 
     final Component project = mock(Component.class);
     when(project.getType()).thenReturn(Component.Type.PROJECT);
-    final MeasureComputerContext context = mock(MeasureComputerContext.class);
+    final MeasureComputerContext context = initMeasureComputerContext();
     when(context.getComponent()).thenReturn(project);
     assertTrue(computer.needsProcessing(context));
 
@@ -56,7 +57,7 @@ public class SonargraphDerivedMeasureComputerTest {
     when(module.getType()).thenReturn(Component.Type.MODULE);
     final MeasureComputerContext context2 = mock(MeasureComputerContext.class);
     when(context2.getComponent()).thenReturn(module);
-    assertTrue(computer.needsProcessing(context2));
+    assertFalse(computer.needsProcessing(context2));
 
     final Component file = mock(Component.class);
     when(file.getType()).thenReturn(Component.Type.FILE);
@@ -84,7 +85,7 @@ public class SonargraphDerivedMeasureComputerTest {
 
     final Component project = mock(Component.class);
     when(project.getType()).thenReturn(Component.Type.PROJECT);
-    final MeasureComputerContext context = mock(MeasureComputerContext.class);
+    final MeasureComputerContext context = initMeasureComputerContext();
     when(context.getComponent()).thenReturn(project);
 
     final Measure violatingTypes = mock(Measure.class);
@@ -105,7 +106,7 @@ public class SonargraphDerivedMeasureComputerTest {
 
     final Component project = mock(Component.class);
     when(project.getType()).thenReturn(Component.Type.PROJECT);
-    final MeasureComputerContext context = mock(MeasureComputerContext.class);
+    final MeasureComputerContext context = initMeasureComputerContext();
     when(context.getComponent()).thenReturn(project);
 
     final Measure violatingTypes = mock(Measure.class);
@@ -126,7 +127,7 @@ public class SonargraphDerivedMeasureComputerTest {
 
     final Component project = mock(Component.class);
     when(project.getType()).thenReturn(Component.Type.PROJECT);
-    final MeasureComputerContext context = mock(MeasureComputerContext.class);
+    final MeasureComputerContext context = initMeasureComputerContext();
     when(context.getComponent()).thenReturn(project);
 
     final Measure internalPackages = mock(Measure.class);
@@ -145,5 +146,13 @@ public class SonargraphDerivedMeasureComputerTest {
 
     verify(context).addMeasure(SonargraphDerivedMetrics.RELATIVE_CYCLICITY.key(), 4.0);
     verify(context).addMeasure(SonargraphDerivedMetrics.CYCLIC_PACKAGES_PERCENT.key(), 6.0);
+  }
+
+  public MeasureComputerContext initMeasureComputerContext() {
+    final MeasureComputerContext context = mock(MeasureComputerContext.class);
+    final Measure measure = mock(Measure.class);
+    when(measure.getBooleanValue()).thenReturn(Boolean.TRUE);
+    when(context.getMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED.key())).thenReturn(measure);
+    return context;
   }
 }

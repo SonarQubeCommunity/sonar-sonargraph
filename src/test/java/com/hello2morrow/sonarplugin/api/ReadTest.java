@@ -18,7 +18,6 @@
 
 package com.hello2morrow.sonarplugin.api;
 
-import com.hello2morrow.sonarplugin.foundation.SonargraphPluginBase;
 import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.persistence.IReportReader;
 import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
@@ -33,8 +32,7 @@ public class ReadTest extends TestCase {
   @Test
   public void testAnalyse() {
     final Project project1 = new Project("test");
-    final Settings settings = TestHelper.initSettings();
-    settings.setProperty(SonargraphPluginBase.REPORT_PATH, "src/test/resources/infoglue21-report.xml");
+    final Settings settings = TestHelper.initSettings("src/test/resources/infoglue21-report.xml");
     final IReportReader reader = new ReportFileReader();
     reader.readSonargraphReport(project1, null, settings);
 

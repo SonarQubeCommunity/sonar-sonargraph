@@ -33,10 +33,9 @@ public class SonargraphPluginTest {
   /**
    * Test method for {@link com.hello2morrow.sonarplugin.api.SonargraphPlugin#getExtensions()}.
    */
-  @SuppressWarnings("deprecation")
   @Test
   public void testGetExtensions() {
-    SonarPlugin plugin = new SonargraphPlugin();
+    final SonarPlugin plugin = new SonargraphPlugin();
     Assert.assertNotNull(plugin.getExtensions());
     Assert.assertTrue(plugin.getExtensions().size() > 0);
   }

@@ -64,9 +64,9 @@ public class SonargraphTransferInternalMeasureComputer extends SonargraphMeasure
 
   @Override
   List<String> getInputMetrics() {
-    return SonarQubeUtilities.convertMetricListToKeyList(Arrays.asList(SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS, SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS,
-      SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS, SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS,
-      SonargraphInternalMetrics.SYSTEM_ALL_TASKS));
+    return SonarQubeUtilities.convertMetricListToKeyList(Arrays.asList(SonargraphInternalMetrics.MODULE_PROCESSED_BY_SENSOR, SonargraphInternalMetrics.SYSTEM_ALL_WARNINGS,
+      SonargraphInternalMetrics.SYSTEM_CYCLE_WARNINGS, SonargraphInternalMetrics.SYSTEM_THRESHOLD_WARNINGS, SonargraphInternalMetrics.SYSTEM_WORKSPACE_WARNINGS,
+      SonargraphInternalMetrics.SYSTEM_IGNORED_WARNINGS, SonargraphInternalMetrics.SYSTEM_ALL_TASKS));
   }
 
   @Override

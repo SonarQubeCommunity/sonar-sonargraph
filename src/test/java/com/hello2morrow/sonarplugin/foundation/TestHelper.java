@@ -17,7 +17,6 @@
  */
 package com.hello2morrow.sonarplugin.foundation;
 
-import com.hello2morrow.sonarplugin.api.SonargraphRulesRepository;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
@@ -28,31 +27,16 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.server.rule.RulesDefinition.Rule;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -60,88 +44,30 @@ import static org.mockito.Mockito.when;
 
 public class TestHelper {
 
-  private static class InMemorySensorStorage implements SensorStorage {
+  public static final String REPORT_PATH = "./src/test/resources/sonargraph-sonar-report.xml";
+  public static final String REPORT_PATH2 = "./src/test/resources/sonargraph-sonar-report2.xml";
 
-    private final Map<String, org.sonar.api.batch.sensor.measure.Measure<Serializable>> measures = new HashMap<>();
-
-    private final Collection<Issue> allIssues = new ArrayList<>();
-
-    private final Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
-    private final Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
-
-    private final List<Duplication> duplications = new ArrayList<>();
-
-    @Override
-    public void store(final org.sonar.api.batch.sensor.measure.Measure measure) {
-      measures.put(measure.metric().key(), measure);
-    }
-
-    @Override
-    public void store(final Issue issue) {
-      allIssues.add(issue);
-    }
-
-    @Override
-    public void store(final Duplication duplication) {
-      duplications.add(duplication);
-    }
-
-    @Override
-    public void store(final DefaultHighlighting highlighting) {
-      highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
-    }
-
-    @Override
-    public void store(final DefaultCoverage defaultCoverage) {
-      final String key = defaultCoverage.inputFile().key();
-      if (!coverageByComponent.containsKey(key)) {
-        coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
-      }
-      coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
-    }
-
-  }
-
-  public static RulesProfile initRulesProfile() {
-    final RulesDefinition rulesDefinition = new SonargraphRulesRepository();
-    final RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-
-    final Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
-    final RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
-
-    activateRule(repository, profile, SonargraphPluginBase.TASK_RULE_KEY);
-    activateRule(repository, profile, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY);
-    activateRule(repository, profile, SonargraphPluginBase.DUPLICATE_RULE_KEY);
-    activateRule(repository, profile, SonargraphPluginBase.ARCH_RULE_KEY);
-    activateRule(repository, profile, SonargraphPluginBase.THRESHOLD_RULE_KEY);
-    activateRule(repository, profile, SonargraphPluginBase.WORKSPACE_RULE_KEY);
-    return profile;
-  }
-
-  private static void activateRule(final Repository repository, final RulesProfile profile, final String ruleKey) {
-    final Rule rule = repository.rule(ruleKey);
-    profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
-  }
-
-  public static Settings initSettings() {
+  public static Settings initSettings(final String reportPath) {
     final Settings settings = new Settings();
     settings.setProperty(SonargraphPluginBase.COST_PER_INDEX_POINT, 7.0);
+    settings.setProperty(SonargraphPluginBase.REPORT_PATH, reportPath);
     return settings;
   }
 
   @SuppressWarnings("rawtypes")
-  public static SensorContext initSensorContext(final FileSystem moduleFileSystem) {
-    final InMemorySensorStorage sensorStorage = new InMemorySensorStorage();
+  public static SensorContext initSensorContext(final FileSystem fileSystem, final SensorStorage sensorStorage) {
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.activeRules()).thenAnswer(new Answer() {
-
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
         final ActiveRulesBuilder builder = new ActiveRulesBuilder();
         builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate();
         builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).activate();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).activate();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).activate();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).activate();
+        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).activate();
         return builder.build();
       }
     });
@@ -149,7 +75,7 @@ public class TestHelper {
     when(sensorContext.fileSystem()).thenAnswer(new Answer() {
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
-        return moduleFileSystem;
+        return fileSystem;
       }
     });
 
@@ -168,21 +94,10 @@ public class TestHelper {
       }
     });
 
-    when(sensorContext.getMeasure(any(Metric.class))).thenAnswer(new Answer() {
-
-      @Override
-      public Object answer(final InvocationOnMock invocation) {
-        final Object arg = invocation.getArguments()[0];
-        final Measure result = new Measure((Metric) arg);
-        result.setValue(0.0);
-        return result;
-      }
-    });
-
     return sensorContext;
   }
 
-  public static FileSystem initModuleFileSystem() {
+  public static FileSystem initFileSystem() {
     final FileSystem fileSystem = mock(FileSystem.class);
 
     when(fileSystem.hasFiles(any(FilePredicate.class))).thenAnswer(new Answer<Boolean>() {
@@ -200,6 +115,8 @@ public class TestHelper {
         return fileList;
       }
     });
+
+    when(fileSystem.workDir()).thenReturn(new File("./src/test").getAbsoluteFile());
 
     when(fileSystem.predicates()).thenAnswer(new Answer<FilePredicates>() {
       @Override
@@ -325,7 +242,4 @@ public class TestHelper {
     });
     return fileSystem;
   }
-
-  public static final String REPORT_PATH = "./src/test/resources/sonargraph-sonar-report.xml";
-  public static final String REPORT_PATH2 = "./src/test/resources/sonargraph-sonar-report2.xml";
 }

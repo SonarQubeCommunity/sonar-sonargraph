@@ -48,7 +48,7 @@ public class CycleGroupProcessorTest {
 
   @Test
   public void testProcess() throws IOException {
-    final FileSystem fileSystem = TestHelper.initModuleFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem();
     final File currentDir = new File(".").getCanonicalFile();
 
     final String modelPath = "AlarmClock/src/main/java/com/h2m/alarm/model";
@@ -59,8 +59,6 @@ public class CycleGroupProcessorTest {
 
     final File absoluteModelDir = new File(currentDir, "src/test/AlarmClockMain/" + modelPath);
     when(fileSystem.inputDir(absoluteModelDir)).thenReturn(modelDir);
-
-    // when(fileSystem.inputDir(absolutePresentationDir)).thenReturn(presentationDir);
 
     final NewIssueLocation locationModel = mock(NewIssueLocation.class);
 

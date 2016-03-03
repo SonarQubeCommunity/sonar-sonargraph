@@ -78,7 +78,7 @@ public final class SonargraphSensor implements Sensor {
     return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
   }
 
-  private boolean isValidProject(final Project project, final SensorContext sensorContext) {
+  boolean isValidProject(final Project project, final SensorContext sensorContext) {
     if (project == null || sensorContext == null) {
       LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
       return false;
@@ -103,6 +103,7 @@ public final class SonargraphSensor implements Sensor {
       return false;
     }
 
+    sensorContext.saveMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED, SonarQubeUtilities.FALSE);
     return true;
   }
 
@@ -117,8 +118,6 @@ public final class SonargraphSensor implements Sensor {
     }
 
     LOG.info("Sonargraph: Execute for module " + project.getName() + " [" + project.getKey() + "]");
-    sensorContext.saveMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED, SonarQubeUtilities.FALSE);
-
     final IReportReader reportReader = new ReportFileReader();
     reportReader.readSonargraphReport(project, sensorContext.fileSystem(), settings);
     if (PersistenceUtilities.getSonargraphBasePath(reportReader.getReport()) == null) {

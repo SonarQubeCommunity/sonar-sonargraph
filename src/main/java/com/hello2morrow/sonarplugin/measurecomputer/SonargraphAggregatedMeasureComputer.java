@@ -83,11 +83,14 @@ public class SonargraphAggregatedMeasureComputer extends SonargraphMeasureComput
       }
 
       int value = 0;
+      boolean valuesFound = false;
       for (final Iterator<Measure> iterator = iterable.iterator(); iterator.hasNext();) {
         value += iterator.next().getIntValue();
+        valuesFound = true;
       }
-
-      context.addMeasure(nextKey, value);
+      if (valuesFound) {
+        context.addMeasure(nextKey, value);
+      }
     }
   }
 }

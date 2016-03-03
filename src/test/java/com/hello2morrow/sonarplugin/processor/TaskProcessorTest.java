@@ -17,15 +17,18 @@
  */
 package com.hello2morrow.sonarplugin.processor;
 
-import com.hello2morrow.sonarplugin.api.AbstractSonargraphTest;
+import com.hello2morrow.sonarplugin.foundation.InMemorySensorStorage;
+import com.hello2morrow.sonarplugin.foundation.TestHelper;
 import com.hello2morrow.sonarplugin.persistence.ReportFileReader;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
 import static org.mockito.Matchers.any;
@@ -34,18 +37,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class TaskProcessorTest extends AbstractSonargraphTest {
-
-  public static final String REPORT = "src/test/resources/sonargraph-sonar-report2.xml";
-
-  @Override
-  protected String getReport() {
-    return REPORT;
-  }
+public class TaskProcessorTest {
 
   @Test
   public void test() {
-
     final Project project = mock(Project.class);
     when(project.key()).thenReturn("hello2morrow:AlarmClock");
     when(project.name()).thenReturn("AlarmClock");
@@ -53,7 +48,7 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
     final InputFile file = mock(InputFile.class);
     when(file.relativePath()).thenReturn("com/h2m/alarm/model/AlarmClock.java");
     when(file.isFile()).thenReturn(true);
-    final FileSystem fileSystem = getModuleFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem();
     when(fileSystem.inputFile(any(FilePredicate.class))).thenReturn(file);
 
     final NewIssueLocation location = mock(NewIssueLocation.class);
@@ -63,13 +58,14 @@ public class TaskProcessorTest extends AbstractSonargraphTest {
     when(issue.newLocation()).thenReturn(location);
 
     when(issue.at(any(NewIssueLocation.class))).thenReturn(issue);
-
-    final SensorContext context = getSensorContext();
+    final SensorStorage sensorStorage = new InMemorySensorStorage();
+    final SensorContext context = TestHelper.initSensorContext(fileSystem, sensorStorage);
     when(context.newIssue()).thenReturn(issue);
 
-    final TaskProcessor processor = new TaskProcessor(project, getSensorContext(), 2);
+    final TaskProcessor processor = new TaskProcessor(project, context, 2);
     final ReportFileReader reader = new ReportFileReader();
-    reader.readSonargraphReport(project, getModuleFileSystem(), getSettings());
+    final Settings settings = TestHelper.initSettings(TestHelper.REPORT_PATH2);
+    reader.readSonargraphReport(project, fileSystem, settings);
     processor.process(reader.getReport(), reader.retrieveBuildUnit(project));
 
     verify(location, times(2)).message("Cut dependency to 'com.h2m.common.observer.Observable' [Tester]");

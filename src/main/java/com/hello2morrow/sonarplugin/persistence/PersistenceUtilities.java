@@ -74,7 +74,7 @@ public class PersistenceUtilities {
     final String buildUnitName = group.getElementScope();
 
     // special handling for reports produced with free SonarQube license or without Sonargraph system file
-    if ("My Project".equals(buildUnitName) && group.getParent() != null) {
+    if (DEFAULT_PROJECT_NAME.equals(buildUnitName) && group.getParent() != null) {
       return group.getParent();
     }
 

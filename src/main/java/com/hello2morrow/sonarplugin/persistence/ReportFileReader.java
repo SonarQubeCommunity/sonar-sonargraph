@@ -53,13 +53,13 @@ public class ReportFileReader implements IReportReader {
   private ReportContext report;
 
   @Override
-  public void readSonargraphReport(final Project project, final FileSystem moduleFileSystem, final Settings settings) {
+  public void readSonargraphReport(final Project project, final FileSystem fileSystem, final Settings settings) {
     if (project == null) {
       LOG.error("No project provided for reading sonargraph report");
       return;
     }
 
-    final String reportFileName = determineReportFileName(moduleFileSystem, settings);
+    final String reportFileName = determineReportFileName(fileSystem, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
     InputStream input = null;
@@ -107,15 +107,15 @@ public class ReportFileReader implements IReportReader {
     return report;
   }
 
-  private static String determineReportFileName(final FileSystem moduleFileSystem, final Settings settings) {
+  private static String determineReportFileName(final FileSystem fileSystem, final Settings settings) {
     final String configuredReportPath = SonargraphUtilities.getConfiguredReportPath(settings);
 
-    if (moduleFileSystem == null) {
+    if (fileSystem == null) {
       return configuredReportPath;
     }
 
     if (configuredReportPath == null || configuredReportPath.length() == 0) {
-      return moduleFileSystem.workDir().getParentFile().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
+      return fileSystem.workDir().getParentFile().getPath() + '/' + REPORT_DIR + '/' + REPORT_NAME;
     }
 
     return configuredReportPath;

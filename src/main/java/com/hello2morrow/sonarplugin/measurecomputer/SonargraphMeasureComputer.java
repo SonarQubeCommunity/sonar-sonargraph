@@ -18,6 +18,8 @@
 package com.hello2morrow.sonarplugin.measurecomputer;
 
 import com.hello2morrow.sonarplugin.metric.internal.SonargraphInternalMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class SonargraphMeasureComputer implements MeasureComputer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphMeasureComputer.class);
 
   public SonargraphMeasureComputer() {
     super();
@@ -51,15 +55,19 @@ abstract class SonargraphMeasureComputer implements MeasureComputer {
     internalCompute(context);
   }
 
+  protected final boolean needsProcessing(final MeasureComputerContext context) {
+    final Measure measure = context.getMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED.key());
+    final boolean needsProcessing = measure != null && measure.getBooleanValue();
+    if (!needsProcessing) {
+      LOGGER.error("Not processing for module: " + context.getComponent().getKey());
+    }
+    return needsProcessing;
+  }
+
   abstract void internalCompute(MeasureComputerContext context);
 
   abstract List<String> getOutputMetrics();
 
   abstract List<String> getInputMetrics();
-
-  boolean needsProcessing(final MeasureComputerContext context) {
-    final Measure measure = context.getMeasure(SonargraphInternalMetrics.ROOT_PROJECT_TO_BE_PROCESSED.key());
-    return measure != null && measure.getBooleanValue();
-  }
 
 }
