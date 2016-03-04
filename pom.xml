@@ -10,7 +10,7 @@
   
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
-  <url>http://docs.codehaus.org/display/SONAR/Sonargraph+Plugin</url>
+  <url>https://github.com/SonarQubeCommunity/sonar-sonargraph</url>
 
   <inceptionYear>2009, 2010, 2011</inceptionYear>
   <organization>
@@ -185,12 +185,36 @@
               <goal>report-integration</goal>
             </goals>
           </execution>
-          <execution>
+          <!-- execution>
             <id>default-check</id>
             <goals>
               <goal>check</goal>
             </goals>
-          </execution>
+            <configuration>
+              <rules>
+                <rule >
+                  <element>CLASS</element>
+                  <limits>
+                    <limit >
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.80</minimum>
+                    </limit>
+                    <limit >
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.60</minimum>
+                    </limit>
+                  </limits>
+                  <excludes>
+                    <exclude>*Test</exclude>
+                    <exclude>*.view.*</exclude>
+                    <exclude>*.xsd.*</exclude>
+                  </excludes>
+                </rule>
+              </rules>
+            </configuration>
+          </execution -->
         </executions>
       </plugin>
     </plugins>
