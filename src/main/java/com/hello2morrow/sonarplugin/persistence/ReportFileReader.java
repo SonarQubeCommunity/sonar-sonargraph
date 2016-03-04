@@ -62,12 +62,9 @@ public class ReportFileReader implements IReportReader {
     final String reportFileName = determineReportFileName(fileSystem, settings);
     LOG.info("Reading Sonargraph metrics report from: " + reportFileName);
     report = null;
-    InputStream input = null;
     final ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
 
-    try {
-      input = new FileInputStream(reportFileName);
-
+    try (InputStream input = new FileInputStream(reportFileName)) {
       Thread.currentThread().setContextClassLoader(ReportFileReader.class.getClassLoader());
       final JAXBContext context = JAXBContext.newInstance("com.hello2morrow.sonarplugin.xsd");
       final Unmarshaller u = context.createUnmarshaller();
@@ -82,18 +79,11 @@ public class ReportFileReader implements IReportReader {
         LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
           + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
       }
-
       LOG.debug("No Soargraph report found", e);
-
+    } catch (final IOException e) {
+      LOG.error("Cannot close " + reportFileName, e);
     } finally {
       Thread.currentThread().setContextClassLoader(defaultClassLoader);
-      if (input != null) {
-        try {
-          input.close();
-        } catch (final IOException e) {
-          LOG.error("Cannot close " + reportFileName, e);
-        }
-      }
     }
   }
 
