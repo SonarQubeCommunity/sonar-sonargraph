@@ -6,7 +6,7 @@
   <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-sonargraph-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>3.5-SNAPSHOT</version>
+  <version>3.5</version>
   
   <name>Sonar Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
