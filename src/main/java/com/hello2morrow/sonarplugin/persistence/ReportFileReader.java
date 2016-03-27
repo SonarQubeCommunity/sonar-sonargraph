@@ -48,7 +48,7 @@ import java.util.List;
 public class ReportFileReader implements IReportReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportFileReader.class);
-  private static final String REPORT_DIR = "sonargraph-sonar-plugin";
+  private static final String REPORT_DIR = "sonargraph";
   private static final String REPORT_NAME = "sonargraph-sonar-report.xml";
   private ReportContext report;
 
