@@ -31,8 +31,8 @@
     </pluginRepository>
   </pluginRepositories>
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</developerConnection>
+    <connection>scm:git:git@github.com:SonarQubeCommunity/sonar-sonargraph.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarQubeCommunity/sonar-sonargraph.git</developerConnection>
     <url>https://github.com/SonarQubeCommunity/sonar-sonargraph</url>
     <tag>HEAD</tag>
   </scm>
