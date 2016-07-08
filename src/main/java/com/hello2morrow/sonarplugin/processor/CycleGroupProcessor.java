@@ -220,6 +220,7 @@ public class CycleGroupProcessor implements IProcessor {
     } else {
       SonarQubeUtilities.saveViolation(sensorContext, (InputDir) resource, rule, null, builder.toString());
     }
+    LOG.debug("Saved cycle group issue [rule=" + rule.internalKey() + ", path=" + resource.relativePath() + ", description=" + builder.toString());
     // An issue is attached to each of the packages involved in the cycle group.
     // The number of cycle group warnings in the issues drill-down can therefore differ
     // from the number given in Sonargraph Architect dashbox in the components dashboard.

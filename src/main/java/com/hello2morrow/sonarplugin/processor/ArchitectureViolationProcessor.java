@@ -96,6 +96,7 @@ public class ArchitectureViolationProcessor implements IProcessor {
         final InputComponent component = SonarQubeUtilities.getInputPath(context.fileSystem(), relFileName);
         if (component != null && component.isFile()) {
           SonarQubeUtilities.saveViolation(context, (InputFile) component, rule, null, Integer.parseInt(pos.getLine()), msg);
+          LOG.debug("Saved architecture violation issue [rule=" + rule.internalKey() + ", path=" + relFileName + ", description=" + msg);
         } else {
           LOG.warn("Failed to locate file '" + relFileName + "'");
         }

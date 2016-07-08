@@ -119,6 +119,7 @@ public class WarningProcessor implements IProcessor {
       final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), relFileName);
       if (path != null) {
         saveViolationToPath(rule, msg, pos, path);
+        LOG.debug("Saved warning issue [rule=" + rule.internalKey() + ", path=" + relFileName + ", description=" + msg);
       } else {
         LOG.warn("Failed to locate file '" + relFileName + "'");
       }
@@ -169,6 +170,7 @@ public class WarningProcessor implements IProcessor {
       final InputPath path = SonarQubeUtilities.getInputPath(sensorContext.fileSystem(), fqName);
       if (path != null) {
         SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, block.getStartLine(), message);
+        LOG.debug("Saved duplicate issue [rule=" + rule.internalKey() + ", path=" + path.relativePath() + ", description=" + message);
       } else {
         LOG.warn("Failed to locate file '" + fqName + "'");
       }
