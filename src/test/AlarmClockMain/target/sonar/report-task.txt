@@ -1,0 +1,5 @@
+projectKey=com.hello2morrow.sonargraph.test:AlarmClockMain
+serverUrl=http://localhost:9000
+dashboardUrl=http://localhost:9000/dashboard/index/com.hello2morrow.sonargraph.test:AlarmClockMain
+ceTaskId=AVOYLsmGi9AZ3uyDKsSl
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AVOYLsmGi9AZ3uyDKsSl
