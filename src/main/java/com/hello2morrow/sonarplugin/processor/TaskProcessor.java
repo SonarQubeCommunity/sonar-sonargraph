@@ -135,6 +135,8 @@ public class TaskProcessor implements IProcessor {
         } else {
           SonarQubeUtilities.saveViolation(sensorContext, (InputDir) path, rule, severity, description);
         }
+      } else {
+        LOG.warn("Failed to find path '" + relFileName + "'");
       }
     }
   }

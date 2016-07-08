@@ -29,7 +29,7 @@
 			<plugin>
 				<groupId>com.hello2morrow.sonargraph</groupId>
 				<artifactId>maven-sonargraph-plugin</artifactId>
-				<version>7.1.10</version>
+				<version>7.2.3</version>
 				<configuration>
 					<!-- configuration properties are described below - none is mandatory -->
 					<file>./AlarmClockMain.sonargraph</file>

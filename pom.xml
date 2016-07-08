@@ -8,7 +8,7 @@
   <packaging>sonar-plugin</packaging>
   <version>3.5</version>
   
-  <name>Sonar Sonargraph Plugin</name>
+  <name>Sonargraph 7 Sonargraph Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
   <url>https://github.com/SonarQubeCommunity/sonar-sonargraph</url>
 

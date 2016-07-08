@@ -79,7 +79,7 @@ public class ReportFileReader implements IReportReader {
         LOG.error("  Ant:   Did you create the Sonargraph XML report with the option prepareForSonar set on true? "
           + "(You can use the property 'sonar.sonargraph.report.path' to point to the location of the XML report");
       }
-      LOG.debug("No Soargraph report found", e);
+      LOG.debug("No Sonargraph report found", e);
     } catch (final IOException e) {
       LOG.error("Cannot close " + reportFileName, e);
     } finally {
