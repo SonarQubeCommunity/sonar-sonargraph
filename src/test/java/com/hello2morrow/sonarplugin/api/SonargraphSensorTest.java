@@ -38,6 +38,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.java.Java;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -100,6 +102,7 @@ public class SonargraphSensorTest {
 
     final FileSystem fileSystem = mock(FileSystem.class);
     when(fileSystem.baseDir()).thenReturn(baseDir);
+    when(fileSystem.languages()).thenReturn(new TreeSet<String>(Arrays.asList(Java.KEY)));
 
     final InMemorySensorStorage sensorStorage = new InMemorySensorStorage();
     final SensorContext sensorContext = TestHelper.initSensorContext(fileSystem, sensorStorage);

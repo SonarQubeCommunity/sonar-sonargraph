@@ -40,9 +40,11 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.plugins.java.Java;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
 
 /**
  * The Sonargraph-Sonar report is only generated for the sub-modules, not for the aggregating project. Therefore some dashboard metrics that
@@ -81,6 +83,11 @@ public final class SonargraphSensor implements Sensor {
   boolean isValidProject(final Project project, final SensorContext sensorContext) {
     if (project == null || sensorContext == null) {
       LOG.error("Major error calling Sonargraph Sonar Plugin: Project and / or sensorContext are null. " + "Please check your project configuration!");
+      return false;
+    }
+    final SortedSet<String> languages = sensorContext.fileSystem().languages();
+    if (languages != null && !languages.isEmpty() && !languages.contains(Java.KEY)) {
+      LOG.info("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since this is not a Java project.");
       return false;
     }
 

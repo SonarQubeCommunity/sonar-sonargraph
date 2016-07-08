@@ -10,7 +10,7 @@ Compatible with Sonargraph 7.x
 Check the GitHub Wiki for further information and the issues section for known problems.  
 
 ## Description / Features
-This plugin can be used to check the conformance of your code base to a 
+This plugin can be used to check the conformance of your Java code base to a 
 formal architecture definition created with Sonargraph 7. A free license 
 is available to allow you to check and measure the overall coupling and 
 the level of cyclic dependencies at the package level. Usually a high 
