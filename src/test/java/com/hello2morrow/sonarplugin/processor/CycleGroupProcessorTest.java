@@ -48,7 +48,7 @@ public class CycleGroupProcessorTest {
 
   @Test
   public void testProcess() throws IOException {
-    final FileSystem fileSystem = TestHelper.initFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem(null);
     final File currentDir = new File(".").getCanonicalFile();
 
     final String modelPath = "AlarmClock/src/main/java/com/h2m/alarm/model";

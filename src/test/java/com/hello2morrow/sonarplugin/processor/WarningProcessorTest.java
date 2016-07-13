@@ -49,7 +49,7 @@ public class WarningProcessorTest {
 
   @Test
   public void testProcessDuplicates() {
-    final FileSystem fileSystem = TestHelper.initFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem(null);
     final String alarmClock = "com/h2m/alarm/model/AlarmClock.java";
     final InputFile alarmClockFile = mock(InputFile.class);
     when(alarmClockFile.absolutePath()).thenReturn("");
@@ -122,7 +122,7 @@ public class WarningProcessorTest {
 
   @Test
   public void testThresholdWarning() {
-    final FileSystem fileSystem = TestHelper.initFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem(null);
     final String alarmClock = "com/h2m/alarm/model/AlarmClock.java";
     final InputFile alarmClockFile = mock(InputFile.class);
     when(alarmClockFile.absolutePath()).thenReturn("");

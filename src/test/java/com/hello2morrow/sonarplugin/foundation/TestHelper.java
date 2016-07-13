@@ -37,6 +37,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -54,20 +56,26 @@ public class TestHelper {
     return settings;
   }
 
-  @SuppressWarnings("rawtypes")
   public static SensorContext initSensorContext(final FileSystem fileSystem, final SensorStorage sensorStorage) {
+    return initSensorContext(fileSystem, sensorStorage, true);
+  }
+
+  @SuppressWarnings("rawtypes")
+  public static SensorContext initSensorContext(final FileSystem fileSystem, final SensorStorage sensorStorage, final boolean activateSonargraphRules) {
     final SensorContext sensorContext = mock(SensorContext.class);
 
     when(sensorContext.activeRules()).thenAnswer(new Answer() {
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
         final ActiveRulesBuilder builder = new ActiveRulesBuilder();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).activate();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).activate();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).activate();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).activate();
-        builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).activate();
+        if (activateSonargraphRules) {
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.ARCH_RULE_KEY)).activate();
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.TASK_RULE_KEY)).activate();
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.DUPLICATE_RULE_KEY)).activate();
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.CYCLE_GROUP_RULE_KEY)).activate();
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.THRESHOLD_RULE_KEY)).activate();
+          builder.create(RuleKey.of(SonargraphPluginBase.PLUGIN_KEY, SonargraphPluginBase.WORKSPACE_RULE_KEY)).activate();
+        }
         return builder.build();
       }
     });
@@ -97,7 +105,7 @@ public class TestHelper {
     return sensorContext;
   }
 
-  public static FileSystem initFileSystem() {
+  public static FileSystem initFileSystem(final Set<String> languages) {
     final FileSystem fileSystem = mock(FileSystem.class);
 
     when(fileSystem.hasFiles(any(FilePredicate.class))).thenAnswer(new Answer<Boolean>() {
@@ -117,6 +125,8 @@ public class TestHelper {
     });
 
     when(fileSystem.workDir()).thenReturn(new File("./src/test").getAbsoluteFile());
+
+    when(fileSystem.languages()).thenReturn(languages != null ? new TreeSet<String>(languages) : new TreeSet<String>());
 
     when(fileSystem.predicates()).thenAnswer(new Answer<FilePredicates>() {
       @Override

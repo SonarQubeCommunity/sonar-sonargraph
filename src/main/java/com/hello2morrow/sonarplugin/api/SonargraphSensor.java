@@ -53,9 +53,12 @@ import java.util.SortedSet;
  *
  */
 public final class SonargraphSensor implements Sensor {
-  private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
 
   public static final String PLUGIN_NAME = "Sonar-Sonargraph-Plugin";
+
+  private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
+  private static final String SONARGRAPH_SKIPPING_PROJECT = "Sonargraph: Skipping project ";
+
   private static final String NOT_PROCESSED_MESSAGE = "Module will not be processed by Sonargraph!";
   private static final String SEPARATOR = "----------------------------------------------------------------";
   private static final int SONARGRAPH_METRICS_COUNT = 70;
@@ -87,13 +90,13 @@ public final class SonargraphSensor implements Sensor {
     }
     final SortedSet<String> languages = sensorContext.fileSystem().languages();
     if (languages != null && !languages.isEmpty() && !languages.contains(Java.KEY)) {
-      LOG.info("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since this is not a Java project.");
+      LOG.info(SONARGRAPH_SKIPPING_PROJECT + project.getName() + " [" + project.getKey() + "], since this is not a Java project.");
       return false;
     }
 
     if (!SonarQubeUtilities.isSonargraphProject(sensorContext)) {
       LOG.info(SEPARATOR);
-      LOG.info("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
+      LOG.info(SONARGRAPH_SKIPPING_PROJECT + project.getName() + " [" + project.getKey() + "], since no Sonargraph rules are activated in current SonarQube quality profile.");
       LOG.info(SEPARATOR);
       return false;
     }
@@ -105,7 +108,7 @@ public final class SonargraphSensor implements Sensor {
 
     if (!ReportFileReader.hasSonargraphReport(sensorContext.fileSystem(), settings)) {
       LOG.warn(SEPARATOR);
-      LOG.warn("Sonargraph: Skipping project " + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
+      LOG.warn(SONARGRAPH_SKIPPING_PROJECT + project.getName() + " [" + project.getKey() + "], since no Sonargraph report is found.");
       LOG.warn(SEPARATOR);
       return false;
     }

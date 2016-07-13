@@ -50,6 +50,7 @@ import java.util.Map.Entry;
  */
 public class WarningProcessor implements IProcessor {
 
+  private static final String FAILED_TO_LOCATE_FILE = "Failed to locate file";
   private static final Logger LOG = LoggerFactory.getLogger(WarningProcessor.class);
   private final SensorContext sensorContext;
 
@@ -107,7 +108,7 @@ public class WarningProcessor implements IProcessor {
         if (path != null) {
           SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, 1, msg);
         } else {
-          LOG.warn("Failed to locate file '" + fqName + "'");
+          LOG.warn(FAILED_TO_LOCATE_FILE + " '" + fqName + "'");
         }
       }
     }
@@ -121,7 +122,7 @@ public class WarningProcessor implements IProcessor {
         saveViolationToPath(rule, msg, pos, path);
         LOG.debug("Saved warning issue [rule=" + rule.internalKey() + ", path=" + relFileName + ", description=" + msg);
       } else {
-        LOG.warn("Failed to locate file '" + relFileName + "'");
+        LOG.warn(FAILED_TO_LOCATE_FILE + " '" + relFileName + "'");
       }
     }
   }
@@ -172,7 +173,7 @@ public class WarningProcessor implements IProcessor {
         SonarQubeUtilities.saveViolation(sensorContext, (InputFile) path, rule, null, block.getStartLine(), message);
         LOG.debug("Saved duplicate issue [rule=" + rule.internalKey() + ", path=" + path.relativePath() + ", description=" + message);
       } else {
-        LOG.warn("Failed to locate file '" + fqName + "'");
+        LOG.warn(FAILED_TO_LOCATE_FILE + " '" + fqName + "'");
       }
     }
   }

@@ -48,7 +48,7 @@ public class TaskProcessorTest {
     final InputFile file = mock(InputFile.class);
     when(file.relativePath()).thenReturn("com/h2m/alarm/model/AlarmClock.java");
     when(file.isFile()).thenReturn(true);
-    final FileSystem fileSystem = TestHelper.initFileSystem();
+    final FileSystem fileSystem = TestHelper.initFileSystem(null);
     when(fileSystem.inputFile(any(FilePredicate.class))).thenReturn(file);
 
     final NewIssueLocation location = mock(NewIssueLocation.class);

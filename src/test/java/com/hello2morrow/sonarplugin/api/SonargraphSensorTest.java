@@ -74,20 +74,36 @@ public class SonargraphSensorTest {
   }
 
   @Test
-  public void testIsValidProject() {
+  public void testIsValidProject() throws IOException {
     final SonargraphSensor sensor = new SonargraphSensor(TestHelper.initSettings(null));
-    assertFalse(sensor.isValidProject(null, null));
+    assertFalse("Not valid if both project and context == null", sensor.isValidProject(null, null));
     final Project project = mock(Project.class);
-    assertFalse(sensor.isValidProject(project, null));
+    assertFalse("Not valid if context == null", sensor.isValidProject(project, null));
 
     final Project module = new Project("hello2morrow:Foundation", "", "Foundation");
     when(project.isRoot()).thenReturn(Boolean.TRUE);
     when(project.getModules()).thenReturn(Arrays.asList(module));
 
-    final SensorContext context = TestHelper.initSensorContext(TestHelper.initFileSystem(), mock(SensorStorage.class));
-    assertFalse(sensor.isValidProject(project, context));
+    final SensorContext context = TestHelper.initSensorContext(TestHelper.initFileSystem(null), mock(SensorStorage.class));
+    assertFalse("Not valid if project == null", sensor.isValidProject(null, context));
+    assertFalse("Not valid for root parent project", sensor.isValidProject(project, context));
+    assertFalse("Not valid for module without configured report", sensor.isValidProject(module, context));
 
-    assertFalse(sensor.isValidProject(module, context));
+    final SensorContext context2 = TestHelper.initSensorContext(TestHelper.initFileSystem(new TreeSet<String>(Arrays.asList("CPlusPlus"))), mock(SensorStorage.class));
+    assertFalse("Project not valid due to non-Java language", sensor.isValidProject(project, context2));
+
+    final SensorContext context3 = TestHelper.initSensorContext(TestHelper.initFileSystem(null), mock(SensorStorage.class), false);
+    assertFalse("Project not valid due to not activated Sonargraph rules", sensor.isValidProject(module, context3));
+
+    final File root = new File(".").getCanonicalFile();
+    final File baseDir = new File(root, "src/test/AlarmClockMain");
+
+    final FileSystem fileSystem = mock(FileSystem.class);
+    when(fileSystem.baseDir()).thenReturn(baseDir);
+    when(fileSystem.languages()).thenReturn(new TreeSet<String>(Arrays.asList(Java.KEY)));
+    final SensorContext context4 = TestHelper.initSensorContext(fileSystem, mock(SensorStorage.class));
+    final SonargraphSensor sensor2 = new SonargraphSensor(TestHelper.initSettings(TestHelper.REPORT_PATH2));
+    assertTrue("Must be a valid prooject", sensor2.isValidProject(module, context4));
   }
 
   @Test
