@@ -54,7 +54,7 @@ import java.util.SortedSet;
  */
 public final class SonargraphSensor implements Sensor {
 
-  public static final String PLUGIN_NAME = "Sonar-Sonargraph-Plugin";
+  static final String PLUGIN_NAME = "Sonar-Sonargraph 7-Plugin";
 
   private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
   private static final String SONARGRAPH_SKIPPING_PROJECT = "Sonargraph: Skipping project ";
@@ -80,7 +80,7 @@ public final class SonargraphSensor implements Sensor {
 
   @Override
   public String toString() {
-    return "Sonar-Sonargraph-Plugin [" + PluginVersionReader.INSTANCE.getVersion() + "]";
+    return PLUGIN_NAME + " [" + PluginVersionReader.INSTANCE.getVersion() + "]";
   }
 
   boolean isValidProject(final Project project, final SensorContext sensorContext) {

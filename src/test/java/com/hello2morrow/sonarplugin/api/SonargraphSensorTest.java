@@ -62,6 +62,12 @@ public class SonargraphSensorTest {
   private static final String REPORT = "src/test/resources/sonargraph-sonar-report.xml";
 
   @Test
+  public void testToString() {
+    final SonargraphSensor sensor = new SonargraphSensor(null);
+    assertTrue("wrong toString() format", sensor.toString().matches(SonargraphSensor.PLUGIN_NAME + " \\[[0-9\\.]+\\]"));
+  }
+
+  @Test
   public void testShouldExecuteOnProject() {
     final SonargraphSensor sensor = new SonargraphSensor(TestHelper.initSettings(REPORT));
     final Project project = new Project("hello2morrow:AlarmClock", "", "AlarmClock");
