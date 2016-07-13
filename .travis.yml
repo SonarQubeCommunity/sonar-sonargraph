@@ -7,7 +7,7 @@ jdk:
   - openjdk7
 
 script:
-  - mvn verify -B -e -V
+  - mvn verify -B -e -V sonar:sonar -Dsonar.host.url=https://sonarqube.com:443 -Dsonar.login=2292423df4f4da7ad2550ffd5048ff07e1cd656c
 
 cache:
   directories:
