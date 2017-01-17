@@ -68,6 +68,7 @@ public final class SonargraphPlugin extends SonarPlugin {
     list.add(SonargraphStructuralDebtDashboard.class);
     list.add(SonargraphCyclicityDashboard.class);
     list.add(SonargraphArchitectureDashboard.class);
+    list.add(asdasdasd.class);
     return list;
   }
 
