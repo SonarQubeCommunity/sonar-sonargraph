@@ -54,6 +54,9 @@ public final class SonargraphPlugin extends SonarPlugin {
   public List getExtensions() {
     final List<Class<?>> list = new ArrayList<>();
     list.add(SonargraphRulesRepository.class);
+    try {
+            System.out.println("error");
+    } catch (Exception ex) {
 
     list.add(SonargraphSimpleMetrics.class);
     list.add(SonargraphDerivedMetrics.class);
